@@ -1,38 +1,21 @@
-.App {
-  text-align: center;
-}
+:root{
+  /* kolory do zmiany - obsluga motywu w themehandler i zmiana skryptem*/
+  /* Zmienne do zmiany - domyślnie tryb ciemny */
+  --bg-color: #494949;
+  --main-color:#000000;
+  /* Zmienna do zmiany - tryb jasny */
+  /* --bg-color: #8F8F8F;
+  --main-color:#AEAEAE; */
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  /* kolory do zmiany i nazwy  */
+  /* Zmienne stałe */
+  --Nav-color: linear-gradient(180deg, rgba(150,0,0,1) 0%, rgba(77,5,5,1) 90%, rgba(72,5,5,1) 100%);
+  --Second-nav-color: linear-gradient(180deg, rgba(188,81,81,1) 0%, rgba(214,18,18,1) 100%);
+  --Text-color: #FFFFFF;
+  --Btn-color: #1D5B2B;
+  --Btn-reset-del-color: #960000;
+  --Input-bg-color: rgba(150, 0, 0, 0.5);
+  --Table-color: #FFFFFF;
+  --Select-input-bg-color: #960000;
+  --Placeholder-text-color: #D4D9DB;
 }
