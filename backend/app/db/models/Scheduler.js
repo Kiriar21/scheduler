@@ -1,42 +1,29 @@
 const mongoose = require('mongoose');
+const DayInfoSchema = require('./DayInfo').schema;
 
-const schedulerSchema = new mongoose.Schema({
-  managerId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-    validate: {
-      validator: async function (managerId) {
-        const User = mongoose.model('User');
-        const user = await User.findById(managerId);
-        return user && user.role === 'Manager';
-      },
-      message: 'Użytkownik musi mieć rolę "Manager".'
-    }
-  },
-  nip: {
-    type: String,
-    minlength: 10,
-    maxlength: 10,
-    required: true,
-  },
-  team: {
-    type: String,
-    required: true,
-  },
+const SchedulerSchema = new mongoose.Schema({
+  company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
   month: {
     type: String,
-    enum: ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'],
     required: true,
+    enum: [
+      'styczeń',
+      'luty',
+      'marzec',
+      'kwiecień',
+      'maj',
+      'czerwiec',
+      'lipiec',
+      'sierpień',
+      'wrzesień',
+      'październik',
+      'listopad',
+      'grudzień',
+    ],
   },
-  year: {
-    type: String,
-    minlength: 4,
-    maxlength: 4,
-    required: true,
-  }
-}, { timestamps: true });
+  year: { type: Number, required: true },
+  team: { type: mongoose.Schema.Types.ObjectId, ref: 'Team', required: true },
+  map_month: [DayInfoSchema],
+});
 
-const Scheduler = mongoose.model('Scheduler', schedulerSchema);
-
-module.exports = Scheduler;
+module.exports = mongoose.model('Scheduler', SchedulerSchema);

@@ -1,60 +1,28 @@
 const mongoose = require('mongoose');
+const Counter = require('./Counter');
 
-const userSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    minlength: 6,
-    match: /.+@.+\..+/,
-    required: false,
-  },
-  username: {
-    type: String,
-    required: true,
-    minlength: 3,
-  },
-  pwd: {
-    type: String,
-    required: true,
-    minlength: 10,
-  },
-  name: {
-    type: String,
-    required: true,
-    minlength: 3,
-  },
-  surname: {
-    type: String,
-    required: true,
-    minlength: 3,
-  },
-  nip: {
-    type: String,
-    required: true,
-    unique: true,
-    minlength: 10,
-    maxlength: 10,
-  },
-  role: {
-    type: String,
-    enum: ['User', 'Manager', 'Administrator'],
-    default: 'User',
-    required: true,
-  },
-  team: {
-    type: String,
-    required: false,
-  },
-  schedulers: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Scheduler',
-    required: false
-  }],
-  workHours: {
-    type: Array,
-    default: [],
-  },
-}, { timestamps: true });
+const UserSchema = new mongoose.Schema({
+  id_user: { type: Number, unique: true },
+  username: { type: String, required: true, minlength: 3 },
+  email: { type: String, minlength: 5 },
+  pwd: { type: String, required: true, minlength: 10 },
+  name: { type: String, required: true, minlength: 3 },
+  surname: { type: String, required: true, minlength: 3 },
+  company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
+  role: { type: String, required: true, enum: ['user', 'manager', 'admin'], default: 'user' },
+  team: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Team' }],
+});
 
-const User = mongoose.model('User', userSchema);
+UserSchema.pre('save', async function (next) {
+  if (this.isNew) {
+    const counter = await Counter.findOneAndUpdate(
+      {},
+      { $inc: { user_id_count: 1 } },
+      { new: true, upsert: true }
+    );
+    this.id_user = counter.user_id_count;
+  }
+  next();
+});
 
-module.exports = User;
+module.exports = mongoose.model('User', UserSchema);

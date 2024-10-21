@@ -1,34 +1,26 @@
 const mongoose = require('mongoose');
+const Counter = require('./Counter');
 
-const companySchema = new mongoose.Schema({
-  nip: {
-    type: String,
-    required: true,
-    unique: true,
-    minlength: 10,
-    maxlength: 10,
-  },
-  teams: {
-    type: [String], 
-    validate: {
-      validator: function (v) {
-        return Array.isArray(v) && new Set(v).size === v.length; 
-      },
-      message: 'Nazwy zespołów muszą być unikalne.'
-    }
-  },
-  users: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: false
-  }],
-  schedulers: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Scheduler',
-    required: false
-  }]
-}, { timestamps: true });
+const CompanySchema = new mongoose.Schema({
+  id_company: { type: Number, unique: true },
+  nip: { type: String, unique: true, required: true },
+  name: { type: String, required: true },
+  admin: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  schedulers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Scheduler' }],
+  users: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  teams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Team' }],
+});
 
-const Company = mongoose.model('Company', companySchema);
+CompanySchema.pre('save', async function (next) {
+  if (this.isNew) {
+    const counter = await Counter.findOneAndUpdate(
+      {},
+      { $inc: { company_id_count: 1 } },
+      { new: true, upsert: true }
+    );
+    this.id_company = counter.company_id_count;
+  }
+  next();
+});
 
-module.exports = Company;
+module.exports = mongoose.model('Company', CompanySchema);
