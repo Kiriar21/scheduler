@@ -5,4 +5,5 @@ module.exports = {
     MONGO_URI: process.env.MONGO_URI,
     FRONTEND_URL: process.env.FRONTEND_URL,
     SESSION_KEY_SECRET: process.env.SESSION_KEY_SECRET,
+    JWT_SECRET: process.env.JWT_SECRET,
 }

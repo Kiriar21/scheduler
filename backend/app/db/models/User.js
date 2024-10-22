@@ -3,14 +3,13 @@ const Counter = require('./Counter');
 
 const UserSchema = new mongoose.Schema({
   id_user: { type: Number, unique: true },
-  username: { type: String, required: true, minlength: 3 },
   email: { type: String, minlength: 5 },
   pwd: { type: String, required: true, minlength: 10 },
   name: { type: String, required: true, minlength: 3 },
   surname: { type: String, required: true, minlength: 3 },
   company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
   role: { type: String, required: true, enum: ['user', 'manager', 'admin'], default: 'user' },
-  team: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Team' }],
+  team: { type: mongoose.Schema.Types.ObjectId, ref: 'Team' },
 });
 
 UserSchema.pre('save', async function (next) {
