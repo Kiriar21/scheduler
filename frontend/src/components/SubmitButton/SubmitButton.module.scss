@@ -1,0 +1,25 @@
+@import '../../styles/global.scss';
+
+/* Styl przycisku submit */
+.submitButton {
+  background-color: $blue;
+  color: $white;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  width: 100%;
+  padding: 12px;
+  font-size: 1.2rem;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    background-color: lighten($blue, 10%);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  &:focus {
+    outline: none;
+    background-color: darken($blue, 5%);
+  }
+}

@@ -4,6 +4,8 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import axios from 'axios';
+import './styles/global.scss'; // Import globalnych zmiennych i czcionki
+
 
 axios.defaults.baseURL = process.env.API_BASE_URL;
 
