@@ -7,7 +7,8 @@ import axios from 'axios';
 import './styles/global.scss'; // Import globalnych zmiennych i czcionki
 
 
-axios.defaults.baseURL = process.env.API_BASE_URL;
+axios.defaults.baseURL = process.env.REACT_APP_API_BASE_URL;
+
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

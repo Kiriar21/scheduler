@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import InputField from '../../components/InputField/InputField';
 import SubmitButton from '../../components/SubmitButton/SubmitButton';
-import LoginValidation from '../../components/LoginValidation/LoginValidation';
+import axios from 'axios';
 import styles from './Login.module.scss';
 
 const LoginPage = () => {
   const [loginData, setLoginData] = useState({
     email: '',
-    password: ''
+    pwd: ''
   });
 
-  const [errorMessage, setErrorMessage] = useState(''); 
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,20 +20,52 @@ const LoginPage = () => {
     });
   };
 
+  const validateLogin = async () => {
+    try {
+      const response = await axios.post('/login', {
+        email: loginData.email,
+        pwd: loginData.pwd,
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = response.data;
+
+      if (response.status === 200 && data.token) {
+        setErrorMessage(null); 
+        
+        
+        const expiryTime = new Date();
+        expiryTime.setDate(expiryTime.getDate() + 1); 
+
+        localStorage.setItem('token', data.token); 
+        localStorage.setItem('tokenExpiry', expiryTime.toString()); 
+
+        return true; 
+      } else {
+        setErrorMessage(data.error || 'Błędny email lub hasło');
+        return false; 
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.error) {
+        setErrorMessage(error.response.data.error);
+      } else {
+        setErrorMessage('Wystąpił problem z serwerem');
+      }
+      return false; 
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { error, isValid, validateLogin } = LoginValidation(loginData);
+    const loginSuccess = await validateLogin();
 
-    await validateLogin();
-
-    if (!isValid) {
-      setErrorMessage(error);
-    } else {
-      setErrorMessage('');
-      console.log('Logowanie udane!');
-      // Możesz tutaj dodać dalszą logikę, np. przekierowanie użytkownika
-    }
+    if (loginSuccess) {
+      // DOPISZ TU REDIRECT DO STRONY GŁÓWNEJ
+    } 
   };
 
   return (
@@ -52,13 +84,12 @@ const LoginPage = () => {
           <InputField
             label="Hasło"
             type="password"
-            name="password"
-            value={loginData.password}
+            name="pwd"
+            value={loginData.pwd}
             onChange={handleChange}
             required
           />
           <SubmitButton label="Zaloguj się" />
-          {/* Zawsze renderuj element <p>, ale kontroluj jego widoczność */}
           <p className={`${styles.error} ${errorMessage ? styles.show : ''}`}>
             {errorMessage}
           </p>

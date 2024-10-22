@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import InputField from '../../components/InputField/InputField';
 import SubmitButton from '../../components/SubmitButton/SubmitButton';
-import RegisterValidation from '../../components/RegisterValidation/RegisterValidation';
 import styles from './Register.module.scss';
 
 const RegisterPage = () => {
+  const navigate = useNavigate();
   const [registerData, setRegisterData] = useState({
-    firstName: '',
-    lastName: '',
+    name: '',
+    surname: '',
     email: '',
-    password: '',
-    confirmPassword: '',
+    pwd: '',
+    confirmPwd: '',
     companyName: '',
     nip: ''
   });
@@ -28,16 +30,34 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { error, isValid, validateRegistration } = RegisterValidation(registerData);
+    const { pwd, confirmPwd } = registerData;
 
-    await validateRegistration();
+    console.log(registerData);
+    // Sprawdzenie zgodności haseł
+    if (pwd !== confirmPwd) {
+      setErrorMessage('Hasła nie są zgodne.');
+      return;
+    }
 
-    if (!isValid) {
-      setErrorMessage(error);
-    } else {
-      setErrorMessage('');
-      console.log('Rejestracja udana!');
-      // Możesz tutaj dodać dalszą logikę, np. przekierowanie użytkownika
+    try {
+      const response = await axios.post('/register/admin', {
+        email: registerData.email,
+        pwd: registerData.pwd,
+        name: registerData.name,
+        surname: registerData.surname,
+        nip: registerData.nip,
+        companyName: registerData.companyName,
+        confirmPwd: registerData.confirmPwd,
+      });
+      console.log("odp: ", response);
+      if (response.data.success || response.status === 201) {
+        setErrorMessage('');
+        navigate('/login');
+      } else {
+        setErrorMessage(response.data.message || 'Wystąpił problem z rejestracją');
+      }
+    } catch (error) {
+      setErrorMessage('Wystąpił problem z serwerem lub nie można utworzyć więcej kont.');
     }
   };
 
@@ -53,16 +73,16 @@ const RegisterPage = () => {
               <InputField
                 label="Imię"
                 type="text"
-                name="firstName"
-                value={registerData.firstName}
+                name="name"
+                value={registerData.name}
                 onChange={handleChange}
                 required
               />
               <InputField
                 label="Nazwisko"
                 type="text"
-                name="lastName"
-                value={registerData.lastName}
+                name="surname"
+                value={registerData.surname}
                 onChange={handleChange}
                 required
               />
@@ -77,16 +97,16 @@ const RegisterPage = () => {
               <InputField
                 label="Hasło"
                 type="password"
-                name="password"
-                value={registerData.password}
+                name="pwd"
+                value={registerData.pwd}
                 onChange={handleChange}
                 required
               />
               <InputField
                 label="Powtórz hasło"
                 type="password"
-                name="confirmPassword"
-                value={registerData.confirmPassword}
+                name="confirmPwd"
+                value={registerData.confirmPwd}
                 onChange={handleChange}
                 required
               />

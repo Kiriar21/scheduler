@@ -14,7 +14,7 @@ const {
 
 const adminRegister = async (req, res) => {
   try {
-    let { email, pwd, name, surname, nip, companyName } = req.body;
+    let { email, pwd, name, surname, nip, companyName, confirmPwd } = req.body;
 
     if (!validateEmail(email)) {
       return res.status(400).json({ error: 'Niepoprawny format email' });
@@ -22,6 +22,10 @@ const adminRegister = async (req, res) => {
 
     if (!validatePassword(pwd)) {
       return res.status(400).json({ error: 'Hasło nie spełnia wymagań bezpieczeństwa' });
+    }
+
+    if (pwd !== confirmPwd) {
+      return res.status(400).json({ error: 'Hasła nie są identyczne' });
     }
 
     if (!validateName(name) || !validateName(surname)) {
@@ -128,7 +132,6 @@ const userRegister = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     let { email, pwd } = req.body;
-
 
     if (!validateEmail(email) || !pwd) {
       return res.status(400).json({ error: 'Nieprawidłowy email lub hasło' });
