@@ -1,6 +1,9 @@
 const User = require('../db/models/User');
 const Company = require('../db/models/Company');
 const Team = require('../db/models/Team');
+const Scheduler = require('../models/Scheduler');
+const DayInfo = require('../models/DayInfo');
+const Day = require('../models/Day');
 const jwt = require('jsonwebtoken');
 const CompanyController = require('./CompanyController');
 const { hashPassword, comparePasswords } = require('../utils/passwordUtils');
@@ -10,6 +13,7 @@ const {
   validateName,
   validateUserRole,
   validateTeamId,
+  validateObjectId,
 } = require('../utils/validation');
 
 const adminRegister = async (req, res) => {
@@ -326,6 +330,289 @@ const getUsers = async (req, res) => {
   }
 };
 
+const addUserToTeam = async (req, res) => {
+  try {
+    const user = req.user;
+
+    if (user.role !== 'admin') {
+      return res.status(403).json({ error: 'Brak dostępu' });
+    }
+
+    let { userId, teamName } = req.body;
+
+  
+    userId = xss(userId);
+    teamName = xss(teamName);
+
+  
+    if (!validateObjectId(userId)) {
+      return res.status(400).json({ error: 'Niepoprawny identyfikator użytkownika' });
+    }
+
+    if (!teamName || teamName.length < 3) {
+      return res.status(400).json({ error: 'Niepoprawna nazwa teamu' });
+    }
+
+  
+    const targetUser = await User.findById(userId);
+    if (!targetUser || targetUser.company.toString() !== user.company.toString()) {
+      return res.status(404).json({ error: 'Użytkownik nie został znaleziony' });
+    }
+
+  
+    const team = await Team.findOne({ name: teamName, company: user.company });
+    if (!team) {
+      return res.status(404).json({ error: 'Team nie został znaleziony' });
+    }
+
+  
+    if (targetUser.team && targetUser.team.toString() === team._id.toString()) {
+      return res.status(400).json({ error: 'Użytkownik już należy do tego teamu' });
+    }
+
+  
+    targetUser.team = team._id;
+    await targetUser.save();
+
+    await Team.findByIdAndUpdate(team._id, { $addToSet: { users: targetUser._id } });
+
+  
+    const currentDate = new Date();
+    const currentMonthIndex = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+
+    const monthNameToIndex = {
+      'styczeń': 0,
+      'luty': 1,
+      'marzec': 2,
+      'kwiecień': 3,
+      'maj': 4,
+      'czerwiec': 5,
+      'lipiec': 6,
+      'sierpień': 7,
+      'wrzesień': 8,
+      'październik': 9,
+      'listopad': 10,
+      'grudzień': 11,
+    };
+
+  
+    const schedulers = await Scheduler.find({
+      company: user.company,
+      team: team._id,
+    });
+
+    for (const scheduler of schedulers) {
+      const schedulerMonthIndex = monthNameToIndex[scheduler.month.toLowerCase()];
+      const schedulerYear = scheduler.year;
+
+      if (
+        schedulerYear > currentYear ||
+        (schedulerYear === currentYear && schedulerMonthIndex >= currentMonthIndex)
+      ) {
+      
+        for (const dayInfoId of scheduler.map_month) {
+          const dayInfo = await DayInfo.findById(dayInfoId);
+
+          if (dayInfo) {
+          
+            const day = new Day({
+              user: targetUser._id,
+              start_hour: 0,
+              end_hour: 0,
+            
+            });
+
+            const savedDay = await day.save();
+
+          
+            dayInfo.employersHours.push(savedDay._id);
+            await dayInfo.save();
+          }
+        }
+      }
+    }
+
+    return res.status(200).json({ message: 'Użytkownik został dodany do teamu i schedulerów' });
+  } catch (error) {
+    console.error('Error in addUserToTeam:', error);
+    return res.status(500).json({ error: 'Błąd serwera' });
+  }
+};
+
+const editUserTeam = async (req, res) => {
+  try {
+    const user = req.user;
+
+    if (user.role !== 'admin') {
+      return res.status(403).json({ error: 'Brak dostępu' });
+    }
+
+    let { userId, newTeamName } = req.body;
+
+  
+    userId = xss(userId);
+    newTeamName = xss(newTeamName);
+
+  
+    if (!validateObjectId(userId)) {
+      return res.status(400).json({ error: 'Niepoprawny identyfikator użytkownika' });
+    }
+
+    if (!newTeamName || newTeamName.length < 3) {
+      return res.status(400).json({ error: 'Niepoprawna nazwa nowego teamu' });
+    }
+
+  
+    const targetUser = await User.findById(userId);
+    if (!targetUser || targetUser.company.toString() !== user.company.toString()) {
+      return res.status(404).json({ error: 'Użytkownik nie został znaleziony' });
+    }
+
+    const oldTeamId = targetUser.team;
+
+  
+    const newTeam = await Team.findOne({ name: newTeamName, company: user.company });
+    if (!newTeam) {
+      return res.status(404).json({ error: 'Nowy team nie został znaleziony' });
+    }
+
+  
+    if (oldTeamId && oldTeamId.toString() === newTeam._id.toString()) {
+      return res.status(400).json({ error: 'Użytkownik już należy do tego teamu' });
+    }
+
+  
+    targetUser.team = newTeam._id;
+    await targetUser.save();
+
+  
+    if (oldTeamId) {
+      await Team.findByIdAndUpdate(oldTeamId, { $pull: { users: targetUser._id } });
+    }
+    await Team.findByIdAndUpdate(newTeam._id, { $addToSet: { users: targetUser._id } });
+
+  
+    const currentDate = new Date();
+    const currentMonthIndex = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+
+    const monthNameToIndex = {
+      'styczeń': 0,
+      'luty': 1,
+      'marzec': 2,
+      'kwiecień': 3,
+      'maj': 4,
+      'czerwiec': 5,
+      'lipiec': 6,
+      'sierpień': 7,
+      'wrzesień': 8,
+      'październik': 9,
+      'listopad': 10,
+      'grudzień': 11,
+    };
+
+  
+    const oldSchedulers = await Scheduler.find({
+      company: user.company,
+      team: oldTeamId,
+    });
+
+  
+    const newSchedulers = await Scheduler.find({
+      company: user.company,
+      team: newTeam._id,
+    });
+
+  
+    const newSchedulersMap = {};
+    for (const scheduler of newSchedulers) {
+      newSchedulersMap[`${scheduler.year}-${scheduler.month}`] = scheduler;
+    }
+
+  
+    for (const oldScheduler of oldSchedulers) {
+      const schedulerMonthIndex = monthNameToIndex[oldScheduler.month.toLowerCase()];
+      const schedulerYear = oldScheduler.year;
+
+      if (
+        schedulerYear > currentYear ||
+        (schedulerYear === currentYear && schedulerMonthIndex >= currentMonthIndex)
+      ) {
+      
+        let newScheduler = newSchedulersMap[`${schedulerYear}-${oldScheduler.month}`];
+
+        if (!newScheduler) {
+          newScheduler = new Scheduler({
+            company: user.company,
+            team: newTeam._id,
+            month: oldScheduler.month,
+            year: oldScheduler.year,
+            map_month: [],
+          });
+          await newScheduler.save();
+          newSchedulersMap[`${schedulerYear}-${oldScheduler.month}`] = newScheduler;
+
+        
+          for (const oldDayInfoId of oldScheduler.map_month) {
+            const oldDayInfo = await DayInfo.findById(oldDayInfoId).lean();
+
+            const newDayInfo = new DayInfo({
+              dayOfMonth: oldDayInfo.dayOfMonth,
+              nameDayOfWeek: oldDayInfo.nameDayOfWeek,
+              numberOfWeek: oldDayInfo.numberOfWeek,
+              employersHours: [],
+            });
+            await newDayInfo.save();
+
+            newScheduler.map_month.push(newDayInfo._id);
+          }
+          await newScheduler.save();
+        }
+
+      
+        const oldDayInfos = await DayInfo.find({ _id: { $in: oldScheduler.map_month } });
+        const newDayInfos = await DayInfo.find({ _id: { $in: newScheduler.map_month } });
+
+        const newDayInfosMap = {};
+        for (const newDayInfo of newDayInfos) {
+          newDayInfosMap[newDayInfo.dayOfMonth] = newDayInfo;
+        }
+
+        for (const oldDayInfo of oldDayInfos) {
+          const newDayInfo = newDayInfosMap[oldDayInfo.dayOfMonth];
+
+        
+          const dayIndex = oldDayInfo.employersHours.findIndex((dayId) => {
+            return Day.findById(dayId).then((day) => {
+              return day && day.user.toString() === targetUser._id.toString();
+            });
+          });
+
+          if (dayIndex !== -1) {
+          
+            const dayId = oldDayInfo.employersHours[dayIndex];
+            const day = await Day.findById(dayId);
+
+          
+            oldDayInfo.employersHours.splice(dayIndex, 1);
+            await oldDayInfo.save();
+
+          
+            newDayInfo.employersHours.push(day._id);
+            await newDayInfo.save();
+          }
+        }
+      }
+    }
+
+    return res.status(200).json({ message: 'Team użytkownika został zmieniony i dane przeniesione' });
+  } catch (error) {
+    console.error('Error in editUserTeam:', error);
+    return res.status(500).json({ error: 'Błąd serwera' });
+  }
+};
+
 module.exports = {
   adminRegister,
   userRegister,
@@ -336,4 +623,6 @@ module.exports = {
   deleteUser,
   getUser,
   getUsers,
+  addUserToTeam,
+  editUserTeam,
 };

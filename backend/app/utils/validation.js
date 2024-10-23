@@ -36,6 +36,36 @@ const validateShiftHours = (start_shift, end_shift) => {
   return end_shift - start_shift >= 8;
 };
 
+const validateObjectId = (id) => {
+  id = xss(id);
+  return mongoose.Types.ObjectId.isValid(id);
+};
+
+const validateMonthName = (month) => {
+  month = xss(month).toLowerCase();
+  const months = [
+    'styczeń',
+    'luty',
+    'marzec',
+    'kwiecień',
+    'maj',
+    'czerwiec',
+    'lipiec',
+    'sierpień',
+    'wrzesień',
+    'październik',
+    'listopad',
+    'grudzień',
+  ];
+  return months.includes(month);
+};
+
+const validateYear = (year) => {
+  year = xss(year);
+  const yearInt = parseInt(year, 10);
+  return /^\d{4}$/.test(year) && yearInt >= 1900 && yearInt <= 2100;
+};
+
 module.exports = {
   validateEmail,
   validatePassword,
@@ -44,4 +74,7 @@ module.exports = {
   validateUserRole,
   validateTeamId,
   validateShiftHours,
+  validateObjectId,
+  validateMonthName,
+  validateYear,
 };
