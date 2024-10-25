@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import InputField from '../../components/InputField/InputField';
 import SubmitButton from '../../components/SubmitButton/SubmitButton';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styles from './Login.module.scss';
 
@@ -11,6 +12,8 @@ const LoginPage = () => {
   });
 
   const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -64,7 +67,7 @@ const LoginPage = () => {
     const loginSuccess = await validateLogin();
 
     if (loginSuccess) {
-      // DOPISZ TU REDIRECT DO STRONY GŁÓWNEJ
+      navigate('/home');
     } 
   };
 

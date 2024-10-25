@@ -3,7 +3,7 @@
 const Scheduler = require('../db/models/Scheduler');
 const User = require('../db/models/User');
 const Team = require('../db/models/Team');
-const DayInfoController = require('./db/DayInfoController');
+const DayInfoController = require('./DayInfoController');
 const mongoose = require('mongoose');
 const xss = require('xss');
 const {

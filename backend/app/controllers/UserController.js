@@ -1,9 +1,9 @@
 const User = require('../db/models/User');
 const Company = require('../db/models/Company');
 const Team = require('../db/models/Team');
-const Scheduler = require('../models/Scheduler');
-const DayInfo = require('../models/DayInfo');
-const Day = require('../models/Day');
+const Scheduler = require('../db/models/Scheduler');
+const DayInfo = require('../db/models/DayInfo');
+const Day = require('../db/models/Day');
 const jwt = require('jsonwebtoken');
 const CompanyController = require('./CompanyController');
 const { hashPassword, comparePasswords } = require('../utils/passwordUtils');
