@@ -4,7 +4,18 @@
 /* Zmienne kolorów */
 $white: #e9e9e9;
 $grey: #343C40;
+$dark-grey: #20272A;
 $blue: #429AFF;
+$red: #EF4747;
+
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 400;
+  src: url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600&display=swap');
+}
+
+$default-font: 'Manrope', sans-serif;
 
 /* Ustawienie globalnej czcionki */
 * {
