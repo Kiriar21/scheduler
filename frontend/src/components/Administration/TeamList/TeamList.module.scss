@@ -1,0 +1,72 @@
+@import '../../../styles/global.scss';
+
+.container {
+  padding: 1rem;
+  max-height: 500px; // Maksymalna wysokość kontenera, dostosuj według potrzeb
+  overflow-y: auto; // Umożliwia przewijanie w pionie
+  border: 2px solid $dark-grey; // Opcjonalnie, aby lepiej widzieć obszar przewijalny
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.tableHeader, .teamRow {
+  display: grid;
+  grid-template-columns: 0.5fr 2fr 1fr 0.5fr;
+  padding: 0.5rem;
+  font-weight: bold;
+  border-bottom: 1px solid #ccc;
+}
+
+.tableHeader {
+  background-color: #f3f3f3;
+}
+
+.teamList {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    height: 100%; // Zajmowanie pełnej wysokości rodzica
+    overflow-y: auto; // Umożliwia przewijanie wewnątrz `.list`, jeśli lista przekracza wysokość
+  }
+  
+
+.teamItem {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.teamRow {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+}
+
+.teamRow:hover {
+  background-color: #f9f9f9;
+}
+
+.arrow {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.userList {
+  list-style-type: none;
+  padding: 0 1rem;
+  margin: 0;
+  background-color: #fafafa;
+}
+
+.userItem {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr 1fr;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.noUser {
+  padding: 0.5rem;
+  font-style: italic;
+}
