@@ -1,10 +1,10 @@
 import React, { useContext, useState } from 'react';
-import styles from './DeleteScheduler.module.scss';
+import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
 import axios from 'axios';
 
 const DeleteScheduler = () => {
-  const { fetchSchedulers, schedulers } = useContext(AdminContext);
+  const { fetchSchedulers } = useContext(AdminContext);
   const [year, setYear] = useState('');
   const [month, setMonth] = useState('');
 
@@ -23,7 +23,7 @@ const DeleteScheduler = () => {
         headers: { Authorization: `Bearer ${token}` },
         data: { year, month }
       });
-      fetchSchedulers(); // Odświeżenie listy grafików po usunięciu
+      fetchSchedulers();
       setYear('');
       setMonth('');
     } catch (error) {

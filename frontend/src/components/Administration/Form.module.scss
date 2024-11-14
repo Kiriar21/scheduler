@@ -1,0 +1,38 @@
+//Form.module.scss
+@import '../../styles/global.scss';
+
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  font-size: 0.9rem;
+  border-radius: 10px;
+  background-color: $grey;
+  padding: 10px;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+
+  h3 {
+    color: $white;
+    margin: 0 0 20px;
+    text-align: center;
+  }
+
+  label {
+    color: $white;
+    margin-bottom: 5px;
+  }
+
+  // Użycie mixin dla formularza
+  form {
+    @include form-style;
+  }
+
+  .button {
+    @include button-style($blue, darken($dark-blue, 10%));
+  }
+
+  .deleteButton {
+    @include button-style($red, darken($dark-red, 10%));
+  }
+}

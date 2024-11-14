@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import styles from './AddEmployee.module.scss';
+import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
 import axios from 'axios';
 
@@ -103,7 +103,7 @@ const AddEmployee = () => {
         </select>
       </div>
 
-      <button type="submit">Dodaj</button>
+      <button type="submit" className={styles.button}>Dodaj</button>
     </form>
     </div>
   );

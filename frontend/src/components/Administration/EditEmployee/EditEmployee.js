@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import styles from './EditEmployee.module.scss';
+import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
 import axios from 'axios';
 
@@ -130,7 +130,7 @@ const EditEmployee = () => {
           </select>
         </div>
 
-        <button type="submit">Zatwierdź</button>
+        <button type="submit" className={styles.button}>Zatwierdź</button>
         <button type="button" onClick={handleDelete} className={styles.deleteButton}>
           Usuń
         </button>

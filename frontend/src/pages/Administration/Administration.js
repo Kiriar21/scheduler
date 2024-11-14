@@ -1,3 +1,4 @@
+//pages/Administration.js
 import React, { createContext, useState, useEffect } from 'react';
 import styles from './Administration.module.scss';
 import NavPanel from '../../components/NavPanel/NavPanel';
@@ -89,12 +90,6 @@ const AdministrationPage = () => {
           <AddTeam />
           <DeleteScheduler />
           </div>
-          
-          
-          {/* 
-          <DeleteEmployee />
-          
-          <TeamList /> */}
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import styles from './AddTeam.module.scss';
+import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
 import axios from 'axios';
 
@@ -14,7 +14,7 @@ const AddTeam = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token'); // Pobierz token z localStorage, jeśli wymagany
+      const token = localStorage.getItem('token');
       await axios.post(
         '/team/add',
         { name: teamName },
@@ -22,8 +22,8 @@ const AddTeam = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      fetchTeams(); // Odświeżenie listy zespołów po dodaniu nowego
-      setTeamName(''); // Resetowanie pola tekstowego
+      fetchTeams();
+      setTeamName('');
     } catch (error) {
       console.error('Error adding team:', error);
     }
@@ -31,20 +31,20 @@ const AddTeam = () => {
 
   return (
     <div className={styles.container}>
-    <form onSubmit={handleSubmit}>
-    <h3>Dodaj zespół</h3>
-    <div className={styles.input}>
-      <label>Nazwa zespołu:</label>
-        <input
-          type="text"
-          name="teamName"
-          value={teamName}
-          onChange={handleChange}
-          required
-        />
-     </div>
-      <button type="submit">Dodaj</button>
-    </form>
+      <form onSubmit={handleSubmit}>
+        <h3>Dodaj zespół</h3>
+        <div className={styles.input}>
+          <label>Nazwa zespołu:</label>
+          <input
+            type="text"
+            name="teamName"
+            value={teamName}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <button type="submit" className={styles.button}>Dodaj</button>
+      </form>
     </div>
   );
 };
