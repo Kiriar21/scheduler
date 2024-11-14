@@ -1,72 +1,126 @@
 @import '../../../styles/global.scss';
 
-.container {
-  padding: 1rem;
-  max-height: 500px; // Maksymalna wysokość kontenera, dostosuj według potrzeb
-  overflow-y: auto; // Umożliwia przewijanie w pionie
-  border: 2px solid $dark-grey; // Opcjonalnie, aby lepiej widzieć obszar przewijalny
+.ulcontainer {
+  height: 95%;
+  overflow-y: auto;
+  // border: 2px solid $dark-grey;
+  display: flex;
+  flex-direction: column;
   box-sizing: border-box;
+
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.teamHeader,
+.userHeader {
+  display: flex;
+  font-weight: bold;
+  padding: 8px 0;
+  margin-bottom: 10px;
+  background-color: $dark-white;
+  color: $dark-grey;
+  border-bottom: 1px solid $dark-grey;
+  text-align: left;
+
+  span {
+    padding: 0 10px;
+  }
+}
+
+.teamRow span:nth-child(1){
+  width: 2%; // Szerokość kolumny dla numeru lub imienia
+}
+
+.teamRow span:nth-child(2) {
+  width: 70%; // Szerokość kolumny dla nazwy zespołu lub nazwiska
+}
+
+.teamRow span:nth-child(3) {
+  width: 26%; // Szerokość kolumny dla nazwy zespołu lub nazwiska
+}
+
+.teamRow span:nth-child(4) {
+  width: 2%; // Szerokość kolumny dla nazwy zespołu lub nazwiska
+  text-align: center;
+}
+
+.userItem span:nth-child(1) {
+  width: 40%; // Szerokość kolumny dla numeru lub imienia
+}
+
+.userItem span:nth-child(2) {
+  width: 40%; // Szerokość kolumny dla numeru lub imienia
+}
+
+.userItem span:nth-child(3) {
+  width: 20%; // Szerokość kolumny dla numeru lub imienia
+}
+
+
+.teamList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.teamItem {
+  background-color: $dark-white;
+  border-radius: 5px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.tableHeader, .teamRow {
-  display: grid;
-  grid-template-columns: 0.5fr 2fr 1fr 0.5fr;
-  padding: 0.5rem;
-  font-weight: bold;
-  border-bottom: 1px solid #ccc;
-}
-
-.tableHeader {
-  background-color: #f3f3f3;
-}
-
-.teamList {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    height: 100%; // Zajmowanie pełnej wysokości rodzica
-    overflow-y: auto; // Umożliwia przewijanie wewnątrz `.list`, jeśli lista przekracza wysokość
-  }
-  
-
-.teamItem {
-  border-bottom: 1px solid #e0e0e0;
-}
-
 .teamRow {
-  cursor: pointer;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 0;
-}
+  cursor: pointer;
+  padding: 10px;
 
-.teamRow:hover {
-  background-color: #f9f9f9;
-}
-
-.arrow {
-  font-size: 1.2rem;
-  font-weight: bold;
+  span {
+    text-align: left;
+    padding: 0 10px;
+    border-right: 1px solid $dark-grey;
+    &:last-child {
+      border-right: none;
+    }
+  }
 }
 
 .userList {
-  list-style-type: none;
-  padding: 0 1rem;
+  padding: 10px;
+  list-style: none;
   margin: 0;
-  background-color: #fafafa;
-}
+  background-color: $white;
 
-.userItem {
-  display: grid;
-  grid-template-columns: 1fr 1fr 2fr 1fr;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #e0e0e0;
+  .userItem {
+    display: flex;
+    padding: 10px 0;
+    border-bottom: 1px solid $dark-white;
+
+    &:last-of-type {
+      border-bottom: none;
+    }
+
+    span {
+      padding: 0 10px;
+      text-align: left;
+      border-right: 1px solid $grey;
+      &:last-child {
+        border-right: none;
+      }
+    }
+  }
 }
 
 .noUser {
-  padding: 0.5rem;
+  padding: 10px;
   font-style: italic;
+  color: $white;
+  text-align: center;
 }

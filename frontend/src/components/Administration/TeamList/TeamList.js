@@ -4,7 +4,6 @@ import styles from './TeamList.module.scss';
 const TeamList = () => {
   const [expandedTeams, setExpandedTeams] = useState({});
 
-  // Przykładowe dane zespołów i pracowników
   const teamData = [
     {
       _id: 'team1',
@@ -21,60 +20,6 @@ const TeamList = () => {
         { _id: 'user3', name: 'Piotr', surname: 'Wiśniewski', email: 'piotr.wisniewski@example.com', role: 'Pracownik' },
       ],
     },
-    {
-      _id: 'team3',
-      name: 'Zespół C',
-      users: [],
-    },
-    {
-        _id: 'team3',
-        name: 'Zespół C',
-        users: [],
-      },
-      {
-        _id: 'team3',
-        name: 'Zespół C',
-        users: [],
-      }, {
-        _id: 'team3',
-        name: 'Zespół C',
-        users: [],
-      },
-      {
-        _id: 'team3',
-        name: 'Zespół C',
-        users: [],
-      },
-      {
-        _id: 'team3',
-        name: 'Zespół C',
-        users: [],
-      },
-      {
-        _id: 'team3',
-        name: 'Zespół C',
-        users: [],
-      },
-      {
-        _id: 'team3',
-        name: 'Zespół C',
-        users: [],
-      },
-      {
-        _id: 'team3',
-        name: 'Zespół C',
-        users: [],
-      },
-      {
-        _id: 'team3',
-        name: 'Zespół C',
-        users: [],
-      },
-      {
-        _id: 'team3',
-        name: 'Zespół C',
-        users: [],
-      },
   ];
 
   const toggleTeam = (teamId) => {
@@ -85,28 +30,39 @@ const TeamList = () => {
   };
 
   return (
-    <div className={styles.container}>
-    
+    <div className={styles.ulcontainer}>
+      {/* <div className={styles.teamHeader}>
+        <span>Nr</span>
+        <span>Nazwa Zespołu</span>
+        <span>Liczba Pracowników</span>
+      </div> */}
       <ul className={styles.teamList}>
         {teamData.map((team, index) => (
           <li key={team._id} className={styles.teamItem}>
             <div className={styles.teamRow} onClick={() => toggleTeam(team._id)}>
-              <span>{index + 1}.</span>
-              <span>{team.name}</span>
-              <span>{team.users ? team.users.length : 0}</span>
+              <span><strong>{index + 1}.</strong></span>
+              <span>Nazwa: <strong>{team.name}</strong></span>
+              <span>Liczba pracowników: <strong>{team.users ? team.users.length : 0}</strong></span>
               <span className={styles.arrow}>
                 {expandedTeams[team._id] ? '▲' : '▼'}
               </span>
             </div>
+            {/* {expandedTeams[team._id] && (
+              <div className={styles.userHeader}>
+                <span>Imię</span>
+                <span>Nazwisko</span>
+                <span>Email</span>
+                <span>Rola</span>
+              </div>
+            )} */}
             {expandedTeams[team._id] && (
               <ul className={styles.userList}>
                 {team.users && team.users.length > 0 ? (
                   team.users.map((user) => (
                     <li key={user._id} className={styles.userItem}>
-                      <span>{user.name}</span>
-                      <span>{user.surname}</span>
-                      <span>{user.email}</span>
-                      <span>{user.role}</span>
+                      <span>Pracownik: <strong>{user.name} {user.surname}</strong></span>
+                      <span>E-mail:<strong> {user.email}</strong></span>
+                      <span>Rola: <strong>{user.role}</strong></span>
                     </li>
                   ))
                 ) : (
