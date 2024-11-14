@@ -14,7 +14,6 @@ const LoginPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setLoginData({
@@ -38,7 +37,6 @@ const LoginPage = () => {
 
       if (response.status === 200 && data.token) {
         setErrorMessage(null); 
-        
         
         const expiryTime = new Date();
         expiryTime.setDate(expiryTime.getDate() + 1); 
@@ -73,6 +71,11 @@ const LoginPage = () => {
 
   return (
     <div className={styles.container}>
+      {errorMessage && (
+      <p className={`${styles.error} ${errorMessage ? styles.show : ''}`}>
+        {errorMessage}
+      </p>
+    )}
       <div className={styles.containerBox}>
         <h2 className={styles.heading}>Logowanie</h2>
         <form onSubmit={handleSubmit}>
@@ -93,8 +96,11 @@ const LoginPage = () => {
             required
           />
           <SubmitButton label="Zaloguj się" />
-          <p className={`${styles.error} ${errorMessage ? styles.show : ''}`}>
-            {errorMessage}
+          <p 
+            className={styles.registerPrompt} 
+            onClick={() => navigate('/register')}
+          >
+            Nie masz konta? <span>Zarejestruj się</span>
           </p>
         </form>
       </div>

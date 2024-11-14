@@ -13,6 +13,29 @@
   height: 100vh;
   @include flex-center;
   flex-direction: column;
+  background-image: url(./blob-scene-haikei.svg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  
+
+  .error {
+    position: absolute;
+    top: 20px; // Umieszczone 20px od góry kontenera
+    color: $light-red;
+    background-color: $dark-white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+
+    &.show {
+      display: block;
+    }
+  }
 }
 
 /* Styl dla containerBox */
@@ -22,10 +45,10 @@
   background-color: $grey;
   padding: 1rem 3rem;
   border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 500px;
   color: $white;
+  box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.5);
 
   .heading {
     color: $white;
@@ -47,19 +70,24 @@
     }
 
     /* Stylowanie błędu, który pojawia się pod przyciskiem */
-    .error {
-      box-sizing: border-box;
-      color: red;
-      font-size: 0.9rem;
-      text-align: center;
-      min-height: 1.5rem; /* Rezerwacja miejsca na komunikat */
-      opacity: 0; /* Ukrywa tekst, ale zachowuje miejsce */
-      transition: opacity 0.3s ease;
-      margin-top: 0.5rem; /* Dodaj margines górny dla odstępu od przycisku */
-    }
+    
 
-    .error.show {
-      opacity: 1; /* Pojawia się płynnie */
+    .registerPrompt {
+      text-align: center;
+      margin-top: 1em;
+      font-size: 1rem;
+      color: $light-blue;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    
+      span {
+        text-decoration: underline;
+        font-weight: bold;
+      }
+    
+      &:hover {
+        color: darken($light-blue, 10%);
+      }
     }
   }
 }
@@ -83,4 +111,5 @@
       width: 80%;
     }
   }
+ 
 }

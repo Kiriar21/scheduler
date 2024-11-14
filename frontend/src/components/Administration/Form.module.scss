@@ -11,6 +11,7 @@
   padding: 10px;
   margin-bottom: 20px;
   box-sizing: border-box;
+  box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.5); // Delikatny cień
 
   h3 {
     color: $white;
@@ -29,10 +30,10 @@
   }
 
   .button {
-    @include button-style($blue, darken($dark-blue, 10%));
+    @include button-style($blue, darken($blue, 10%));
   }
 
   .deleteButton {
-    @include button-style($red, darken($dark-red, 10%));
+    @include button-style($red, darken($red, 10%));
   }
 }

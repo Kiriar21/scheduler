@@ -4,22 +4,27 @@
 .submitButton {
   background-color: $blue;
   color: $white;
-  font-weight: 800;
+  font-weight: 400;
   border: none;
   cursor: pointer;
   border-radius: 5px;
   width: 100%;
   padding: 12px;
   font-size: 1.2rem;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.8);
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 
   &:hover {
-    background-color: lighten($blue, 10%);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  }
+    background-color: lighten($blue, 8%);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.8);  }
 
   &:focus {
     outline: none;
     background-color: darken($blue, 5%);
+  }
+
+  &:active {
+    background-color: darken($blue, 10%);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
   }
 }

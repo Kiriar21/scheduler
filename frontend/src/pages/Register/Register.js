@@ -63,6 +63,11 @@ const RegisterPage = () => {
 
   return (
     <div className={styles.container}>
+            {errorMessage && (
+      <p className={`${styles.error} ${errorMessage ? styles.show : ''}`}>
+        {errorMessage}
+      </p>
+    )}
       <div className={styles.containerBox}>
         <h2 className={styles.heading}>Rejestracja</h2>
         
@@ -132,11 +137,14 @@ const RegisterPage = () => {
             </div>
           </div>
           <SubmitButton label="Zarejestruj się" />
-          {/* Zawsze renderuj element <p>, ale kontroluj jego widoczność */}
-          <p className={`${styles.error} ${errorMessage ? styles.show : ''}`}>
-            {errorMessage}
-          </p>
+          
         </form>
+        <p 
+            className={styles.registerPrompt} 
+            onClick={() => navigate('/login')}
+          >
+            Masz konto? <span>Zaloguj się.</span>
+          </p>
       </div>
     </div>
   );

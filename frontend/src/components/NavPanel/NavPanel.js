@@ -10,6 +10,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
@@ -40,6 +41,11 @@ const NavigationPanel = () => {
 
         fetchUserData();
     }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        navigate('/login');
+    };
 
     if (!user) {
         return <p>Ładowanie danych użytkownika...</p>;
@@ -78,7 +84,6 @@ const NavigationPanel = () => {
 
                 {/* Navigation Menu */}
                 <ul className={styles.menu}>
-                    {/* Dostępne dla wszystkich ról */}
                     <li className={styles['menu-item']} onClick={() => handleNavigation('/schedule')}>
                         <CalendarMonth className={styles.icon} />
                         <span>Grafik</span>
@@ -91,23 +96,18 @@ const NavigationPanel = () => {
                         <BarChartIcon className={styles.icon} />
                         <span>Statystyki</span>
                     </li>
-
-                    {/* Dostępne tylko dla menedżera i admina */}
                     {(role === 'menedżer' || role === 'admin') && (
                         <li className={`${styles['menu-item']} ${styles['menu-item--highlight-blue']}`} onClick={() => handleNavigation('/schedule-settings')}>
                             <SettingsIcon className={styles.icon} />
                             <span>Ustawienia grafiku</span>
                         </li>
                     )}
-
                     {(role === 'menedżer' || role === 'admin') && (
                         <li className={`${styles['menu-item']} ${styles['menu-item--highlight-blue']}`} onClick={() => handleNavigation('/submissions')}>
                             <AssignmentIcon className={styles.icon} />
                             <span>Raporty</span>
                         </li>
                     )}
-
-                    {/* Dostępne tylko dla admina */}
                     {role === 'admin' && (
                         <li className={`${styles['menu-item']} ${styles['menu-item--highlight-red']}`} onClick={() => handleNavigation('/administration')}>
                             <AdminPanelSettingsIcon className={styles.icon} />
@@ -115,6 +115,18 @@ const NavigationPanel = () => {
                         </li>
                     )}
                 </ul>
+
+                {/* Additional Options at the Bottom */}
+                <div className={styles.footer}>
+                    <li className={styles['menu-item']} onClick={() => handleNavigation('/account-settings')}>
+                        <SettingsIcon className={styles.icon} />
+                        <span>Ustawienia konta</span>
+                    </li>
+                    <li className={`${styles['menu-item']} ${styles['menu-item--highlight-red']}`} onClick={handleLogout}>
+                        <ExitToAppIcon className={styles.icon} />
+                        <span>Wyloguj</span>
+                    </li>
+                </div>
             </div>
         </ThemeProvider>
     );

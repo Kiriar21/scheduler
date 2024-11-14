@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import styles from './TeamList.module.scss';
+import ArrowDown from '@mui/icons-material/KeyboardArrowDown';
+import ArrowUp from '@mui/icons-material/KeyboardArrowUp';
 
 const TeamList = () => {
   const [expandedTeams, setExpandedTeams] = useState({});
@@ -11,6 +13,13 @@ const TeamList = () => {
       users: [
         { _id: 'user1', name: 'Jan', surname: 'Kowalski', email: 'jan.kowalski@example.com', role: 'Pracownik' },
         { _id: 'user2', name: 'Anna', surname: 'Nowak', email: 'anna.nowak@example.com', role: 'Menedżer' },
+      ],
+    },
+    {
+      _id: 'team2',
+      name: 'Zespół B',
+      users: [
+        { _id: 'user3', name: 'Piotr', surname: 'Wiśniewski', email: 'piotr.wisniewski@example.com', role: 'Pracownik' },
       ],
     },
     {
@@ -44,8 +53,8 @@ const TeamList = () => {
               <span>Nazwa: <strong>{team.name}</strong></span>
               <span>Liczba pracowników: <strong>{team.users ? team.users.length : 0}</strong></span>
               <span className={styles.arrow}>
-                {expandedTeams[team._id] ? '▲' : '▼'}
-              </span>
+  {expandedTeams[team._id] ? <ArrowUp /> : <ArrowDown />}
+</span>
             </div>
             {/* {expandedTeams[team._id] && (
               <div className={styles.userHeader}>

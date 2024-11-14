@@ -10,6 +10,7 @@ import AvailabilityPage from './pages/Availability/Availability';
 import StatisticsPage from './pages/Statistics/Statistics';
 import SettingsPage from './pages/Settings/Settings';
 import SubmissionsPage from './pages/Submissions/Submissions';
+import AccountPage from './pages/Account/Account';
 
 function App() {
   return (
@@ -38,6 +39,9 @@ function App() {
 
          {/* Strona ze statystykami*/}
          <Route path="/statistics" element={<StatisticsPage />} />
+         
+         {/* Strona z ustawieniami konta*/}
+         <Route path="/account-settings" element={<AccountPage />} />
 
         {/* Przekierowanie na stronę główną po zalogowanmiu*/}
           <Route path="/home" element={<Home />} />

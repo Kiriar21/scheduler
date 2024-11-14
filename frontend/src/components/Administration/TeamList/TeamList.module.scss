@@ -7,13 +7,35 @@
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-
+  border-radius: 10px;
+  //box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3); // Delikatny cień
   ul {
     list-style-type: none;
     padding: 0;
     margin: 0;
     display: flex;
     flex-direction: column;
+    
+  }
+
+  /* Styl scrolla */
+  &::-webkit-scrollbar {
+    width: 8px; // Zmniejszona szerokość scrolla
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: $semi-white; // Kolor tła dla scrolla
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: $blue; // Minimalistyczny kolor dla suwaka
+    border-radius: 10px;
+    border: 2px solid $semi-white; // Efekt "wewnętrznego" scrolla
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: $dark-blue; // Efekt hover dla scrolla
   }
 }
 
@@ -70,12 +92,21 @@
 }
 
 .teamItem {
-  background-color: $dark-white;
-  border-radius: 5px;
+  background-color: $light-blue;
+  border: 2px solid $light-blue;
+  border-radius: 10px;
+  font-size: 1.1rem;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  transition: background-color 0.3s ease;
+
+  &:hover{
+    background-color: $blue;
+    border: 2px solid $blue;
+  }
 }
+
 
 .teamRow {
   display: flex;
@@ -85,8 +116,8 @@
   span {
     text-align: left;
     padding: 0 10px;
-    border-right: 1px solid $dark-grey;
-    &:last-child {
+    border-right: 1px solid $grey;
+    &:last-child, &:nth-child(3) {
       border-right: none;
     }
   }
@@ -101,6 +132,7 @@
   .userItem {
     display: flex;
     padding: 10px 0;
+    font-size: 1rem;
     border-bottom: 1px solid $dark-white;
 
     &:last-of-type {
@@ -110,7 +142,7 @@
     span {
       padding: 0 10px;
       text-align: left;
-      border-right: 1px solid $grey;
+      border-right: 1px solid #929292;
       &:last-child {
         border-right: none;
       }

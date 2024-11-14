@@ -3,50 +3,75 @@
 .container {
   display: flex;
   flex-direction: row;
+  justify-content: space-around;
   height: 100vh;
   overflow: hidden;
   padding-bottom: 20px; // Dodaje dolny margines, aby uniknąć przyklejania się do dolnej krawędzi
   box-sizing: border-box;
+  background-color: $white;
 }
 
 .content {
   display: flex;
   flex-direction: row;
-  width: 100%;
-  height: calc(100% - 20px); // Uwzględnia marginesy po 20px z góry i dołu
-  margin: 20px;
+  flex: 1;
+  height: 100%; // Uwzględnia marginesy po 20px z góry i dołu
   gap: 20px;
   box-sizing: border-box;
+  background-color: $white;
 }
 
 .list, .tools {
   height: 100%;
   // border: 1px solid $dark-grey;
   box-sizing: border-box;
+  padding-top: 20px;
 }
 
 .list {
   width: 60%;
+  padding:  20px;
 
   h2 {
-    font-size: 1.2rem;
-    color: $white;
-    background-color: $grey;
-    padding: 10px;
+    font-size: 1.5rem;
+    color: $dark-blue;
+    padding-bottom: 20px;
     margin: 0;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
-    text-align: center;
+    text-align: left;
   }
 }
 
 .tools {
   width: 40%;
   display: flex;
+  padding-right:  20px;
   flex-direction: column;
   gap: 20px;
   overflow-y: auto;
   box-sizing: border-box;
+
+  /* Styl scrolla */
+  &::-webkit-scrollbar {
+    width: 8px; // Zmniejszona szerokość scrolla
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: $semi-white; // Kolor tła dla scrolla
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: $blue; // Minimalistyczny kolor dla suwaka
+    border-radius: 10px;
+    border: 2px solid $semi-white; // Efekt "wewnętrznego" scrolla
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: $dark-blue; // Efekt hover dla scrolla
+  }
+  
 
   .employee, .other {
     display: flex;

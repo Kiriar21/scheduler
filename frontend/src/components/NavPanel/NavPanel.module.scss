@@ -1,7 +1,7 @@
 @import '../../styles/global.scss';
 
 .panel {
-    width: 12em;
+    width: 15em;
     background-color: $grey;
     color: $white;
     display: flex;
@@ -44,7 +44,7 @@
             }
 
             .name {
-                font-size: 0.9rem;
+                font-size: 1.1rem;
                 font-weight: bold;
                 text-align: center;
             }
@@ -60,7 +60,7 @@
 
             .role,
             .team {
-                font-size: 0.7rem;
+                font-size: 0.9rem;
                 color: $white;
                 text-wrap: wrap;
                 padding: 0 10px;
@@ -68,7 +68,7 @@
                 margin-bottom: 5px;
 
                 span {
-                    color: $blue;
+                    color: $light-blue;
                     width: 100%;
                     text-wrap: wrap;
                     font-weight: 600;
@@ -87,7 +87,7 @@
             align-items: center;
             color: $white;
             font-weight: 700;
-            font-size: 0.7rem;
+            font-size: 1rem;
             padding: 10px;
             border-radius: 10px;
             margin: 10px 10px 0 10px;
@@ -102,22 +102,59 @@
             }
 
             &--highlight-blue {
-                color: $blue; // Dark grey text on blue background
+                color: $light-blue; // Dark grey text on blue background
             }
 
             &--highlight-red {
-                color: $red; // Dark grey text on blue background
+                color: $light-red; // Dark grey text on blue background
             }
 
             // Specific hover effect for items with highlight-blue
             &--highlight-blue:hover {
-                background-color: $blue;
+                background-color: $light-blue;
                 color: $dark-grey; // Dark grey text on blue background
             }
 
             // Specific hover effect for items with highlight-red
             &--highlight-red:hover {
-                background-color: $red;
+                background-color: $light-red;
+                color: $dark-grey;
+            }
+
+            .icon {
+                margin-right: 8px;
+                font-size: 1.2rem;
+            }
+        }
+    }
+
+    .footer {
+        margin-top: auto;
+        padding: 10px 0px;
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            color: $white;
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 5px 10px 0 10px;
+            transition: background-color 0.2s ease-in;
+            user-select: none;
+
+            &:hover {
+                background-color: $white;
+                color: $dark-grey;
+                cursor: pointer;
+            }
+
+            &--highlight-red {
+                color: $light-red;
+            }
+            &--highlight-red:hover {
+                background-color: $light-red;
                 color: $dark-grey;
             }
 

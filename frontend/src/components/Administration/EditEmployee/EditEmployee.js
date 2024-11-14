@@ -130,7 +130,7 @@ const EditEmployee = () => {
           </select>
         </div>
 
-        <button type="submit" className={styles.button}>Zatwierdź</button>
+        <button type="submit" className={styles.button}>Zapisz</button>
         <button type="button" onClick={handleDelete} className={styles.deleteButton}>
           Usuń
         </button>
