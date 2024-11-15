@@ -40,6 +40,7 @@ router.put('/shift/edit/:shiftId', authenticateToken, ShiftController.editShift)
 
 // Trasy schedulerów
 router.post('/scheduler/create', authenticateToken, SchedulerController.createScheduler);
+router.get('/schedulers', authenticateToken, SchedulerController.getSchedulers);
 router.get('/scheduler', authenticateToken, SchedulerController.getScheduler);
 router.delete('/scheduler/delete', authenticateToken, SchedulerController.deleteScheduler);
 router.put('/scheduler/editDay', authenticateToken, SchedulerController.editDayInScheduler);

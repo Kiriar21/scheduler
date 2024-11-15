@@ -24,6 +24,7 @@ const AdministrationPage = () => {
       const response = await axios.get('/users', {
         headers: { Authorization: `Bearer ${token}` },
       });
+      console.log("TO:", response.data.users)
       setEmployees(response.data.users);
     } catch (error) {
       console.error('Error fetching employees:', error);
@@ -36,21 +37,27 @@ const AdministrationPage = () => {
       const response = await axios.get('/teams', {
         headers: { Authorization: `Bearer ${token}` },
       });
+  
+      // Dane użytkowników są już zagnieżdżone w odpowiedzi
+      console.log("teams;", response.data.teams)
       setTeams(response.data.teams);
     } catch (error) {
-      console.error('Error fetching teams:', error);
+      console.error('Error fetching team data:', error);
     }
   };
   
   const fetchSchedulers = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('/scheduler', {
+      const response = await axios.get('/schedulers', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setSchedulers(response.data.scheduler);
     } catch (error) {
-      console.error('Error fetching schedulers:', error);
+      setSchedulers({})
+    }
+    finally{
+      console.log(schedulers)
     }
   };
   

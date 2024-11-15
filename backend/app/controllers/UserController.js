@@ -14,6 +14,7 @@ const {
   validateUserRole,
   validateTeamId,
   validateObjectId,
+  validatePasswordUser,
 } = require('../utils/validation');
 
 const adminRegister = async (req, res) => {
@@ -83,7 +84,7 @@ const userRegister = async (req, res) => {
       return res.status(400).json({ error: 'Niepoprawny format email' });
     }
 
-    if (!validatePassword(pwd)) {
+    if (!validatePasswordUser(pwd)) {
       return res.status(400).json({ error: 'Hasło nie spełnia wymagań bezpieczeństwa' });
     }
 
@@ -105,7 +106,7 @@ const userRegister = async (req, res) => {
     }
 
     const team = await Team.findById(teamId);
-    if (!team || team.company.toString() !== req.user.company.toString()) {
+    if (!team || team.company !== req.user.company) {
       return res.status(400).json({ error: 'Nieprawidłowy team' });
     }
 
@@ -167,29 +168,16 @@ const loginUser = async (req, res) => {
 
 const editUser = async (req, res) => {
   try {
-    const userId = req.user._id;
-    let { name, surname, email } = req.body;
+    let { userId, name, surname } = req.body;
 
 
     if (!validateName(name) || !validateName(surname)) {
       return res.status(400).json({ error: 'Imię i nazwisko muszą mieć co najmniej 3 znaki' });
     }
 
-    if (!validateEmail(email)) {
-      return res.status(400).json({ error: 'Niepoprawny format email' });
-    }
-
-
-    if (email !== req.user.email) {
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return res.status(400).json({ error: 'Email jest już zarejestrowany' });
-      }
-    }
-
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { name, surname, email },
+      { name, surname },
       { new: true }
     );
 
@@ -237,7 +225,6 @@ const modifyUser = async (req, res) => {
 
     let { userId, role, teamId } = req.body;
 
-
     if (!validateUserRole(role)) {
       return res.status(400).json({ error: 'Niepoprawna rola użytkownika' });
     }
@@ -246,19 +233,42 @@ const modifyUser = async (req, res) => {
       return res.status(400).json({ error: 'Nieprawidłowy identyfikator teamu' });
     }
 
-
     const user = await User.findById(userId);
-    if (!user || user.company.toString() !== req.user.company.toString()) {
+    if (!user || user.company !== req.user.company) {
       return res.status(404).json({ error: 'Użytkownik nie został znaleziony' });
     }
 
+    const oldTeamId = user.team;
 
-    const team = await Team.findById(teamId);
-    if (!team || team.company.toString() !== req.user.company.toString()) {
+    if (oldTeamId && oldTeamId.toString() === teamId) {
+      user.role = role;
+      await user.save();
+      return res.status(200).json({ message: 'Użytkownik został zmodyfikowany bez zmiany zespołu', user });
+    }
+
+    const newTeam = await Team.findById(teamId);
+    if (!newTeam || newTeam.company !== req.user.company) {
       return res.status(400).json({ error: 'Nieprawidłowy team' });
     }
 
+    // Usuń użytkownika ze starego zespołu, jeśli zespół się zmienia
+    if (oldTeamId && oldTeamId.toString() !== teamId) {
+      const oldTeam = await Team.findById(oldTeamId);
+      if (oldTeam) {
+        oldTeam.users = oldTeam.users.filter(
+          (userIdInTeam) => userIdInTeam.toString() !== userId
+        );
+        await oldTeam.save();
+      }
+    }
 
+    // Dodaj użytkownika do nowego zespołu, jeśli nie jest tam już przypisany
+    if (!newTeam.users.includes(userId)) {
+      newTeam.users.push(userId);
+      await newTeam.save();
+    }
+
+    // Zaktualizuj dane użytkownika
     user.role = role;
     user.team = teamId;
     await user.save();
@@ -280,7 +290,7 @@ const deleteUser = async (req, res) => {
 
 
     const user = await User.findById(userId);
-    if (!user || user.company.toString() !== req.user.company.toString()) {
+    if (!user || user.company !== req.user.company) {
       return res.status(404).json({ error: 'Użytkownik nie został znaleziony' });
     }
 
@@ -321,7 +331,10 @@ const getUsers = async (req, res) => {
       return res.status(403).json({ error: 'Brak dostępu' });
     }
 
-    const users = await User.find({ company: req.user.company }).select('-pwd');
+    const users = await User.find({
+      company: req.user.company,
+      role: { $in: ['user', 'manager'] }, 
+    }).select('-pwd');
 
     return res.status(200).json({ users });
   } catch (error) {

@@ -267,6 +267,28 @@ const getScheduler = async (req, res) => {
   }
 };
 
+const getSchedulers = async (req, res) => {
+  try {
+    
+    const user = req.user;
+
+
+    const schedulers = await Scheduler.findOne({
+      company: user.company,
+    })
+
+    if (!schedulers) {
+      return res.status(404).json({ error: 'Brak schedulerów dla tej firmy' });
+    }
+    
+
+    return res.status(200).json({ schedulers });
+  } catch (error) {
+    console.error('Error in getScheduler:', error);
+    return res.status(500).json({ error: 'Błąd serwera' });
+  }
+};
+
 const editDayInScheduler = async (req, res) => {
   try {
     const user = req.user;
@@ -483,4 +505,5 @@ module.exports = {
   editDayInScheduler,
   confirmAvailabilityUser,
   getStatistic,
+  getSchedulers,
 };

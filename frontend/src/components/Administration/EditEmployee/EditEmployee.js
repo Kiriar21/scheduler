@@ -4,7 +4,7 @@ import { AdminContext } from '../../../pages/Administration/Administration';
 import axios from 'axios';
 
 const EditEmployee = () => {
-  const { employees, teams, fetchEmployees } = useContext(AdminContext);
+  const { employees, teams, fetchEmployees, fetchTeams } = useContext(AdminContext);
   const [selectedEmployee, setSelectedEmployee] = useState('');
   const [formData, setFormData] = useState({
     name: '',
@@ -18,6 +18,18 @@ const EditEmployee = () => {
     const employeeId = e.target.value;
     setSelectedEmployee(employeeId);
 
+    if (!employeeId) {
+      // Jeśli nie wybrano pracownika, ustaw pola jako puste
+      setFormData({
+        name: '',
+        surname: '',
+        email: '',
+        role: 'user',
+        teamId: '',
+      });
+      return;
+    }
+
     const employee = employees.find((emp) => emp._id === employeeId);
     if (employee) {
       setFormData({
@@ -25,7 +37,7 @@ const EditEmployee = () => {
         surname: employee.surname,
         email: employee.email,
         role: employee.role,
-        teamId: employee.teamId || '',
+        teamId: employee.team || '',
       });
     }
   };
@@ -41,10 +53,34 @@ const EditEmployee = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`/user/modify/${selectedEmployee}`, formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+
+      await axios.put(
+        '/user/edit',
+        {
+          userId: selectedEmployee,
+          name: formData.name,
+          surname: formData.surname,
+          email: formData.email,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      await axios.put(
+          '/user/modify',
+          {
+            userId: selectedEmployee,
+            role: formData.role,
+            teamId: formData.teamId,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
       fetchEmployees();
+      fetchTeams();
     } catch (error) {
       console.error('Error updating employee:', error);
     }
@@ -59,6 +95,7 @@ const EditEmployee = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchEmployees();
+      fetchTeams();
       setSelectedEmployee('');
       setFormData({
         name: '',

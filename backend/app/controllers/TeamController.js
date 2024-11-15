@@ -1,7 +1,7 @@
 const Team = require('../db/models/Team');
 const Company = require('../db/models/Company');
 const { defaultShift } = require('./ShiftController');
-const { validateName } = require('../utils/validation');
+const { validateName, validateNameTeam } = require('../utils/validation');
 
 const teamAdd = async (req, res) => {
   try {
@@ -11,9 +11,17 @@ const teamAdd = async (req, res) => {
 
     let { name } = req.body;
 
-    if (!validateName(name)) {
-      return res.status(400).json({ error: 'Nazwa teamu musi mieć co najmniej 3 znaki' });
+
+
+    if (!validateNameTeam(name)) {
+      return res.status(400).json({ error: 'Nazwa teamu musi mieć co najmniej 2 znaki' });
     }
+
+    const existingTeam = await Team.findOne({ name, company: req.user.company });
+    if (existingTeam) {
+      return res.status(404).json({ error: 'Nazwa teamu jest już zajęta' });
+    }
+
 
     const shift = defaultShift();
 
@@ -53,7 +61,10 @@ const getTeam = async (req, res) => {
 
 const getTeams = async (req, res) => {
   try {
-    const teams = await Team.find({ company: req.user.company }).select('name');
+    const teams = await Team.find({ company: req.user.company })
+      .populate('users', 'name surname email role') 
+      .select('name users'); 
+
 
     return res.status(200).json({ teams });
   } catch (error) {

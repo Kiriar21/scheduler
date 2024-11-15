@@ -12,9 +12,21 @@ const validatePassword = (password) => {
   return pwdRegex.test(password);
 };
 
+const validatePasswordUser = (password) => {
+  password = xss(password);
+  const pwdRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+  return pwdRegex.test(password);
+};
+
+
 const validateName = (name) => {
   name = xss(name);
   return name.length >= 3;
+};
+
+const validateNameTeam = (name) => {
+  name = xss(name);
+  return name.length >= 2;
 };
 
 const validateNIP = (nip) => {
@@ -77,4 +89,6 @@ module.exports = {
   validateObjectId,
   validateMonthName,
   validateYear,
+  validateNameTeam,
+  validatePasswordUser,
 };

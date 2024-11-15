@@ -4,12 +4,12 @@ import { AdminContext } from '../../../pages/Administration/Administration';
 import axios from 'axios';
 
 const AddEmployee = () => {
-  const { fetchEmployees, teams } = useContext(AdminContext);
+  const { fetchEmployees, teams, fetchTeams } = useContext(AdminContext);
   const [formData, setFormData] = useState({
     name: '',
     surname: '',
     email: '',
-    password: '',
+    pwd: '',
     role: 'user',
     teamId: '',
   });
@@ -27,11 +27,12 @@ const AddEmployee = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchEmployees(); // Odświeżenie listy pracowników po dodaniu nowego
+      fetchTeams();
       setFormData({
         name: '',
         surname: '',
         email: '',
-        password: '',
+        pwd: '',
         role: 'user',
         teamId: '',
       }); // Resetowanie formularza
@@ -78,8 +79,8 @@ const AddEmployee = () => {
         <label>Hasło:</label>
         <input
           type="password"
-          name="password"
-          value={formData.password}
+          name="pwd"
+          value={formData.pwd}
           onChange={handleChange}
           required
         />
