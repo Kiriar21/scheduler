@@ -37,3 +37,8 @@
     @include button-style($red, darken($red, 10%));
   }
 }
+
+.error{
+  color: $white;
+  text-align: center;
+}

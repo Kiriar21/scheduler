@@ -37,11 +37,10 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           
           {/* Private Layout */}
-          <Route element={<PrivateRoute allowedRoles={['user', 'manager', 'admin']} />}>
             <Route element={<Layout />}>
               
               {/* Trasy adminów */}
-              <Route element={<PrivateRoute allowedRoles={['admin']} />}>So. I understand. Sure. That was something that's. In fact. No. 
+              <Route element={<PrivateRoute allowedRoles={['admin']} />}> 
                 <Route path="/administration" element={<AdministrationPage />} />
               </Route>
 
@@ -74,7 +73,6 @@ function App() {
               </Route>
 
             </Route>
-          </Route>
         </Routes>
       </div>
     </Router>

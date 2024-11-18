@@ -1,4 +1,5 @@
 const xss = require('xss');
+const mongoose = require('mongoose');
 
 const validateEmail = (email) => {
   email = xss(email);

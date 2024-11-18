@@ -1,5 +1,6 @@
 const Team = require('../db/models/Team');
 const Company = require('../db/models/Company');
+const Scheduler = require('../db/models/Scheduler');
 const { defaultShift } = require('./ShiftController');
 const { validateName, validateNameTeam } = require('../utils/validation');
 
@@ -103,20 +104,46 @@ const deleteTeam = async (req, res) => {
 
     const teamId = req.params.teamId;
 
+    // Znajdź i usuń zespół
     const deletedTeam = await Team.findByIdAndDelete(teamId);
 
     if (!deletedTeam) {
       return res.status(404).json({ error: 'Team nie został znaleziony' });
     }
 
+    // Usuń team z listy zespołów firmy
     await Company.findByIdAndUpdate(req.user.company, { $pull: { teams: teamId } });
 
-    return res.status(200).json({ message: 'Team został usunięty' });
+    // Usuń wszystkie grafiki powiązane z tym zespołem
+    const deletedSchedulers = await Scheduler.deleteMany({ team: teamId, company: req.user.company });
+
+    console.log(`Usunięto ${deletedSchedulers.deletedCount} grafik dla zespołu ${teamId}`);
+
+    return res.status(200).json({
+      message: `Team został usunięty, a powiązane ${deletedSchedulers.deletedCount} grafik(i) zostały również usunięte.`,
+    });
   } catch (error) {
-    console.error(error);
+    console.error('Error in deleteTeam:', error);
     return res.status(500).json({ error: 'Błąd serwera' });
   }
 };
+
+
+const getAllTeamNames = async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Brak dostępu' });
+    }
+
+    const teams = await Team.find({ company: req.user.company }).select('name');
+
+    return res.status(200).json({ teams });
+  } catch (error) {
+    console.error('Error in getAllTeamNames:', error);
+    return res.status(500).json({ error: 'Błąd serwera' });
+  }
+};
+
 
 module.exports = {
   teamAdd,
@@ -124,4 +151,5 @@ module.exports = {
   getTeams,
   editTeam,
   deleteTeam,
+  getAllTeamNames,
 };

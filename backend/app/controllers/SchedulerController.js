@@ -147,8 +147,8 @@ const createMapMonth = async (month, year) => {
 const fillEmployersHours = async (schedulerId, mapMonth, teamId) => {
   try {
     const team = await Team.findById(teamId).populate('users');
-    if (!team) {
-      throw new Error('Team nie został znaleziony');
+    if (!team || !team.users.length) {
+      throw new Error('Zespół nie został znaleziony lub nie zawiera użytkowników');
     }
 
     const users = team.users;
@@ -166,6 +166,7 @@ const fillEmployersHours = async (schedulerId, mapMonth, teamId) => {
     throw error;
   }
 };
+
 
 const deleteScheduler = async (req, res) => {
   try {
@@ -271,7 +272,6 @@ const getSchedulers = async (req, res) => {
   try {
     
     const user = req.user;
-
 
     const schedulers = await Scheduler.findOne({
       company: user.company,
@@ -498,6 +498,39 @@ const getStatistic = async (req, res) => {
   }
 };
 
+const getTeamSchedulerDates = async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Brak dostępu' });
+    }
+
+    const { teamId } = req.params;
+
+    if (!teamId || !mongoose.Types.ObjectId.isValid(teamId)) {
+      return res.status(400).json({ error: 'Niepoprawny identyfikator zespołu' });
+    }
+
+    const schedulers = await Scheduler.find({ team: teamId, company: req.user.company }).select(
+      'month year'
+    );
+
+    if (!schedulers.length) {
+      return res.status(404).json({ error: 'Brak schedulerów dla podanego zespołu' });
+    }
+
+    const result = schedulers.map((scheduler) => ({
+      month: scheduler.month,
+      year: scheduler.year,
+    }));
+
+    return res.status(200).json({ dates: result });
+  } catch (error) {
+    console.error('Error in getTeamSchedulerDates:', error);
+    return res.status(500).json({ error: 'Błąd serwera' });
+  }
+};
+
+
 module.exports = {
   createScheduler,
   getScheduler,
@@ -506,4 +539,5 @@ module.exports = {
   confirmAvailabilityUser,
   getStatistic,
   getSchedulers,
+  getTeamSchedulerDates,
 };

@@ -30,6 +30,7 @@ router.put('/company/edit', authenticateToken(['admin']), CompanyController.edit
 // Trasy teamu
 router.post('/team/add', authenticateToken(['admin']), TeamController.teamAdd);
 router.get('/team/:teamId', authenticateToken(['user', 'manager', 'admin']), TeamController.getTeam);
+// router.get('/team/names', authenticateToken(['admin']), TeamController.getAllTeamNames);
 router.get('/teams', authenticateToken(['user', 'manager', 'admin']), TeamController.getTeams);
 router.put('/team/edit/:teamId', authenticateToken(['admin']), TeamController.editTeam);
 router.delete('/team/delete/:teamId', authenticateToken(['admin']), TeamController.deleteTeam);
@@ -40,6 +41,7 @@ router.put('/shift/edit/:shiftId', authenticateToken(['user', 'manager', 'admin'
 
 // Trasy schedulerów
 router.post('/scheduler/create', authenticateToken(['manager', 'admin']), SchedulerController.createScheduler);
+router.get('/schedulers/:teamId/dates', authenticateToken(['user', 'manager', 'admin']), SchedulerController.getTeamSchedulerDates);
 router.get('/schedulers', authenticateToken(['user', 'manager', 'admin']), SchedulerController.getSchedulers);
 router.get('/scheduler', authenticateToken(['user', 'manager', 'admin']), SchedulerController.getScheduler);
 router.delete('/scheduler/delete', authenticateToken(['admin']), SchedulerController.deleteScheduler);

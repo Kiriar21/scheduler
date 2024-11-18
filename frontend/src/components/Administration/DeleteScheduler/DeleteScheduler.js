@@ -1,34 +1,55 @@
 import React, { useContext, useState } from 'react';
 import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
-// import axios from 'axios';
 import axiosInstance from '../../../api/axiosInstance';
 
 const DeleteScheduler = () => {
-  const { fetchSchedulers } = useContext(AdminContext);
-  const [year, setYear] = useState('');
-  const [month, setMonth] = useState('');
+  const { teams } = useContext(AdminContext); // Pobieramy zespoły z kontekstu
+  const [selectedTeam, setSelectedTeam] = useState('');
+  const [teamDates, setTeamDates] = useState([]); // Daty dla wybranego zespołu
+  const [selectedDate, setSelectedDate] = useState({ year: '', month: '' });
+  const [error, setError] = useState(''); // Obsługa błędów
 
-  const months = [
-    'styczeń', 'luty', 'marzec', 'kwiecień', 'maj', 'czerwiec', 
-    'lipiec', 'sierpień', 'wrzesień', 'październik', 'listopad', 'grudzień'
-  ];
+  // Pobierz daty grafików dla wybranego zespołu
+  const fetchTeamDates = async (teamId) => {
+    try {
+      setError('');
+      setTeamDates([]); // Resetuj daty przy każdej zmianie zespołu
+      const token = localStorage.getItem('token');
+      const response = await axiosInstance.get(`/schedulers/${teamId}/dates`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setTeamDates(response.data.dates);
+    } catch (error) {
+      console.error('Error fetching team dates:', error);
+      setError('Nie znaleziono grafików dla tego zespołu.');
+    }
+  };
 
+  // Obsługa usuwania grafiku
   const handleDelete = async (e) => {
     e.preventDefault();
-    if (!year || !month) return;
+    const { year, month } = selectedDate;
+
+    if (!selectedTeam || !year || !month) {
+      alert('Proszę wybrać zespół, rok i miesiąc.');
+      return;
+    }
 
     try {
+      setError('');
       const token = localStorage.getItem('token');
       await axiosInstance.delete('/scheduler/delete', {
         headers: { Authorization: `Bearer ${token}` },
-        data: { year, month }
+        data: { teamId: selectedTeam, year, month },
       });
-      fetchSchedulers();
-      setYear('');
-      setMonth('');
+
+      alert('Scheduler został pomyślnie usunięty.');
+      fetchTeamDates(selectedTeam); // Odśwież listę dat po usunięciu
+      setSelectedDate({ year: '', month: '' });
     } catch (error) {
       console.error('Error deleting scheduler:', error);
+      setError('Wystąpił błąd podczas usuwania grafiku.');
     }
   };
 
@@ -36,31 +57,89 @@ const DeleteScheduler = () => {
     <div className={styles.container}>
       <form onSubmit={handleDelete}>
         <h3>Usuń grafik</h3>
+
+
+
+        {/* Wybór zespołu */}
         <div className={styles.input}>
-          <label>Rok:</label>
-          <select value={year} onChange={(e) => setYear(e.target.value)} required>
-            <option value="">Wybierz rok</option>
-            {[2023, 2024, 2025].map((yr) => (
-              <option key={yr} value={yr}>
-                {yr}
+          <label>Zespół:</label>
+          <select
+            value={selectedTeam}
+            onChange={(e) => {
+              const teamId = e.target.value;
+              setSelectedTeam(teamId);
+              setSelectedDate({ year: '', month: '' }); // Resetuj daty
+              if (teamId) {
+                fetchTeamDates(teamId); // Pobierz daty dla zespołu
+              } else {
+                setTeamDates([]); // Resetuj daty, jeśli brak wyboru
+              }
+            }}
+            required
+          >
+            <option value="">Wybierz zespół</option>
+            {teams.length === 0 ? (
+              <option value="" disabled>
+                Brak zespołów
               </option>
-            ))}
+            ) : (
+              teams.map((team) => (
+                <option key={team._id} value={team._id}>
+                  {team.name}
+                </option>
+              ))
+            )}
           </select>
         </div>
 
-        <div className={styles.input}>
-          <label>Miesiąc:</label>
-          <select value={month} onChange={(e) => setMonth(e.target.value)} required>
-            <option value="">Wybierz miesiąc</option>
-            {months.map((mnth) => (
-              <option key={mnth} value={mnth}>
-                {mnth}
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* Wybór roku */}
+        {teamDates.length > 0 && (
+          <div className={styles.input}>
+            <label>Rok:</label>
+            <select
+              value={selectedDate.year}
+              onChange={(e) =>
+                setSelectedDate((prev) => ({ ...prev, year: e.target.value }))
+              }
+              required
+            >
+              <option value="">Wybierz rok</option>
+              {[...new Set(teamDates.map((date) => date.year))].map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
-        <button type="submit" className={styles.deleteButton}>Usuń</button>
+        {/* Wybór miesiąca */}
+        {selectedDate.year && (
+          <div className={styles.input}>
+            <label>Miesiąc:</label>
+            <select
+              value={selectedDate.month}
+              onChange={(e) =>
+                setSelectedDate((prev) => ({ ...prev, month: e.target.value }))
+              }
+              required
+            >
+              <option value="">Wybierz miesiąc</option>
+              {teamDates
+                .filter((date) => date.year === parseInt(selectedDate.year, 10))
+                .map((date) => (
+                  <option key={date.month} value={date.month}>
+                    {date.month}
+                  </option>
+                ))}
+            </select>
+          </div>
+        )}
+        {/* Obsługa błędów */}
+        {error && <p className={styles.error}>{error}</p>}
+        <button type="submit" className={styles.deleteButton} disabled={!teamDates.length}>
+          Usuń
+        </button>
       </form>
     </div>
   );

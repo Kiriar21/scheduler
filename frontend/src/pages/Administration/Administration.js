@@ -6,8 +6,10 @@ import AddTeam from '../../components/Administration/AddTeam/AddTeam';
 import EditEmployee from '../../components/Administration/EditEmployee/EditEmployee';
 import DeleteScheduler from '../../components/Administration/DeleteScheduler/DeleteScheduler';
 import TeamList from '../../components/Administration/TeamList/TeamList';
-// import axios from 'axios';
 import axiosInstance from '../../api/axiosInstance'
+import EditTeam from '../../components/Administration/EditTeam/EditTeam';
+import DeleteTeam from '../../components/Administration/DeleteTeam/DeleteTeam';
+
 
 // Tworzymy kontekst
 export const AdminContext = createContext();
@@ -15,7 +17,7 @@ export const AdminContext = createContext();
 const AdministrationPage = () => {
   const [employees, setEmployees] = useState([]);
   const [teams, setTeams] = useState([]);
-  const [schedulers, setSchedulers] = useState([]);
+  // const [schedulers, setSchedulers] = useState([]);
 
   // Funkcje do pobierania danych
   const fetchEmployees = async () => {
@@ -44,27 +46,37 @@ const AdministrationPage = () => {
     }
   };
   
-  const fetchSchedulers = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axiosInstance.get('/schedulers', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setSchedulers(response.data.scheduler);
-    } catch (error) {
-      setSchedulers({})
-    }
-    finally{
-      console.log(schedulers)
-    }
-  };
+  // const fetchSchedulers = async () => {
+  //   try {
+  //     const token = localStorage.getItem('token');
+  //     const teamsResponse = await axiosInstance.get('/teams/names', {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+  
+  //     const teams = teamsResponse.data.teams;
+  
+  //     const schedulersData = {};
+  //     for (const team of teams) {
+  //       const teamSchedulersResponse = await axiosInstance.get(`/schedulers/team/${team._id}/dates`, {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       });
+  
+  //       schedulersData[team.name] = teamSchedulersResponse.data.dates;
+  //     }
+  
+  //     setSchedulers(schedulersData);
+  //   } catch (error) {
+  //     console.error('Error fetching schedulers:', error);
+  //   }
+  // };
+  
   
 
   // Inicjalizacja danych
   useEffect(() => {
     fetchEmployees();
     fetchTeams();
-    fetchSchedulers();
+    // fetchSchedulers();
   }, []);
 
   return (
@@ -72,10 +84,10 @@ const AdministrationPage = () => {
       value={{
         employees,
         teams,
-        schedulers,
+        // schedulers,
         fetchEmployees,
         fetchTeams,
-        fetchSchedulers,
+        // fetchSchedulers,
       }}
     >
         <div className={styles.content}>
@@ -91,6 +103,8 @@ const AdministrationPage = () => {
             </div>
           <div className={styles.other}>
           <AddTeam />
+          <EditTeam /> {/* New Component */}
+          <DeleteTeam /> {/* New Component */}
           <DeleteScheduler />
           </div>
           </div>
