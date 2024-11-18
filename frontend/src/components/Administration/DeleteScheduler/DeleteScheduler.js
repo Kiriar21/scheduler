@@ -1,7 +1,8 @@
 import React, { useContext, useState } from 'react';
 import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
-import axios from 'axios';
+// import axios from 'axios';
+import axiosInstance from '../../../api/axiosInstance';
 
 const DeleteScheduler = () => {
   const { fetchSchedulers } = useContext(AdminContext);
@@ -19,7 +20,7 @@ const DeleteScheduler = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete('/scheduler/delete', {
+      await axiosInstance.delete('/scheduler/delete', {
         headers: { Authorization: `Bearer ${token}` },
         data: { year, month }
       });

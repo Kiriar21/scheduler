@@ -11,40 +11,40 @@ const SchedulerController = require('../controllers/SchedulerController');
 // Trasy użytkownika
 router.post('/register/admin', UserController.adminRegister); // use
 router.post('/login', UserController.loginUser); // use
-router.post('/register/user', authenticateToken, UserController.userRegister);
-router.put('/user/edit', authenticateToken, UserController.editUser);
-router.put('/user/password', authenticateToken, UserController.editPassword);
-router.put('/user/modify', authenticateToken, UserController.modifyUser);
-router.delete('/user/delete/:userId', authenticateToken, UserController.deleteUser);
-router.get('/user', authenticateToken, UserController.getUser);
-router.get('/users', authenticateToken, UserController.getUsers);
+router.post('/register/user', authenticateToken(['admin']), UserController.userRegister);
+router.put('/user/edit', authenticateToken(['user', 'manager', 'admin']), UserController.editUser);
+router.put('/user/password', authenticateToken(['user', 'manager', 'admin']), UserController.editPassword);
+router.put('/user/modify', authenticateToken(['admin']), UserController.modifyUser);
+router.delete('/user/delete/:userId', authenticateToken(['admin']), UserController.deleteUser);
+router.get('/user', authenticateToken(['user', 'manager', 'admin']), UserController.getUser);
+router.get('/users', authenticateToken(['manager', 'admin']), UserController.getUsers);
 
 // Nowe trasy użytkownika
-router.post('/user/addToTeam', authenticateToken, UserController.addUserToTeam);
-router.put('/user/editTeam', authenticateToken, UserController.editUserTeam);
+router.post('/user/addToTeam', authenticateToken(['admin']), UserController.addUserToTeam);
+router.put('/user/editTeam', authenticateToken(['admin']), UserController.editUserTeam);
 
 // Trasy firmy
-router.get('/company', authenticateToken, CompanyController.getInfoCompany);
-router.put('/company/edit', authenticateToken, CompanyController.editInfoCompany);
+router.get('/company', authenticateToken(['user', 'manager', 'admin']), CompanyController.getInfoCompany);
+router.put('/company/edit', authenticateToken(['admin']), CompanyController.editInfoCompany);
 
 // Trasy teamu
-router.post('/team/add', authenticateToken, TeamController.teamAdd);
-router.get('/team/:teamId', authenticateToken, TeamController.getTeam);
-router.get('/teams', authenticateToken, TeamController.getTeams);
-router.put('/team/edit/:teamId', authenticateToken, TeamController.editTeam);
-router.delete('/team/delete/:teamId', authenticateToken, TeamController.deleteTeam);
+router.post('/team/add', authenticateToken(['admin']), TeamController.teamAdd);
+router.get('/team/:teamId', authenticateToken(['user', 'manager', 'admin']), TeamController.getTeam);
+router.get('/teams', authenticateToken(['user', 'manager', 'admin']), TeamController.getTeams);
+router.put('/team/edit/:teamId', authenticateToken(['admin']), TeamController.editTeam);
+router.delete('/team/delete/:teamId', authenticateToken(['admin']), TeamController.deleteTeam);
 
 // Trasy shiftu
-router.get('/shift/:shiftId', authenticateToken, ShiftController.getInfoShift);
-router.put('/shift/edit/:shiftId', authenticateToken, ShiftController.editShift);
+router.get('/shift/:shiftId', authenticateToken(['user', 'manager', 'admin']), ShiftController.getInfoShift);
+router.put('/shift/edit/:shiftId', authenticateToken(['user', 'manager', 'admin']), ShiftController.editShift);
 
 // Trasy schedulerów
-router.post('/scheduler/create', authenticateToken, SchedulerController.createScheduler);
-router.get('/schedulers', authenticateToken, SchedulerController.getSchedulers);
-router.get('/scheduler', authenticateToken, SchedulerController.getScheduler);
-router.delete('/scheduler/delete', authenticateToken, SchedulerController.deleteScheduler);
-router.put('/scheduler/editDay', authenticateToken, SchedulerController.editDayInScheduler);
-router.post('/scheduler/confirmAvailability', authenticateToken, SchedulerController.confirmAvailabilityUser);
-router.get('/scheduler/statistics', authenticateToken, SchedulerController.getStatistic);
+router.post('/scheduler/create', authenticateToken(['manager', 'admin']), SchedulerController.createScheduler);
+router.get('/schedulers', authenticateToken(['user', 'manager', 'admin']), SchedulerController.getSchedulers);
+router.get('/scheduler', authenticateToken(['user', 'manager', 'admin']), SchedulerController.getScheduler);
+router.delete('/scheduler/delete', authenticateToken(['admin']), SchedulerController.deleteScheduler);
+router.put('/scheduler/editDay', authenticateToken(['user', 'manager', 'admin']), SchedulerController.editDayInScheduler);
+router.post('/scheduler/confirmAvailability', authenticateToken(['user', 'manager', 'admin']), SchedulerController.confirmAvailabilityUser);
+router.get('/scheduler/statistics', authenticateToken(['user', 'manager', 'admin']), SchedulerController.getStatistic);
 
 module.exports = router;

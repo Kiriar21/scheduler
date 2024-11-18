@@ -1,7 +1,8 @@
 import React, { useContext, useState } from 'react';
 import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
-import axios from 'axios';
+// import axios from 'axios';
+import axiosInstance from '../../../api/axiosInstance';
 
 const EditEmployee = () => {
   const { employees, teams, fetchEmployees, fetchTeams } = useContext(AdminContext);
@@ -54,7 +55,7 @@ const EditEmployee = () => {
     try {
       const token = localStorage.getItem('token');
 
-      await axios.put(
+      await axiosInstance.put(
         '/user/edit',
         {
           userId: selectedEmployee,
@@ -67,7 +68,7 @@ const EditEmployee = () => {
         }
       );
 
-      await axios.put(
+      await axiosInstance.put(
           '/user/modify',
           {
             userId: selectedEmployee,
@@ -91,7 +92,7 @@ const EditEmployee = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`/user/delete/${selectedEmployee}`, {
+      await axiosInstance.delete(`/user/delete/${selectedEmployee}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchEmployees();

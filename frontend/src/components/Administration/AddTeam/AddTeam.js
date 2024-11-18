@@ -1,7 +1,8 @@
 import React, { useContext, useState } from 'react';
 import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
-import axios from 'axios';
+// import axios from 'axios';
+import axiosInstance from '../../../api/axiosInstance';
 
 const AddTeam = () => {
   const { fetchTeams } = useContext(AdminContext);
@@ -15,7 +16,7 @@ const AddTeam = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post(
+      await axiosInstance.post(
         '/team/add',
         { name: teamName },
         {

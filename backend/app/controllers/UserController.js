@@ -155,7 +155,7 @@ const loginUser = async (req, res) => {
     }
 
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
       expiresIn: '1d',
     });
 
@@ -312,7 +312,6 @@ const deleteUser = async (req, res) => {
 const getUser = async (req, res) => {
   try {
     const userId = req.user._id;
-
     const user = await User.findById(userId)
       .populate('company', 'name nip')
       .populate('team', 'name')

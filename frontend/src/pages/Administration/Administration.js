@@ -6,7 +6,8 @@ import AddTeam from '../../components/Administration/AddTeam/AddTeam';
 import EditEmployee from '../../components/Administration/EditEmployee/EditEmployee';
 import DeleteScheduler from '../../components/Administration/DeleteScheduler/DeleteScheduler';
 import TeamList from '../../components/Administration/TeamList/TeamList';
-import axios from 'axios';
+// import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance'
 
 // Tworzymy kontekst
 export const AdminContext = createContext();
@@ -20,10 +21,9 @@ const AdministrationPage = () => {
   const fetchEmployees = async () => {
     try {
       const token = localStorage.getItem('token'); // Pobierz token z localStorage
-      const response = await axios.get('/users', {
+      const response = await axiosInstance.get('/users', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("TO:", response.data.users)
       setEmployees(response.data.users);
     } catch (error) {
       console.error('Error fetching employees:', error);
@@ -33,12 +33,11 @@ const AdministrationPage = () => {
   const fetchTeams = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('/teams', {
+      const response = await axiosInstance.get('/teams', {
         headers: { Authorization: `Bearer ${token}` },
       });
   
       // Dane użytkowników są już zagnieżdżone w odpowiedzi
-      console.log("teams;", response.data.teams)
       setTeams(response.data.teams);
     } catch (error) {
       console.error('Error fetching team data:', error);
@@ -48,7 +47,7 @@ const AdministrationPage = () => {
   const fetchSchedulers = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('/schedulers', {
+      const response = await axiosInstance.get('/schedulers', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setSchedulers(response.data.scheduler);

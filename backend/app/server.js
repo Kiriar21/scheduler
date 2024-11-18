@@ -43,7 +43,7 @@ app.use(morgan('tiny'));
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 10000,
   message: 'Zbyt wiele zapytań z tego IP, spróbuj ponownie za 15 minut',
 });
 

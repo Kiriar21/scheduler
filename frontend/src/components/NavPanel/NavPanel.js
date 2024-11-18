@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axiosInstance from '../../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 import styles from './NavPanel.module.scss';
 import { Typography } from '@mui/material';
@@ -13,6 +13,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import '../../styles/global.scss'; // Import globalnych zmiennych i czcionki
+import { checkTokenExpiration } from '../../utils/checkTokenExpiration';
 
 const theme = createTheme({
     typography: {
@@ -25,10 +26,23 @@ const NavigationPanel = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        const isTokenValid = checkTokenExpiration();
+        if (!isTokenValid) {
+            navigate('/login');
+        }
+    }, [navigate]);
+
+    useEffect(() => {
         const fetchUserData = async () => {
             try {
+                const isTokenValid = checkTokenExpiration();
+                if (!isTokenValid) {
+                    navigate('/login');
+                    return;
+                }
+
                 const token = localStorage.getItem('token');
-                const response = await axios.get('/user', {
+                const response = await axiosInstance.get('/user', {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -41,7 +55,7 @@ const NavigationPanel = () => {
         };
 
         fetchUserData();
-    }, []);
+    }, [navigate]);
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -57,6 +71,52 @@ const NavigationPanel = () => {
     };
 
     const role = user.role;
+
+    // Konfiguracja menu
+    const menuConfig = [
+        {
+            label: 'Grafik',
+            path: '/schedule',
+            icon: <CalendarMonth className={styles.icon} />,
+            roles: ['user', 'manager'],
+        },
+        {
+            label: 'Dyspozycyjność',
+            path: '/availability',
+            icon: <EventAvailable className={styles.icon} />,
+            roles: ['user', 'manager'],
+        },
+        {
+            label: 'Statystyki',
+            path: '/statistics',
+            icon: <BarChartIcon className={styles.icon} />,
+            roles: ['user', 'manager'],
+        },
+        {
+            label: 'Ustawienia grafiku',
+            path: '/schedule-settings',
+            icon: <SettingsIcon className={styles.icon} />,
+            roles: ['manager'],
+            highlightClass: 'menu-item--highlight-blue',
+        },
+        {
+            label: 'Raporty',
+            path: '/submissions',
+            icon: <AssignmentIcon className={styles.icon} />,
+            roles: ['manager'],
+            highlightClass: 'menu-item--highlight-blue',
+        },
+        {
+            label: 'Administrator',
+            path: '/administration',
+            icon: <AdminPanelSettingsIcon className={styles.icon} />,
+            roles: ['admin'],
+            highlightClass: 'menu-item--highlight-red',
+        },
+    ];
+
+    // Filtrowanie menu na podstawie ról
+    const filteredMenu = menuConfig.filter((menuItem) => menuItem.roles.includes(role));
 
     return (
         <ThemeProvider theme={theme}>
@@ -83,47 +143,29 @@ const NavigationPanel = () => {
                     </div>
                 </div>
 
-                {/* Navigation Menu */}
+                {/* Dynamiczne menu */}
                 <ul className={styles.menu}>
-                    <li className={styles['menu-item']} onClick={() => handleNavigation('/schedule')}>
-                        <CalendarMonth className={styles.icon} />
-                        <span>Grafik</span>
-                    </li>
-                    <li className={styles['menu-item']} onClick={() => handleNavigation('/availability')}>
-                        <EventAvailable className={styles.icon} />
-                        <span>Dyspozycyjność</span>
-                    </li>
-                    <li className={styles['menu-item']} onClick={() => handleNavigation('/statistics')}>
-                        <BarChartIcon className={styles.icon} />
-                        <span>Statystyki</span>
-                    </li>
-                    {(role === 'menedżer' || role === 'admin') && (
-                        <li className={`${styles['menu-item']} ${styles['menu-item--highlight-blue']}`} onClick={() => handleNavigation('/schedule-settings')}>
-                            <SettingsIcon className={styles.icon} />
-                            <span>Ustawienia grafiku</span>
+                    {filteredMenu.map((item, index) => (
+                        <li
+                            key={index}
+                            className={`${styles['menu-item']} ${
+                                item.highlightClass ? styles[item.highlightClass] : ''
+                            }`}
+                            onClick={() => handleNavigation(item.path)}
+                        >
+                            {item.icon}
+                            <span>{item.label}</span>
                         </li>
-                    )}
-                    {(role === 'menedżer' || role === 'admin') && (
-                        <li className={`${styles['menu-item']} ${styles['menu-item--highlight-blue']}`} onClick={() => handleNavigation('/submissions')}>
-                            <AssignmentIcon className={styles.icon} />
-                            <span>Raporty</span>
-                        </li>
-                    )}
-                    {role === 'admin' && (
-                        <li className={`${styles['menu-item']} ${styles['menu-item--highlight-red']}`} onClick={() => handleNavigation('/administration')}>
-                            <AdminPanelSettingsIcon className={styles.icon} />
-                            <span>Administrator</span>
-                        </li>
-                    )}
+                    ))}
                 </ul>
 
-                {/* Additional Options at the Bottom */}
+                {/* "Ustawienia konta" - dostępne dla wszystkich */}
                 <div className={styles.footer}>
                     <li className={styles['menu-item']} onClick={() => handleNavigation('/account-settings')}>
                         <SettingsIcon className={styles.icon} />
                         <span>Ustawienia konta</span>
                     </li>
-                    <hr style={{margin: '30px auto ', width:'80%', border:'1px solid #4B5A60'}}/>
+                    <hr style={{ margin: '30px auto ', width: '80%', border: '1px solid #4B5A60' }} />
                     <li className={`${styles['menu-item']} ${styles['menu-item--highlight-red']}`} onClick={handleLogout}>
                         <ExitToAppIcon className={styles.icon} />
                         <span>Wyloguj</span>

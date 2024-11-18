@@ -1,7 +1,8 @@
 import React, { useContext, useState } from 'react';
 import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
-import axios from 'axios';
+// import axios from 'axios';
+import axiosInstance from '../../../api/axiosInstance';
 
 const AddEmployee = () => {
   const { fetchEmployees, teams, fetchTeams } = useContext(AdminContext);
@@ -23,7 +24,7 @@ const AddEmployee = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token'); // Pobierz token z localStorage, jeśli to konieczne
-      await axios.post('/register/user', formData, {
+      await axiosInstance.post('/register/user', formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchEmployees(); // Odświeżenie listy pracowników po dodaniu nowego

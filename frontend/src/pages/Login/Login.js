@@ -4,6 +4,8 @@ import SubmitButton from '../../components/SubmitButton/SubmitButton';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styles from './Login.module.scss';
+import {jwtDecode} from 'jwt-decode';
+
 
 const LoginPage = () => {
   const [loginData, setLoginData] = useState({
@@ -42,7 +44,6 @@ const LoginPage = () => {
         expiryTime.setDate(expiryTime.getDate() + 1); 
 
         localStorage.setItem('token', data.token); 
-        localStorage.setItem('tokenExpiry', expiryTime.toString()); 
 
         return true; 
       } else {
@@ -65,8 +66,27 @@ const LoginPage = () => {
     const loginSuccess = await validateLogin();
 
     if (loginSuccess) {
-      navigate('/schedule');
-    } 
+      const token = localStorage.getItem('token');
+
+      try {
+        const decodedToken = jwtDecode(token);
+
+        if (decodedToken.role === 'admin') {
+          navigate('/administration');
+        } else if (decodedToken.role === 'manager' || decodedToken.role === 'user') {
+          navigate('/schedule');
+        } else {
+          setErrorMessage('Nieznana rola użytkownika.');
+          localStorage.removeItem('token')
+          navigate('/login') 
+        }
+      } catch (error) {
+        console.error('Błąd podczas dekodowania tokenu:', error);
+        setErrorMessage('Nieprawidłowy token. Zaloguj się ponownie.');
+        localStorage.removeItem('token'); 
+        navigate('/login');
+      }
+    }
   };
 
   return (
