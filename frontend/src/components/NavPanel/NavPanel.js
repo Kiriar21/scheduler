@@ -12,6 +12,7 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import '../../styles/global.scss'; // Import globalnych zmiennych i czcionki
 
 const theme = createTheme({
     typography: {
@@ -122,6 +123,7 @@ const NavigationPanel = () => {
                         <SettingsIcon className={styles.icon} />
                         <span>Ustawienia konta</span>
                     </li>
+                    <hr style={{margin: '30px auto ', width:'80%', border:'1px solid #4B5A60'}}/>
                     <li className={`${styles['menu-item']} ${styles['menu-item--highlight-red']}`} onClick={handleLogout}>
                         <ExitToAppIcon className={styles.icon} />
                         <span>Wyloguj</span>

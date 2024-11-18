@@ -1,7 +1,6 @@
 //pages/Administration.js
 import React, { createContext, useState, useEffect } from 'react';
 import styles from './Administration.module.scss';
-import NavPanel from '../../components/NavPanel/NavPanel';
 import AddEmployee from '../../components/Administration/AddEmployee/AddEmployee';
 import AddTeam from '../../components/Administration/AddTeam/AddTeam';
 import EditEmployee from '../../components/Administration/EditEmployee/EditEmployee';
@@ -80,8 +79,6 @@ const AdministrationPage = () => {
         fetchSchedulers,
       }}
     >
-      <div className={styles.container}>
-        <NavPanel />
         <div className={styles.content}>
           
           <div className={styles.list}>
@@ -99,7 +96,6 @@ const AdministrationPage = () => {
           </div>
           </div>
         </div>
-      </div>
     </AdminContext.Provider>
   );
 };

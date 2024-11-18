@@ -4,11 +4,8 @@ import NavPanel from '../../components/NavPanel/NavPanel';
 
 const StatisticsPage = () => {
   return (
-    <div className={styles.container}>
-      <NavPanel />
-      <div className={styles.content}>
+    <div className={styles.content}>
       <h2>Tu powstaje strona ze statystykami</h2>
-      </div>
     </div>
   );
 };

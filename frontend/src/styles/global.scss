@@ -22,6 +22,11 @@ $dark-red: #C23737;
 // Czcionka
 $default-font: 'Manrope', sans-serif;
 
+@mixin container(){
+  display: flex;
+  flex-direction: row;
+}
+
 // Mixin dla przycisków
 @mixin button-style($bg-color, $hover-color) {
   width: 70%;

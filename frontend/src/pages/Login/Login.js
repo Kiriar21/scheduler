@@ -65,7 +65,7 @@ const LoginPage = () => {
     const loginSuccess = await validateLogin();
 
     if (loginSuccess) {
-      navigate('/home');
+      navigate('/schedule');
     } 
   };
 
