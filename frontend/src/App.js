@@ -13,6 +13,7 @@ import AccountPage from './pages/Account/Account';
 import Layout from './components/Layouts/Layout';
 import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 import { jwtDecode } from 'jwt-decode';
+import  SchedulerProvider  from './contexts/SchedulerContext/SchedulerContext';
 
 function App() {
   const getRole = () => {
@@ -30,6 +31,7 @@ function App() {
   const role = getRole();
   
   return (
+    <SchedulerProvider>
     <Router>
       <div className="App">
         <Routes>
@@ -43,39 +45,39 @@ function App() {
               <Route element={<PrivateRoute allowedRoles={['admin']} />}> 
                 <Route path="/administration" element={<AdministrationPage />} />
               </Route>
+              
+                {/* Trasy managerów */}
+                <Route element={<PrivateRoute allowedRoles={['manager']} />}>
+                  <Route path="/schedule-settings" element={<SettingsPage />} />
+                  <Route path="/submissions" element={<SubmissionsPage />} />
+                </Route>
 
-              {/* Trasy managerów */}
-              <Route element={<PrivateRoute allowedRoles={['manager']} />}>
-                <Route path="/schedule-settings" element={<SettingsPage />} />
-                <Route path="/submissions" element={<SubmissionsPage />} />
-              </Route>
-
-              {/* Trasy użytkowników i managerów */}
-              <Route element={<PrivateRoute allowedRoles={['manager', 'user']} />}>
-                <Route path="/schedule" element={<SchedulePage />} />
-                <Route path="/availability" element={<AvailabilityPage />} />
-                <Route path="/statistics" element={<StatisticsPage />} />
-              </Route>
-
-              {/* Trasy wspólne dla wszystkich */}
-              <Route element={<PrivateRoute allowedRoles={['user', 'manager', 'admin']} />}>
-                <Route path="/account-settings" element={<AccountPage />} />
-                <Route
-                  path="*"
-                  element={
-                    role === 'admin' ? (
-                      <Navigate to="/administration" replace />
-                    ) : (
-                      <Navigate to="/schedule" replace />
-                    )
-                  }
-                />
-              </Route>
-
+                {/* Trasy użytkowników i managerów */}
+                <Route element={<PrivateRoute allowedRoles={['manager', 'user']} />}>
+                  <Route path="/schedule" element={<SchedulePage />} />
+                  <Route path="/availability" element={<AvailabilityPage />} />
+                  <Route path="/statistics" element={<StatisticsPage />} />
+                </Route>
+                {/* Trasy wspólne dla wszystkich */}
+                <Route element={<PrivateRoute allowedRoles={['user', 'manager', 'admin']} />}>
+                  <Route path="/account-settings" element={<AccountPage />} />
+                  <Route
+                    path="*"
+                    element={
+                      role === 'admin' ? (
+                        <Navigate to="/administration" replace />
+                      ) : (
+                        <Navigate to="/schedule" replace />
+                      )
+                    }
+                  />
+                </Route>
+              
             </Route>
         </Routes>
       </div>
     </Router>
+    </SchedulerProvider>
   );
 }
 

@@ -117,7 +117,6 @@ const deleteTeam = async (req, res) => {
     // Usuń wszystkie grafiki powiązane z tym zespołem
     const deletedSchedulers = await Scheduler.deleteMany({ team: teamId, company: req.user.company });
 
-    console.log(`Usunięto ${deletedSchedulers.deletedCount} grafik dla zespołu ${teamId}`);
 
     return res.status(200).json({
       message: `Team został usunięty, a powiązane ${deletedSchedulers.deletedCount} grafik(i) zostały również usunięte.`,

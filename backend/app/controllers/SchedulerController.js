@@ -270,24 +270,31 @@ const getScheduler = async (req, res) => {
 
 const getSchedulers = async (req, res) => {
   try {
-    
     const user = req.user;
 
-    const schedulers = await Scheduler.findOne({
-      company: user.company,
-    })
-
-    if (!schedulers) {
-      return res.status(404).json({ error: 'Brak schedulerów dla tej firmy' });
+    // Sprawdzenie czy użytkownik jest przypisany do zespołu
+    const teamId = user.team;
+    if (!teamId) {
+      return res.status(400).json({ error: 'Użytkownik nie jest przypisany do zespołu' });
     }
-    
+
+    // Pobierz dostępne grafiki dla zespołu użytkownika
+    const schedulers = await Scheduler.find({
+      company: user.company,
+      team: teamId,
+    }).select('month year').lean();
+
+    if (!schedulers.length) {
+      return res.status(404).json({ error: 'Brak schedulerów dla tego zespołu' });
+    }
 
     return res.status(200).json({ schedulers });
   } catch (error) {
-    console.error('Error in getScheduler:', error);
+    console.error('Error in getSchedulers:', error);
     return res.status(500).json({ error: 'Błąd serwera' });
   }
 };
+
 
 const editDayInScheduler = async (req, res) => {
   try {
