@@ -19,7 +19,7 @@ const createScheduler = async (req, res) => {
 
 
     month = xss(month);
-    year = xss(year);
+    year = parseInt(xss(year), 10);
     teamId = xss(teamId);
 
 
@@ -35,6 +35,39 @@ const createScheduler = async (req, res) => {
       return res.status(400).json({ error: 'Niepoprawny identyfikator teamu' });
     }
 
+    const months = [
+      'styczeń',
+      'luty',
+      'marzec',
+      'kwiecień',
+      'maj',
+      'czerwiec',
+      'lipiec',
+      'sierpień',
+      'wrzesień',
+      'październik',
+      'listopad',
+      'grudzień',
+    ];
+    const currentDate = new Date();
+    const currentMonthIndex = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+
+    const providedMonthIndex = months.indexOf(month.toLowerCase());
+
+
+    if (providedMonthIndex === -1) {
+      return res.status(400).json({ error: 'Niepoprawna nazwa miesiąca' });
+    }
+
+    if (
+      year < currentYear || 
+      (year === currentYear && providedMonthIndex < currentMonthIndex)
+    ) {
+      return res.status(400).json({
+        error: 'Grafiki mogą być tworzone tylko dla bieżącego lub przyszłego miesiąca.',
+      });
+    }
 
     const team = await Team.findOne({ _id: teamId, company: user.company });
     if (!team) {
