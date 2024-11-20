@@ -416,11 +416,9 @@ const confirmAvailabilityUser = async (req, res) => {
     const user = req.user;
     let { month, year, targetUserId } = req.body;
 
-
     month = xss(month);
-    year = xss(year);
+    year = parseInt(xss(year));
     targetUserId = xss(targetUserId);
-
 
     if (!validateMonthName(month)) {
       return res.status(400).json({ error: 'Niepoprawna nazwa miesiąca' });
@@ -430,19 +428,17 @@ const confirmAvailabilityUser = async (req, res) => {
       return res.status(400).json({ error: 'Niepoprawny rok' });
     }
 
-    if (user.role === 'user') {
-      targetUserId = user._id.toString();
-    } else if (user.role === 'manager') {
-      if (!validateObjectId(targetUserId)) {
-        return res.status(400).json({ error: 'Niepoprawny identyfikator użytkownika' });
-      }
-    } else {
+    if (user.role !== 'manager') {
       return res.status(403).json({ error: 'Brak dostępu' });
+    }
+
+    if (!validateObjectId(targetUserId)) {
+      return res.status(400).json({ error: 'Niepoprawny identyfikator użytkownika' });
     }
 
     const teamId = user.team;
     if (!teamId) {
-      return res.status(400).json({ error: 'Użytkownik nie jest przypisany do teamu' });
+      return res.status(400).json({ error: 'Użytkownik nie jest przypisany do zespołu' });
     }
 
     const scheduler = await Scheduler.findOne({
@@ -458,7 +454,7 @@ const confirmAvailabilityUser = async (req, res) => {
     });
 
     if (!scheduler) {
-      return res.status(404).json({ error: 'Scheduler nie został znaleziony' });
+      return res.status(404).json({ error: 'Grafik nie został znaleziony' });
     }
 
     for (let dayInfo of scheduler.map_month) {
@@ -466,21 +462,91 @@ const confirmAvailabilityUser = async (req, res) => {
         (d) => d.user.toString() === targetUserId
       );
       if (day) {
-        if (user.role === 'user') {
-          day.userSubmit = true;
-        } else if (user.role === 'manager') {
-          day.managerSubmit = true;
-        }
+        day.managerSubmit = true;
         await day.save();
       }
     }
 
-    return res.status(200).json({ message: 'Dyspozycyjność została potwierdzona' });
+    return res.status(200).json({ message: 'Dostępność użytkownika została zatwierdzona' });
   } catch (error) {
     console.error('Error in confirmAvailabilityUser:', error);
     return res.status(500).json({ error: 'Błąd serwera' });
   }
 };
+
+
+
+// controllers/SchedulerController.js
+const updateAvailability = async (req, res) => {
+  try {
+    const user = req.user;
+    let { month, year, updates } = req.body;
+
+    // Walidacja danych
+    month = xss(month);
+    year = parseInt(xss(year));
+
+    if (!validateMonthName(month)) {
+      return res.status(400).json({ error: 'Niepoprawna nazwa miesiąca' });
+    }
+
+    if (!validateYear(year)) {
+      return res.status(400).json({ error: 'Niepoprawny rok' });
+    }
+
+    const teamId = user.team;
+    if (!teamId) {
+      return res.status(400).json({ error: 'Użytkownik nie jest przypisany do zespołu' });
+    }
+
+    const scheduler = await Scheduler.findOne({
+      company: user.company,
+      team: teamId,
+      month,
+      year,
+    }).populate({
+      path: 'map_month',
+      populate: {
+        path: 'employersHours',
+      },
+    });
+
+    if (!scheduler) {
+      return res.status(404).json({ error: 'Grafik nie został znaleziony' });
+    }
+
+    for (let update of updates) {
+      const { dayOfMonth, prefferedHours, availability } = update;
+      const dayInfo = scheduler.map_month.find((day) => day.dayOfMonth === dayOfMonth);
+
+      if (!dayInfo) {
+        continue;
+      }
+
+      const day = dayInfo.employersHours.find(
+        (d) => d.user.toString() === user._id.toString()
+      );
+
+      if (day) {
+        day.prefferedHours = prefferedHours;
+        day.availability = availability;
+        day.userSubmit = true;
+        if (user.role === 'manager') {
+          day.managerSubmit = true;
+        } else {
+          day.managerSubmit = false; 
+        } 
+        await day.save();
+      }
+    }
+
+    return res.status(200).json({ message: 'Dostępność została zaktualizowana' });
+  } catch (error) {
+    console.error('Error in updateAvailability:', error);
+    return res.status(500).json({ error: 'Błąd serwera' });
+  }
+};
+
 
 const getStatistic = async (req, res) => {
   try {
@@ -577,4 +643,5 @@ module.exports = {
   getStatistic,
   getSchedulers,
   getTeamSchedulerDates,
+  updateAvailability
 };

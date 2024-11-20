@@ -142,6 +142,26 @@ const getAllTeamNames = async (req, res) => {
     return res.status(500).json({ error: 'Błąd serwera' });
   }
 };
+const getTeamUsers = async (req, res) => {
+  try {
+    const user = req.user;
+
+    if (user.role !== 'manager') {
+      return res.status(403).json({ error: 'Brak dostępu' });
+    }
+
+    const team = await Team.findById(user.team).populate('users', 'name surname _id');
+
+    if (!team) {
+      return res.status(404).json({ error: 'Zespół nie został znaleziony' });
+    }
+
+    return res.status(200).json({ users: team.users });
+  } catch (error) {
+    console.error('Error in getTeamUsers:', error);
+    return res.status(500).json({ error: 'Błąd serwera' });
+  }
+};
 
 
 module.exports = {
@@ -151,4 +171,5 @@ module.exports = {
   editTeam,
   deleteTeam,
   getAllTeamNames,
+  getTeamUsers,
 };

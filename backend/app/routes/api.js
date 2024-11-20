@@ -28,12 +28,14 @@ router.get('/company', authenticateToken(['user', 'manager', 'admin']), CompanyC
 router.put('/company/edit', authenticateToken(['admin']), CompanyController.editInfoCompany);
 
 // Trasy teamu
+router.get('/team/users', authenticateToken(['manager']), TeamController.getTeamUsers);
 router.post('/team/add', authenticateToken(['admin']), TeamController.teamAdd);
 router.get('/team/:teamId', authenticateToken(['user', 'manager', 'admin']), TeamController.getTeam);
 // router.get('/team/names', authenticateToken(['admin']), TeamController.getAllTeamNames);
 router.get('/teams', authenticateToken(['user', 'manager', 'admin']), TeamController.getTeams);
 router.put('/team/edit/:teamId', authenticateToken(['admin']), TeamController.editTeam);
 router.delete('/team/delete/:teamId', authenticateToken(['admin']), TeamController.deleteTeam);
+
 
 // Trasy shiftu
 router.get('/shift/:shiftId', authenticateToken(['user', 'manager', 'admin']), ShiftController.getInfoShift);
@@ -46,6 +48,7 @@ router.get('/schedulers', authenticateToken(['user', 'manager', 'admin']), Sched
 router.get('/scheduler', authenticateToken(['user', 'manager', 'admin']), SchedulerController.getScheduler);
 router.delete('/scheduler/delete', authenticateToken(['admin']), SchedulerController.deleteScheduler);
 router.put('/scheduler/editDay', authenticateToken(['user', 'manager', 'admin']), SchedulerController.editDayInScheduler);
+router.put('/scheduler/updateAvailability', authenticateToken(['user', 'manager']), SchedulerController.updateAvailability);
 router.post('/scheduler/confirmAvailability', authenticateToken(['user', 'manager', 'admin']), SchedulerController.confirmAvailabilityUser);
 router.get('/scheduler/statistics', authenticateToken(['user', 'manager', 'admin']), SchedulerController.getStatistic);
 

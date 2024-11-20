@@ -3,4 +3,57 @@
     flex-direction: row;
   }
   
-  
+  /* pages/Availability/Availability.module.scss */
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.selector {
+  margin-bottom: 20px;
+}
+
+.userSelector {
+  margin-bottom: 20px;
+}
+
+.submitStatus {
+  margin-bottom: 20px;
+  p {
+    margin: 5px 0;
+  }
+}
+
+.availabilityForm {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.table {
+  border-collapse: collapse;
+  width: 80%;
+}
+
+.table th,
+.table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.table th {
+  background-color: #f2f2f2;
+  text-align: center;
+}
+
+.table td {
+  text-align: center;
+}
+
+.saveButton,
+.confirmButton {
+  margin-top: 20px;
+  padding: 10px 20px;
+  cursor: pointer;
+}

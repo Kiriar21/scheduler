@@ -9,7 +9,7 @@ import styles from './Schedule.module.scss';
 import axiosInstance from '../../api/axiosInstance';
 
 const SchedulePage = () => {
-  const { currentScheduler, changeScheduler } = useContext(SchedulerContext);
+  const { currentScheduler, changeScheduler, availableSchedulers  } = useContext(SchedulerContext);
   const [availableSchedules, setAvailableSchedules] = useState([]);
   const [selectedSchedule, setSelectedSchedule] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -117,15 +117,19 @@ const SchedulePage = () => {
     <div className={styles.content}>
       <h2>Wybierz grafik zespołu</h2>
 
-      {/* Schedule selector */}
+      {/* Schedule selector or message */}
       <div className={styles.selector}>
-        <select value={selectedSchedule} onChange={handleSelectChange}>
-          {availableSchedules.map((schedule, index) => (
-            <option key={index} value={`${schedule.month} ${schedule.year}`}>
-              {schedule.month} {schedule.year}
-            </option>
-          ))}
-        </select>
+        {availableSchedulers.length > 0 ? (
+          <select value={selectedSchedule} onChange={handleSelectChange}>
+            {availableSchedulers.map((schedule, index) => (
+              <option key={index} value={`${schedule.month} ${schedule.year}`}>
+                {schedule.month} {schedule.year}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <p>Brak dostępnych grafików.</p>
+        )}
       </div>
 
       {/* View switcher */}
