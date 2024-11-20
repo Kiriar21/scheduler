@@ -23,7 +23,7 @@ const SchedulerSchema = new mongoose.Schema({
   },
   year: { type: Number, required: true },
   team: { type: mongoose.Schema.Types.ObjectId, ref: 'Team', required: true },
-  map_month: [DayInfoSchema],
+  map_month: [{ type: mongoose.Schema.Types.ObjectId, ref: 'DayInfo' }],
 });
 
 module.exports = mongoose.model('Scheduler', SchedulerSchema);

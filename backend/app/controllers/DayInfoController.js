@@ -4,7 +4,6 @@ const DayController = require('./DayController');
 const createDayInfo = async (dayInfoData, users) => {
   try {
     const employersHours = [];
-
     for (const user of users) {
       const day = await DayController.createDay(user._id); // Pobieramy cały obiekt dnia
       employersHours.push(day); // Dodajemy cały obiekt do `employersHours`

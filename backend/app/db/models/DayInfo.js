@@ -8,7 +8,7 @@ const DayInfoSchema = new mongoose.Schema({
     enum: ['poniedziałek', 'wtorek', 'środa', 'czwartek', 'piątek', 'sobota', 'niedziela'],
   },
   numberOfWeek: { type: Number, required: true, min: 1, max: 6 },
-  employersHours: [DaySchema],
+  employersHours: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Day' }],
 });
 
 module.exports = mongoose.model('DayInfo', DayInfoSchema);

@@ -105,11 +105,8 @@ const createScheduler = async (req, res) => {
 
     await fillEmployersHours(savedScheduler._id, mapMonth, teamId);
 
-    const updatedScheduler = await Scheduler.findById(savedScheduler._id);
-
     return res.status(201).json({
       message: 'Scheduler został pomyślnie utworzony',
-      scheduler: updatedScheduler,
     });
   } catch (error) {
     console.error('Error in createScheduler:', error);

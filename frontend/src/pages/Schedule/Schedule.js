@@ -1,5 +1,10 @@
+// pages/Schedule/Schedule.js
 import React, { useContext, useState, useEffect } from 'react';
 import { SchedulerContext } from '../../contexts/SchedulerContext/SchedulerContext';
+import ViewSwitcher from '../../components/Scheduler/ViewSwitcher/ViewSwitcher';
+import DayView from '../../components/Scheduler/DayView/DayView';
+import WeekView from '../../components/Scheduler/WeekView/WeekView';
+import MonthView from '../../components/Scheduler/MonthView/MonthView';
 import styles from './Schedule.module.scss';
 import axiosInstance from '../../api/axiosInstance';
 
@@ -8,6 +13,9 @@ const SchedulePage = () => {
   const [availableSchedules, setAvailableSchedules] = useState([]);
   const [selectedSchedule, setSelectedSchedule] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedView, setSelectedView] = useState('month'); // Default to 'month'
+  const [userRole, setUserRole] = useState('');
+  const [userId, setUserId] = useState('');
 
   const monthIndex = {
     styczeń: 0,
@@ -33,7 +41,7 @@ const SchedulePage = () => {
     return { currentMonth, currentYear };
   };
 
-  // Pobieranie dostępnych grafików
+  // Fetching available schedules
   const fetchAvailableSchedules = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -44,12 +52,12 @@ const SchedulePage = () => {
       const sortedSchedules = (response.data.schedulers || []).sort((a, b) => {
         const dateA = new Date(a.year, monthIndex[a.month]);
         const dateB = new Date(b.year, monthIndex[b.month]);
-        return dateB - dateA; // Sortowanie od najnowszego do najstarszego
+        return dateB - dateA; // Sort from newest to oldest
       });
 
       setAvailableSchedules(sortedSchedules);
 
-      // Automatycznie wybierz grafik dla aktualnego miesiąca, jeśli istnieje
+      // Automatically select current month's schedule if available
       const { currentMonth, currentYear } = getCurrentMonthYear();
       const currentSchedule = sortedSchedules.find(
         (schedule) =>
@@ -60,7 +68,7 @@ const SchedulePage = () => {
         setSelectedSchedule(`${currentMonth} ${currentYear}`);
         changeScheduler(currentMonth, currentYear);
       } else if (sortedSchedules.length > 0) {
-        // Jeśli brak grafiku dla aktualnego miesiąca, wybierz najnowszy
+        // If no current month schedule, select the latest
         const { month, year } = sortedSchedules[0];
         setSelectedSchedule(`${month} ${year}`);
         changeScheduler(month, year);
@@ -72,8 +80,22 @@ const SchedulePage = () => {
     }
   };
 
+  const fetchUserData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axiosInstance.get('/user', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUserRole(response.data.user.role);
+      setUserId(response.data.user._id);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
+
   useEffect(() => {
     fetchAvailableSchedules();
+    fetchUserData();
   }, []);
 
   const handleSelectChange = (e) => {
@@ -81,6 +103,10 @@ const SchedulePage = () => {
     setSelectedSchedule(selectedValue);
     const [month, year] = selectedValue.split(' ');
     changeScheduler(month, year);
+  };
+
+  const handleViewChange = (view) => {
+    setSelectedView(view);
   };
 
   if (isLoading) {
@@ -91,12 +117,9 @@ const SchedulePage = () => {
     <div className={styles.content}>
       <h2>Wybierz grafik zespołu</h2>
 
-      {/* Formularz wyboru dostępnego grafiku */}
+      {/* Schedule selector */}
       <div className={styles.selector}>
-        <select
-          value={selectedSchedule}
-          onChange={handleSelectChange}
-        >
+        <select value={selectedSchedule} onChange={handleSelectChange}>
           {availableSchedules.map((schedule, index) => (
             <option key={index} value={`${schedule.month} ${schedule.year}`}>
               {schedule.month} {schedule.year}
@@ -105,17 +128,29 @@ const SchedulePage = () => {
         </select>
       </div>
 
-      {/* Wyświetlanie wybranego grafiku */}
+      {/* View switcher */}
+      <ViewSwitcher selectedView={selectedView} onViewChange={handleViewChange} />
+
+      {/* Display the schedule according to selected view */}
       {currentScheduler ? (
         <div className={styles.scheduler}>
-          <h3>Grafik dla {currentScheduler.month} {currentScheduler.year}</h3>
-          <ul>
-            {currentScheduler.map_month.map((day, index) => (
-              <li key={index}>
-                {day.dayOfMonth} ({day.nameDayOfWeek}): {day.employersHours.length} zmian
-              </li>
-            ))}
-          </ul>
+          {selectedView === 'day' && (
+            <DayView
+              scheduler={currentScheduler}
+              userRole={userRole}
+              userId={userId}
+            />
+          )}
+          {selectedView === 'week' && (
+            <WeekView
+              scheduler={currentScheduler}
+              userRole={userRole}
+              userId={userId}
+            />
+          )}
+          {selectedView === 'month' && (
+            <MonthView scheduler={currentScheduler} />
+          )}
         </div>
       ) : (
         <p>Brak grafiku dla wybranego miesiąca i roku.</p>

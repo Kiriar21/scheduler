@@ -1,0 +1,17 @@
+/* ViewSwitcher.module.scss */
+.viewSwitcher {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .viewSwitcher button {
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  
+  .viewSwitcher .active {
+    background-color: #007bff;
+    color: white;
+  }
+  

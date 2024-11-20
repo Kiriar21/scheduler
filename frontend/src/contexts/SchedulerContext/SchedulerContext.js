@@ -19,6 +19,7 @@ const SchedulerProvider = ({ children }) => {
         headers: { Authorization: `Bearer ${token}` },
         params: { month, year },
       });
+      console.log(response.data.scheduler)
       setCurrentScheduler(response.data.scheduler);
     } catch (error) {
       console.error('Error fetching scheduler:', error);
