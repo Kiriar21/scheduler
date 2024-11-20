@@ -1,15 +1,20 @@
-// components/TimeEditModal/TimeEditModal.js
+// components/Scheduler/TimeEditModal/TimeEditModal.js
+
 import React, { useState, useEffect } from 'react';
 import styles from './TimeEditModal.module.scss';
 
-const TimeEditModal = ({ isOpen, onClose, onSave, initialData }) => {
+const TimeEditModal = ({ isOpen, onClose, onSave, initialData, dayInfo }) => {
   const [startHour, setStartHour] = useState(initialData.start_hour || 0);
   const [endHour, setEndHour] = useState(initialData.end_hour || 0);
+  const [availability, setAvailability] = useState(initialData.availability || '');
+  const [preferredHours, setPreferredHours] = useState(initialData.prefferedHours || '');
 
   useEffect(() => {
     if (isOpen) {
       setStartHour(initialData.start_hour || 0);
       setEndHour(initialData.end_hour || 0);
+      setAvailability(initialData.availability || '');
+      setPreferredHours(initialData.prefferedHours || '');
     }
   }, [isOpen, initialData]);
 
@@ -27,7 +32,13 @@ const TimeEditModal = ({ isOpen, onClose, onSave, initialData }) => {
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent}>
-        <h2>Edytuj godziny</h2>
+        <h2>
+          Edytuj godziny - Dzień {dayInfo?.dayOfMonth} ({dayInfo?.nameDayOfWeek})
+        </h2>
+        <div className={styles.infoGroup}>
+          <p><strong>Dostępność:</strong> {availability}</p>
+          <p><strong>Preferowane godziny:</strong> {preferredHours}</p>
+        </div>
         <div className={styles.inputGroup}>
           <label>Godzina rozpoczęcia:</label>
           <input

@@ -21,6 +21,7 @@ const adminRegister = async (req, res) => {
   try {
     let { email, pwd, name, surname, nip, companyName, confirmPwd } = req.body;
 
+    // Walidacja danych wejściowych
     if (!validateEmail(email)) {
       return res.status(400).json({ error: 'Niepoprawny format email' });
     }
@@ -37,13 +38,16 @@ const adminRegister = async (req, res) => {
       return res.status(400).json({ error: 'Imię i nazwisko muszą mieć co najmniej 3 znaki' });
     }
 
+    // Sprawdzenie, czy użytkownik o podanym email już istnieje
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ error: 'Email jest już zarejestrowany' });
     }
 
+    // Haszowanie hasła
     const hashedPassword = await hashPassword(pwd);
 
+    // Tworzenie nowego użytkownika
     const newUser = new User({
       email,
       pwd: hashedPassword,
@@ -54,23 +58,45 @@ const adminRegister = async (req, res) => {
 
     const savedUser = await newUser.save();
 
-    const companyData = {
+    // Tworzenie firmy
+    const newCompany = new Company({
       nip,
       name: companyName,
       admin: savedUser._id,
-    };
+    });
 
-    const savedCompany = await CompanyController.registerCompany(companyData);
+    const savedCompany = await newCompany.save();
 
+    // Tworzenie zespołu dla administratora
+    const adminTeam = new Team({
+      name: `${companyName} - Admin Team`,
+      company: savedCompany._id,
+      users: [savedUser._id],
+    });
+
+    const savedTeam = await adminTeam.save();
+
+    // Przypisanie zespołu i firmy do administratora
+    savedUser.team = savedTeam._id;
     savedUser.company = savedCompany._id;
     await savedUser.save();
 
-    return res.status(201).json({ message: 'Administrator i firma zostali pomyślnie utworzeni' });
+    // Dodanie zespołu do firmy
+    savedCompany.teams.push(savedTeam._id);
+    await savedCompany.save();
+
+    return res.status(201).json({
+      message: 'Administrator, firma i zespół zostały pomyślnie utworzone',
+      user: savedUser,
+      company: savedCompany,
+      team: savedTeam,
+    });
   } catch (error) {
-    console.error(error);
+    console.error('Error in adminRegister:', error);
     return res.status(500).json({ error: 'Błąd serwera' });
   }
 };
+
 
 const userRegister = async (req, res) => {
   try {
@@ -106,7 +132,7 @@ const userRegister = async (req, res) => {
     }
 
     const team = await Team.findById(teamId);
-    if (!team || team.company !== req.user.company) {
+    if (!team || team.company.toString() !== req.user.company.toString()) {
       return res.status(400).json({ error: 'Nieprawidłowy team' });
     }
 
@@ -254,7 +280,7 @@ const editPassword = async (req, res) => {
     let { oldPassword, newPassword } = req.body;
 
 
-    if (!validatePassword(newPassword)) {
+    if (!validatePasswordUser(newPassword)) {
       return res.status(400).json({ error: 'Nowe hasło nie spełnia wymagań' });
     }
 
@@ -277,6 +303,7 @@ const editPassword = async (req, res) => {
   }
 };
 
+
 const modifyUser = async (req, res) => {
   try {
     if (req.user.role !== 'admin') {
@@ -289,29 +316,45 @@ const modifyUser = async (req, res) => {
       return res.status(400).json({ error: 'Niepoprawna rola użytkownika' });
     }
 
-    if (!validateTeamId(teamId)) {
-      return res.status(400).json({ error: 'Nieprawidłowy identyfikator teamu' });
-    }
-
     const user = await User.findById(userId);
-    if (!user || user.company !== req.user.company) {
+    if (!user || user.company.toString() !== req.user.company.toString()) {
       return res.status(404).json({ error: 'Użytkownik nie został znaleziony' });
     }
 
     const oldTeamId = user.team;
 
-    if (oldTeamId && oldTeamId.toString() === teamId) {
+    // Sprawdź, czy stary zespół istnieje
+    if (oldTeamId) {
+      const oldTeam = await Team.findById(oldTeamId);
+      if (!oldTeam) {
+        // Jeśli stary zespół nie istnieje, wyczyść pole team użytkownika
+        user.team = null;
+        await user.save();
+      }
+    }
+
+    // Jeśli `teamId` nie jest podane, usuń przypisanie użytkownika do zespołu
+    if (!teamId) {
       user.role = role;
+      user.team = null;
       await user.save();
-      return res.status(200).json({ message: 'Użytkownik został zmodyfikowany bez zmiany zespołu', user });
+      return res.status(200).json({
+        message: 'Użytkownik został zmodyfikowany i odpięty od zespołu',
+        user,
+      });
+    }
+
+    // Sprawdź, czy nowy zespół istnieje
+    if (!validateTeamId(teamId)) {
+      return res.status(400).json({ error: 'Nieprawidłowy identyfikator teamu' });
     }
 
     const newTeam = await Team.findById(teamId);
-    if (!newTeam || newTeam.company !== req.user.company) {
+    if (!newTeam || newTeam.company.toString() !== req.user.company.toString()) {
       return res.status(400).json({ error: 'Nieprawidłowy team' });
     }
 
-    // Usuń użytkownika ze starego zespołu, jeśli zespół się zmienia
+    // Usuń użytkownika ze starego zespołu, jeśli istnieje
     if (oldTeamId && oldTeamId.toString() !== teamId) {
       const oldTeam = await Team.findById(oldTeamId);
       if (oldTeam) {
@@ -322,7 +365,7 @@ const modifyUser = async (req, res) => {
       }
     }
 
-    // Dodaj użytkownika do nowego zespołu, jeśli nie jest tam już przypisany
+    // Dodaj użytkownika do nowego zespołu, jeśli jeszcze tam nie jest
     if (!newTeam.users.includes(userId)) {
       newTeam.users.push(userId);
       await newTeam.save();
@@ -333,12 +376,77 @@ const modifyUser = async (req, res) => {
     user.team = teamId;
     await user.save();
 
-    return res.status(200).json({ message: 'Użytkownik został zmodyfikowany', user });
+    // Dodaj użytkownika do schedulerów zespołu
+    const currentDate = new Date();
+    const currentMonthIndex = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+
+    const monthNameToIndex = {
+      'styczeń': 0,
+      'luty': 1,
+      'marzec': 2,
+      'kwiecień': 3,
+      'maj': 4,
+      'czerwiec': 5,
+      'lipiec': 6,
+      'sierpień': 7,
+      'wrzesień': 8,
+      'październik': 9,
+      'listopad': 10,
+      'grudzień': 11,
+    };
+
+    // Znajdź wszystkie schedulery nowego zespołu
+    const schedulers = await Scheduler.find({
+      company: req.user.company,
+      team: teamId,
+    });
+
+    for (const scheduler of schedulers) {
+      const schedulerMonthIndex = monthNameToIndex[scheduler.month.toLowerCase()];
+      const schedulerYear = scheduler.year;
+
+      // Dodaj użytkownika tylko do bieżących lub przyszłych schedulerów
+      if (
+        schedulerYear > currentYear ||
+        (schedulerYear === currentYear && schedulerMonthIndex >= currentMonthIndex)
+      ) {
+        for (const dayInfoId of scheduler.map_month) {
+          const dayInfo = await DayInfo.findById(dayInfoId);
+
+          if (dayInfo) {
+            // Stwórz nowy dzień dla użytkownika
+            const day = new Day({
+              user: userId,
+              start_hour: 0,
+              end_hour: 0,
+              prefferedHours: '',
+              availability: '',
+              userSubmit: false,
+              managerSubmit: false,
+            });
+
+            const savedDay = await day.save();
+
+            // Dodaj nowy dzień do dayInfo
+            dayInfo.employersHours.push(savedDay._id);
+            await dayInfo.save();
+          }
+        }
+      }
+    }
+
+    return res.status(200).json({
+      message: 'Użytkownik został zmodyfikowany i przypisany do nowego zespołu oraz schedulerów',
+      user,
+    });
   } catch (error) {
-    console.error(error);
+    console.error('Error in modifyUser:', error);
     return res.status(500).json({ error: 'Błąd serwera' });
   }
 };
+
+
 
 const deleteUser = async (req, res) => {
   try {
@@ -348,14 +456,12 @@ const deleteUser = async (req, res) => {
 
     const userId = req.params.userId;
 
-
     const user = await User.findById(userId);
-    if (!user || user.company !== req.user.company) {
+    if (!user || user.company.toString() !== req.user.company.toString()) {
       return res.status(404).json({ error: 'Użytkownik nie został znaleziony' });
     }
 
     await User.findByIdAndDelete(userId);
-
 
     await Company.findByIdAndUpdate(req.user.company, { $pull: { users: userId } });
     if (user.team) {

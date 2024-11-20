@@ -4,4 +4,13 @@
     flex-direction: row;
   }
   
-  
+  /* Statistics.module.scss */
+
+.highlight {
+  background-color: #dff0d8; /* Light green background */
+}
+
+.total {
+  font-weight: bold;
+  margin-top: 20px;
+}

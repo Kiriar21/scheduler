@@ -84,7 +84,7 @@ const AvailabilityPage = () => {
     if (currentScheduler && selectedUserId) {
       const userDaysData = currentScheduler.map_month.map((dayInfo) => {
         const userDay = dayInfo.employersHours.find(
-          (eh) => eh.user._id === selectedUserId
+          (eh) => eh.user && eh.user._id === selectedUserId
         );
         return {
           dayOfMonth: dayInfo.dayOfMonth,
@@ -154,6 +154,9 @@ const AvailabilityPage = () => {
         }
       );
 
+      // Odświeżenie danych w kontekście
+      changeScheduler(month, year);
+
       // Ustaw `userSubmit` na `true` dla wszystkich dni
       setUserDays((prevDays) =>
         prevDays.map((day) => ({
@@ -194,6 +197,9 @@ const AvailabilityPage = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+
+      // Odświeżenie danych w kontekście
+      changeScheduler(month, year);
 
       // Ustaw `managerSubmit` na `true` dla wszystkich dni
       setUserDays((prevDays) =>
@@ -237,9 +243,20 @@ const AvailabilityPage = () => {
     setManagerSubmitStatus(false);
   };
 
+  // Wyświetl komunikat, gdy brak grafików
+  if (!availableSchedulers.length) {
+    return (
+      <div className={styles.noSchedulers}>
+        <p>Nie ma dostępnych grafików do wyświetlenia.</p>
+      </div>
+    );
+  }
+
+
   if (isLoading || !currentScheduler) {
     return <p>Ładowanie danych...</p>;
   }
+
 
   return (
     <div className={styles.content}>
@@ -284,7 +301,6 @@ const AvailabilityPage = () => {
       </div>
 
       {/* Komponent auto-uzupełniania */}
-      {/* <AutoFillAvailability onAutoFill={handleAutoFill} /> */}
       {canEdit() && (
         <AutoFillAvailability onAutoFill={handleAutoFill} />
       )}
@@ -312,7 +328,7 @@ const AvailabilityPage = () => {
                     onChange={(e) =>
                       handleInputChange(index, 'prefferedHours', e.target.value)
                     }
-                    disabled={userRole === 'manager' && selectedUserId !== userId}
+                    disabled={!canEdit()}
                   />
                 </td>
                 <td>
@@ -322,7 +338,7 @@ const AvailabilityPage = () => {
                     onChange={(e) =>
                       handleInputChange(index, 'availability', e.target.value)
                     }
-                    disabled={userRole === 'manager' && selectedUserId !== userId}
+                    disabled={!canEdit()}
                   />
                 </td>
               </tr>
@@ -332,7 +348,7 @@ const AvailabilityPage = () => {
       </div>
 
       {/* Przycisk zapisz */}
-      {(userRole === 'user' || selectedUserId === userId) && (
+      {canEdit() && (
         <button className={styles.saveButton} onClick={handleSave} disabled={isSaving}>
           {isSaving ? 'Zapisywanie...' : 'Zapisz'}
         </button>

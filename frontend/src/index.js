@@ -5,6 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import axios from 'axios';
 import './styles/global.scss'; // Import globalnych zmiennych i czcionki
+import  SchedulerProvider  from './contexts/SchedulerContext/SchedulerContext';
 
 
 axios.defaults.baseURL = process.env.REACT_APP_API_BASE_URL;
@@ -14,7 +15,9 @@ axios.defaults.baseURL = process.env.REACT_APP_API_BASE_URL;
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <SchedulerProvider>
+      <App />
+    </SchedulerProvider>
   </React.StrictMode>
 );
 

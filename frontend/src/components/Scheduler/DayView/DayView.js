@@ -1,4 +1,5 @@
-// components/DayView/DayView.js
+// components/Scheduler/DayView/DayView.js
+
 import React, { useState, useContext } from 'react';
 import styles from './DayView.module.scss';
 import axiosInstance from '../../../api/axiosInstance';
@@ -70,7 +71,7 @@ const DayView = ({ scheduler, userRole, userId }) => {
         }
       );
 
-      // Refresh the scheduler data
+      // Odświeżenie danych w kontekście
       changeScheduler(month, year);
       alert('Zmiany zostały zapisane.');
     } catch (error) {
@@ -106,6 +107,7 @@ const DayView = ({ scheduler, userRole, userId }) => {
         </thead>
         <tbody>
           {dayInfo.employersHours.map((eh) => {
+            if (!eh.user) return null; // Pomijamy brakującego użytkownika
             const isEditable = canEdit(eh.user._id);
             return (
               <tr key={eh._id}>
@@ -135,6 +137,7 @@ const DayView = ({ scheduler, userRole, userId }) => {
         onClose={handleModalClose}
         onSave={handleModalSave}
         initialData={modalData.employersHour || {}}
+        dayInfo={modalData.dayInfo}
       />
     </div>
   );

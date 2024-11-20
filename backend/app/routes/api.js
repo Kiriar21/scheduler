@@ -24,7 +24,7 @@ router.post('/user/addToTeam', authenticateToken(['admin']), UserController.addU
 router.put('/user/editTeam', authenticateToken(['admin']), UserController.editUserTeam);
 
 // Trasy firmy
-router.get('/company', authenticateToken(['user', 'manager', 'admin']), CompanyController.getInfoCompany);
+router.get('/company/info', authenticateToken(['user', 'manager', 'admin']), CompanyController.getInfoCompany);
 router.put('/company/edit', authenticateToken(['admin']), CompanyController.editInfoCompany);
 
 // Trasy teamu
@@ -43,6 +43,14 @@ router.put('/shift/edit/:shiftId', authenticateToken(['user', 'manager', 'admin'
 
 // Trasy schedulerów
 router.post('/scheduler/create', authenticateToken(['manager', 'admin']), SchedulerController.createScheduler);
+router.get('/scheduler/userMonthlyReport', authenticateToken(['manager', 'admin']), SchedulerController.getUserMonthlyReport);
+router.get('/scheduler/downloadUserMonthlyReport', authenticateToken(['manager', 'admin']), SchedulerController.downloadUserMonthlyReport);
+router.get('/scheduler/userMonthlySummary', authenticateToken(['manager', 'admin']), SchedulerController.getUserMonthlySummary);
+router.get('/scheduler/downloadUserMonthlySummary', authenticateToken(['manager', 'admin']), SchedulerController.downloadUserMonthlySummary);
+
+router.get('/scheduler/monthlySummary', authenticateToken(['manager', 'admin']), SchedulerController.getMonthlySummaryForAllUsers);
+router.get('/scheduler/downloadMonthlySummary', authenticateToken(['manager', 'admin']), SchedulerController.downloadMonthlySummaryForAllUsers);
+
 router.get('/schedulers/:teamId/dates', authenticateToken(['user', 'manager', 'admin']), SchedulerController.getTeamSchedulerDates);
 router.get('/schedulers', authenticateToken(['user', 'manager', 'admin']), SchedulerController.getSchedulers);
 router.get('/scheduler', authenticateToken(['user', 'manager', 'admin']), SchedulerController.getScheduler);
@@ -51,5 +59,6 @@ router.put('/scheduler/editDay', authenticateToken(['user', 'manager', 'admin'])
 router.put('/scheduler/updateAvailability', authenticateToken(['user', 'manager']), SchedulerController.updateAvailability);
 router.post('/scheduler/confirmAvailability', authenticateToken(['user', 'manager', 'admin']), SchedulerController.confirmAvailabilityUser);
 router.get('/scheduler/statistics', authenticateToken(['user', 'manager', 'admin']), SchedulerController.getStatistic);
+
 
 module.exports = router;

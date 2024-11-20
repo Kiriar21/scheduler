@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import styles from './Settings.module.scss';
 import axiosInstance from '../../api/axiosInstance';
 import { useNavigate } from 'react-router-dom'; // Importujemy useNavigate
 import { checkTokenExpiration } from '../../utils/checkTokenExpiration'; // Importujemy funkcję sprawdzającą token
+import { SchedulerContext } from '../../contexts/SchedulerContext/SchedulerContext';
 
 const SettingsPage = () => {
   // Stan dla użytkownika
   const [user, setUser] = useState(null);
-  
+  const { fetchAvailableSchedulers } = useContext(SchedulerContext);
   // Stany dla formularza schedulera
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -52,7 +53,6 @@ const SettingsPage = () => {
           },
         });
 
-        console.log('Dane użytkownika:', response.data.user); // Logujemy dane użytkownika
         setUser(response.data.user);
       } catch (error) {
         console.error('Błąd podczas pobierania danych użytkownika:', error);
@@ -99,7 +99,6 @@ const SettingsPage = () => {
     // Sprawdzenie, czy user.team jest stringiem czy obiektem
     const teamId = typeof user.team === 'string' ? user.team : user.team._id;
 
-    console.log('Team ID do wysłania:', teamId); // Logujemy teamId
 
     try {
       const token = localStorage.getItem('token');
@@ -118,6 +117,7 @@ const SettingsPage = () => {
       // Resetowanie formularza po sukcesie
       setSelectedMonth('');
       setSelectedYear(currentYear);
+      await fetchAvailableSchedulers()
     } catch (error) {
       if (error.response && error.response.data && error.response.data.error) {
         setMessage({ text: error.response.data.error, type: 'error' });

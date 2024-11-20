@@ -1,3 +1,5 @@
+// pages/Administration/Administration.js
+
 import React, { createContext, useState, useEffect } from 'react';
 import styles from './Administration.module.scss';
 import AddEmployee from '../../components/Administration/AddEmployee/AddEmployee';
@@ -6,9 +8,9 @@ import EditEmployee from '../../components/Administration/EditEmployee/EditEmplo
 import DeleteScheduler from '../../components/Administration/DeleteScheduler/DeleteScheduler';
 import TeamList from '../../components/Administration/TeamList/TeamList';
 import axiosInstance from '../../api/axiosInstance';
-import EditTeam from '../../components/Administration/EditTeam/EditTeam';
-import DeleteTeam from '../../components/Administration/DeleteTeam/DeleteTeam';
-import AddScheduler from '../../components/Administration/AddScheduler/AddScheduler'; // Import
+import ManageTeam from '../../components/Administration/ManageTeam/ManageTeam';
+import AddScheduler from '../../components/Administration/AddScheduler/AddScheduler';
+import EditCompany from '../../components/Administration/EditCompany/EditCompany';
 
 export const AdminContext = createContext();
 
@@ -61,15 +63,15 @@ const AdministrationPage = () => {
         </div>
         <div className={styles.tools}>
           <div className={styles.employee}>
-            <AddEmployee />
-            <EditEmployee />
+            <AddTeam />
+            <ManageTeam />
           </div>
           <div className={styles.other}>
-            <AddTeam />
-            <EditTeam />
-            <DeleteTeam />
-            <AddScheduler /> 
+            <AddEmployee />
+            <EditEmployee />
+            <AddScheduler />
             <DeleteScheduler />
+            <EditCompany />
           </div>
         </div>
       </div>

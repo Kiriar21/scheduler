@@ -1,4 +1,5 @@
 // pages/Schedule/Schedule.js
+
 import React, { useContext, useState, useEffect } from 'react';
 import { SchedulerContext } from '../../contexts/SchedulerContext/SchedulerContext';
 import ViewSwitcher from '../../components/Scheduler/ViewSwitcher/ViewSwitcher';
@@ -9,11 +10,10 @@ import styles from './Schedule.module.scss';
 import axiosInstance from '../../api/axiosInstance';
 
 const SchedulePage = () => {
-  const { currentScheduler, changeScheduler, availableSchedulers  } = useContext(SchedulerContext);
-  const [availableSchedules, setAvailableSchedules] = useState([]);
+  const { currentScheduler, changeScheduler, availableSchedulers, loading, fetchAvailableSchedulers } = useContext(SchedulerContext);
   const [selectedSchedule, setSelectedSchedule] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedView, setSelectedView] = useState('month'); // Default to 'month'
+  const [selectedView, setSelectedView] = useState('month'); // Domyślnie 'month'
   const [userRole, setUserRole] = useState('');
   const [userId, setUserId] = useState('');
 
@@ -41,45 +41,7 @@ const SchedulePage = () => {
     return { currentMonth, currentYear };
   };
 
-  // Fetching available schedules
-  const fetchAvailableSchedules = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axiosInstance.get('/schedulers', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      const sortedSchedules = (response.data.schedulers || []).sort((a, b) => {
-        const dateA = new Date(a.year, monthIndex[a.month]);
-        const dateB = new Date(b.year, monthIndex[b.month]);
-        return dateB - dateA; // Sort from newest to oldest
-      });
-
-      setAvailableSchedules(sortedSchedules);
-
-      // Automatically select current month's schedule if available
-      const { currentMonth, currentYear } = getCurrentMonthYear();
-      const currentSchedule = sortedSchedules.find(
-        (schedule) =>
-          schedule.month === currentMonth && schedule.year === currentYear
-      );
-
-      if (currentSchedule) {
-        setSelectedSchedule(`${currentMonth} ${currentYear}`);
-        changeScheduler(currentMonth, currentYear);
-      } else if (sortedSchedules.length > 0) {
-        // If no current month schedule, select the latest
-        const { month, year } = sortedSchedules[0];
-        setSelectedSchedule(`${month} ${year}`);
-        changeScheduler(month, year);
-      }
-    } catch (error) {
-      console.error('Error fetching available schedules:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  // Pobieranie danych użytkownika
   const fetchUserData = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -94,9 +56,32 @@ const SchedulePage = () => {
   };
 
   useEffect(() => {
-    fetchAvailableSchedules();
     fetchUserData();
+    fetchAvailableSchedulers();
   }, []);
+
+  // Inicjalizacja grafiku
+  useEffect(() => {
+    if (availableSchedulers.length > 0 && !selectedSchedule) {
+      const { currentMonth, currentYear } = getCurrentMonthYear();
+      const currentSchedule = availableSchedulers.find(
+        (schedule) =>
+          schedule.month === currentMonth && schedule.year === currentYear
+      );
+
+      if (currentSchedule) {
+        setSelectedSchedule(`${currentMonth} ${currentYear}`);
+        changeScheduler(currentMonth, currentYear);
+      } else {
+        const latestSchedule = availableSchedulers[0];
+        setSelectedSchedule(`${latestSchedule.month} ${latestSchedule.year}`);
+        changeScheduler(latestSchedule.month, latestSchedule.year);
+      }
+      setIsLoading(false);
+    } else if (availableSchedulers.length === 0) {
+      setIsLoading(false);
+    }
+  }, [availableSchedulers, selectedSchedule, changeScheduler]);
 
   const handleSelectChange = (e) => {
     const selectedValue = e.target.value;
@@ -109,33 +94,38 @@ const SchedulePage = () => {
     setSelectedView(view);
   };
 
-  if (isLoading) {
+  if (loading) {
     return <p>Ładowanie danych...</p>;
+  }
+
+  if (availableSchedulers.length === 0) {
+    return (
+      <div className={styles.content}>
+        <h2>Brak dostępnych grafików</h2>
+        <p>Nie ma dostępnych grafików do wyświetlenia.</p>
+      </div>
+    );
   }
 
   return (
     <div className={styles.content}>
       <h2>Wybierz grafik zespołu</h2>
 
-      {/* Schedule selector or message */}
+      {/* Wybór grafiku */}
       <div className={styles.selector}>
-        {availableSchedulers.length > 0 ? (
-          <select value={selectedSchedule} onChange={handleSelectChange}>
-            {availableSchedulers.map((schedule, index) => (
-              <option key={index} value={`${schedule.month} ${schedule.year}`}>
-                {schedule.month} {schedule.year}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <p>Brak dostępnych grafików.</p>
-        )}
+        <select value={selectedSchedule} onChange={handleSelectChange}>
+          {availableSchedulers.map((schedule, index) => (
+            <option key={index} value={`${schedule.month} ${schedule.year}`}>
+              {schedule.month} {schedule.year}
+            </option>
+          ))}
+        </select>
       </div>
 
-      {/* View switcher */}
+      {/* Przełącznik widoku */}
       <ViewSwitcher selectedView={selectedView} onViewChange={handleViewChange} />
 
-      {/* Display the schedule according to selected view */}
+      {/* Wyświetlanie grafiku zgodnie z wybranym widokiem */}
       {currentScheduler ? (
         <div className={styles.scheduler}>
           {selectedView === 'day' && (
@@ -153,7 +143,11 @@ const SchedulePage = () => {
             />
           )}
           {selectedView === 'month' && (
-            <MonthView scheduler={currentScheduler} />
+            <MonthView
+              scheduler={currentScheduler}
+              userRole={userRole}
+              userId={userId}
+            />
           )}
         </div>
       ) : (

@@ -32,7 +32,6 @@ const RegisterPage = () => {
 
     const { pwd, confirmPwd } = registerData;
 
-    console.log(registerData);
     // Sprawdzenie zgodności haseł
     if (pwd !== confirmPwd) {
       setErrorMessage('Hasła nie są zgodne.');
@@ -49,7 +48,6 @@ const RegisterPage = () => {
         companyName: registerData.companyName,
         confirmPwd: registerData.confirmPwd,
       });
-      console.log("odp: ", response);
       if (response.data.success || response.status === 201) {
         setErrorMessage('');
         navigate('/login');

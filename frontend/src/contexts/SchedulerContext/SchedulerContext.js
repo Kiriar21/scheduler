@@ -1,3 +1,5 @@
+// contexts/SchedulerContext/SchedulerContext.js
+
 import React, { createContext, useState, useEffect } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 
@@ -10,6 +12,7 @@ const SchedulerProvider = ({ children }) => {
     month: new Date().toLocaleString('pl-PL', { month: 'long' }).toLowerCase(),
     year: new Date().getFullYear(),
   });
+  const [token, setToken] = useState(localStorage.getItem('token'));
 
   // Pobieranie obecnego grafiku
   const fetchScheduler = async (month, year) => {
@@ -42,9 +45,11 @@ const SchedulerProvider = ({ children }) => {
 
   // Inicjalizacja na starcie
   useEffect(() => {
-    fetchScheduler(selectedDate.month, selectedDate.year);
-    fetchAvailableSchedulers();
-  }, []);
+    if (token) {
+      fetchScheduler(selectedDate.month, selectedDate.year);
+      fetchAvailableSchedulers();
+    }
+  }, [token, selectedDate.month, selectedDate.year]);
 
   // Zmiana grafiku
   const changeScheduler = (month, year) => {
@@ -59,6 +64,7 @@ const SchedulerProvider = ({ children }) => {
         availableSchedulers,
         selectedDate,
         changeScheduler,
+        fetchAvailableSchedulers,
       }}
     >
       {children}
@@ -67,3 +73,4 @@ const SchedulerProvider = ({ children }) => {
 };
 
 export default SchedulerProvider;
+

@@ -8,8 +8,11 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
     (config) => {
         const isTokenValid = checkTokenExpiration();
-        if (!isTokenValid) {
-            window.location.href = '/login'; // Przekierowanie na logowanie
+        const currentPath = window.location.pathname;
+
+        if (!isTokenValid && currentPath !== '/login') {
+            localStorage.removeItem('token'); // Usuń nieważny token
+            window.location.href = '/login'; // Przekierowanie na stronę logowania
             return Promise.reject(new Error('Token wygasł.'));
         }
 

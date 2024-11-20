@@ -6,6 +6,7 @@ const Team = require('../db/models/Team');
 const DayInfoController = require('./DayInfoController');
 const mongoose = require('mongoose');
 const xss = require('xss');
+const ExcelJS = require('exceljs');
 const {
   validateMonthName,
   validateYear,
@@ -74,6 +75,9 @@ const createScheduler = async (req, res) => {
       return res.status(404).json({ error: 'Team nie został znaleziony' });
     }
 
+    if(team.users.length <= 0){
+      return res.status(404).json({ error: 'Team nie posiada pracowników. Aby utworzyć scheduler potrzeba dodać minimum jednego pracownika do zespołu.' });
+    }
 
     const existingScheduler = await Scheduler.findOne({
       company: user.company,
@@ -548,15 +552,15 @@ const updateAvailability = async (req, res) => {
 };
 
 
+// controllers/SchedulerController.js
+
 const getStatistic = async (req, res) => {
   try {
     const user = req.user;
     let { month, year } = req.query;
 
-
     month = xss(month);
     year = xss(year);
-
 
     if (!validateMonthName(month)) {
       return res.status(400).json({ error: 'Niepoprawna nazwa miesiąca' });
@@ -568,7 +572,7 @@ const getStatistic = async (req, res) => {
 
     const teamId = user.team;
     if (!teamId) {
-      return res.status(400).json({ error: 'Użytkownik nie jest przypisany do teamu' });
+      return res.status(400).json({ error: 'Użytkownik nie jest przypisany do zespołu' });
     }
 
     const scheduler = await Scheduler.findOne({
@@ -590,16 +594,45 @@ const getStatistic = async (req, res) => {
       .lean();
 
     if (!scheduler) {
-      return res.status(404).json({ error: 'Scheduler nie został znaleziony' });
+      return res.status(404).json({ error: 'Grafik nie został znaleziony' });
     }
 
+    // Compute statistics
+    const statistics = {};
+    let totalTeamHours = 0;
 
-    return res.status(200).json({ scheduler });
+    scheduler.map_month.forEach((dayInfo) => {
+      dayInfo.employersHours.forEach((eh) => {
+        if (eh.user) {
+          const userId = eh.user._id.toString();
+          const hoursWorked = eh.end_hour - eh.start_hour;
+
+          if (!statistics[userId]) {
+            statistics[userId] = {
+              userId,
+              name: eh.user.name,
+              surname: eh.user.surname,
+              totalHours: 0,
+            };
+          }
+          statistics[userId].totalHours += hoursWorked;
+          totalTeamHours += hoursWorked;
+        }
+      });
+    });
+
+    return res.status(200).json({
+      currentUserId: user._id.toString(),
+      statistics: Object.values(statistics),
+      totalTeamHours,
+    });
   } catch (error) {
     console.error('Error in getStatistic:', error);
     return res.status(500).json({ error: 'Błąd serwera' });
   }
 };
+
+
 
 const getTeamSchedulerDates = async (req, res) => {
   try {
@@ -634,6 +667,592 @@ const getTeamSchedulerDates = async (req, res) => {
 };
 
 
+// controllers/SchedulerController.js
+
+const getUserMonthlyReport = async (req, res) => {
+  try {
+    const manager = req.user;
+
+    if (manager.role !== 'manager') {
+      return res.status(403).json({ error: 'Brak dostępu' });
+    }
+
+    let { userId, month, year } = req.query;
+
+    userId = xss(userId);
+    month = xss(month);
+    year = xss(year);
+
+    if (!validateObjectId(userId)) {
+      return res.status(400).json({ error: 'Niepoprawny identyfikator użytkownika' });
+    }
+
+    if (!validateMonthName(month)) {
+      return res.status(400).json({ error: 'Niepoprawna nazwa miesiąca' });
+    }
+
+    if (!validateYear(year)) {
+      return res.status(400).json({ error: 'Niepoprawny rok' });
+    }
+
+    // Check if the user is in the manager's team
+    const user = await User.findOne({
+      _id: userId,
+      team: manager.team,
+      company: manager.company,
+    }).select('name surname');
+
+    if (!user) {
+      return res.status(404).json({ error: 'Użytkownik nie został znaleziony w twoim zespole' });
+    }
+
+    const scheduler = await Scheduler.findOne({
+      company: manager.company,
+      team: manager.team,
+      month,
+      year,
+    })
+      .populate({
+        path: 'map_month',
+        populate: {
+          path: 'employersHours',
+          match: { user: userId },
+        },
+      })
+      .lean();
+
+    if (!scheduler) {
+      return res.status(404).json({ error: 'Grafik nie został znaleziony' });
+    }
+
+    // Prepare report data
+    const reportData = [];
+    let totalHours = 0;
+
+    scheduler.map_month.forEach((dayInfo) => {
+      if (dayInfo.employersHours.length > 0) {
+        const day = dayInfo.employersHours[0];
+        const hoursWorked = day.end_hour - day.start_hour;
+        totalHours += hoursWorked;
+        reportData.push({
+          dayOfMonth: dayInfo.dayOfMonth,
+          nameDayOfWeek: dayInfo.nameDayOfWeek,
+          start_hour: day.start_hour,
+          end_hour: day.end_hour,
+          hoursWorked,
+          prefferedHours: day.prefferedHours,
+          availability: day.availability,
+        });
+      }
+    });
+
+    return res.status(200).json({
+      user: { name: user.name, surname: user.surname },
+      reportData,
+      totalHours,
+    });
+  } catch (error) {
+    console.error('Error in getUserMonthlyReport:', error);
+    return res.status(500).json({ error: 'Błąd serwera' });
+  }
+};
+
+
+// controllers/SchedulerController.js
+
+const downloadUserMonthlyReport = async (req, res) => {
+  try {
+    const manager = req.user;
+
+    if (manager.role !== 'manager') {
+      return res.status(403).json({ error: 'Brak dostępu' });
+    }
+
+    let { userId, month, year } = req.query;
+
+    userId = xss(userId);
+    month = xss(month);
+    year = xss(year);
+
+    if (!validateObjectId(userId)) {
+      return res.status(400).json({ error: 'Niepoprawny identyfikator użytkownika' });
+    }
+
+    if (!validateMonthName(month)) {
+      return res.status(400).json({ error: 'Niepoprawna nazwa miesiąca' });
+    }
+
+    if (!validateYear(year)) {
+      return res.status(400).json({ error: 'Niepoprawny rok' });
+    }
+
+    // Check if the user is in the manager's team
+    const user = await User.findOne({
+      _id: userId,
+      team: manager.team,
+      company: manager.company,
+    }).select('name surname');
+
+    if (!user) {
+      return res.status(404).json({ error: 'Użytkownik nie został znaleziony w twoim zespole' });
+    }
+
+    const scheduler = await Scheduler.findOne({
+      company: manager.company,
+      team: manager.team,
+      month,
+      year,
+    })
+      .populate({
+        path: 'map_month',
+        populate: {
+          path: 'employersHours',
+          match: { user: userId },
+        },
+      })
+      .lean();
+
+    if (!scheduler) {
+      return res.status(404).json({ error: 'Grafik nie został znaleziony' });
+    }
+
+    // Prepare report data
+    const reportData = [];
+    let totalHours = 0;
+
+    scheduler.map_month.forEach((dayInfo) => {
+      if (dayInfo.employersHours.length > 0) {
+        const day = dayInfo.employersHours[0];
+        const hoursWorked = day.end_hour - day.start_hour;
+        totalHours += hoursWorked;
+        reportData.push({
+          dayOfMonth: dayInfo.dayOfMonth,
+          nameDayOfWeek: dayInfo.nameDayOfWeek,
+          start_hour: day.start_hour,
+          end_hour: day.end_hour,
+          hoursWorked,
+          prefferedHours: day.prefferedHours,
+          availability: day.availability,
+        });
+      }
+    });
+
+    // Prepare Excel workbook
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Raport');
+
+    // Add headers
+    worksheet.columns = [
+      { header: 'Dzień miesiąca', key: 'dayOfMonth', width: 15 },
+      { header: 'Dzień tygodnia', key: 'nameDayOfWeek', width: 20 },
+      { header: 'Godzina rozpoczęcia', key: 'start_hour', width: 20 },
+      { header: 'Godzina zakończenia', key: 'end_hour', width: 20 },
+      { header: 'Przepracowane godziny', key: 'hoursWorked', width: 20 },
+      { header: 'Preferowane godziny', key: 'prefferedHours', width: 25 },
+      { header: 'Dostępność', key: 'availability', width: 15 },
+    ];
+
+    // Add data
+    reportData.forEach((data) => {
+      worksheet.addRow(data);
+    });
+
+    // Add total hours at the end
+    worksheet.addRow({});
+    worksheet.addRow({ dayOfMonth: 'Łącznie przepracowanych godzin:', hoursWorked: totalHours });
+
+    // Set response headers
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename=Raport_${user.name}_${user.surname}_${month}_${year}.xlsx`
+    );
+
+    // Write workbook to response
+    await workbook.xlsx.write(res);
+
+    // No need to call res.end()
+  } catch (error) {
+    console.error('Error in downloadUserMonthlyReport:', error);
+    res.status(500).json({ error: 'Błąd serwera' });
+  }
+};
+
+
+// controllers/SchedulerController.js
+
+const getUserMonthlySummary = async (req, res) => {
+  try {
+    const manager = req.user;
+
+    if (manager.role !== 'manager') {
+      return res.status(403).json({ error: 'Brak dostępu' });
+    }
+
+    let { userId, month, year } = req.query;
+
+    userId = xss(userId);
+    month = xss(month);
+    year = xss(year);
+
+    if (!validateObjectId(userId)) {
+      return res.status(400).json({ error: 'Niepoprawny identyfikator użytkownika' });
+    }
+
+    if (!validateMonthName(month)) {
+      return res.status(400).json({ error: 'Niepoprawna nazwa miesiąca' });
+    }
+
+    if (!validateYear(year)) {
+      return res.status(400).json({ error: 'Niepoprawny rok' });
+    }
+
+    // Check if the user is in the manager's team
+    const user = await User.findOne({
+      _id: userId,
+      team: manager.team,
+      company: manager.company,
+    }).select('name surname');
+
+    if (!user) {
+      return res.status(404).json({ error: 'Użytkownik nie został znaleziony w twoim zespole' });
+    }
+
+    const scheduler = await Scheduler.findOne({
+      company: manager.company,
+      team: manager.team,
+      month,
+      year,
+    })
+      .populate({
+        path: 'map_month',
+        populate: {
+          path: 'employersHours',
+          match: { user: userId },
+        },
+      })
+      .lean();
+
+    if (!scheduler) {
+      return res.status(404).json({ error: 'Grafik nie został znaleziony' });
+    }
+
+    // Calculate total hours worked
+    let totalHoursWorked = 0;
+
+    scheduler.map_month.forEach((dayInfo) => {
+      if (dayInfo.employersHours.length > 0) {
+        const day = dayInfo.employersHours[0];
+        const hoursWorked = day.end_hour - day.start_hour;
+        totalHoursWorked += hoursWorked;
+      }
+    });
+
+    return res.status(200).json({
+      user: { name: user.name, surname: user.surname },
+      totalHoursWorked,
+      month,
+      year,
+    });
+  } catch (error) {
+    console.error('Error in getUserMonthlySummary:', error);
+    return res.status(500).json({ error: 'Błąd serwera' });
+  }
+};
+
+const downloadUserMonthlySummary = async (req, res) => {
+  try {
+    const manager = req.user;
+
+    if (manager.role !== 'manager') {
+      return res.status(403).json({ error: 'Brak dostępu' });
+    }
+
+    let { userId, month, year } = req.query;
+
+    userId = xss(userId);
+    month = xss(month);
+    year = xss(year);
+
+    if (!validateObjectId(userId)) {
+      return res.status(400).json({ error: 'Niepoprawny identyfikator użytkownika' });
+    }
+
+    if (!validateMonthName(month)) {
+      return res.status(400).json({ error: 'Niepoprawna nazwa miesiąca' });
+    }
+
+    if (!validateYear(year)) {
+      return res.status(400).json({ error: 'Niepoprawny rok' });
+    }
+
+    // Check if the user is in the manager's team
+    const user = await User.findOne({
+      _id: userId,
+      team: manager.team,
+      company: manager.company,
+    }).select('name surname');
+
+    if (!user) {
+      return res.status(404).json({ error: 'Użytkownik nie został znaleziony w twoim zespole' });
+    }
+
+    const scheduler = await Scheduler.findOne({
+      company: manager.company,
+      team: manager.team,
+      month,
+      year,
+    })
+      .populate({
+        path: 'map_month',
+        populate: {
+          path: 'employersHours',
+          match: { user: userId },
+        },
+      })
+      .lean();
+
+    if (!scheduler) {
+      return res.status(404).json({ error: 'Grafik nie został znaleziony' });
+    }
+
+    // Calculate total hours worked
+    let totalHoursWorked = 0;
+
+    scheduler.map_month.forEach((dayInfo) => {
+      if (dayInfo.employersHours.length > 0) {
+        const day = dayInfo.employersHours[0];
+        const hoursWorked = day.end_hour - day.start_hour;
+        totalHoursWorked += hoursWorked;
+      }
+    });
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Podsumowanie');
+
+    // Add headers
+    worksheet.columns = [
+      { header: 'Imię', key: 'name', width: 20 },
+      { header: 'Nazwisko', key: 'surname', width: 20 },
+      { header: 'Ilość godzin', key: 'totalHoursWorked', width: 15 },
+      { header: 'Miesiąc', key: 'month', width: 15 },
+      { header: 'Rok', key: 'year', width: 10 },
+    ];
+
+    // Add data
+    worksheet.addRow({
+      name: user.name,
+      surname: user.surname,
+      totalHoursWorked,
+      month,
+      year,
+    });
+
+    // Set response headers
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename=Podsumowanie_${user.name}_${user.surname}_${month}_${year}.xlsx`
+    );
+
+    // Write file to response
+    await workbook.xlsx.write(res);
+
+    // End response
+    res.end();
+  } catch (error) {
+    console.error('Error in downloadUserMonthlySummary:', error);
+    return res.status(500).json({ error: 'Błąd serwera' });
+  }
+};
+
+
+const getMonthlySummaryForAllUsers = async (req, res) => {
+  try {
+    const manager = req.user;
+
+    if (manager.role !== 'manager') {
+      return res.status(403).json({ error: 'Brak dostępu' });
+    }
+
+    let { month, year } = req.query;
+
+    month = xss(month);
+    year = xss(year);
+
+    if (!validateMonthName(month)) {
+      return res.status(400).json({ error: 'Niepoprawna nazwa miesiąca' });
+    }
+
+    if (!validateYear(year)) {
+      return res.status(400).json({ error: 'Niepoprawny rok' });
+    }
+
+    const scheduler = await Scheduler.findOne({
+      company: manager.company,
+      team: manager.team,
+      month,
+      year,
+    })
+      .populate({
+        path: 'map_month',
+        populate: {
+          path: 'employersHours',
+          populate: {
+            path: 'user',
+            select: 'name surname',
+          },
+        },
+      })
+      .lean();
+
+    if (!scheduler) {
+      return res.status(404).json({ error: 'Grafik nie został znaleziony' });
+    }
+
+    // Calculate total hours worked per user
+    const userHoursMap = {};
+
+    scheduler.map_month.forEach((dayInfo) => {
+      dayInfo.employersHours.forEach((day) => {
+        const userId = day.user._id.toString();
+        const hoursWorked = day.end_hour - day.start_hour;
+
+        if (!userHoursMap[userId]) {
+          userHoursMap[userId] = {
+            user: {
+              _id: day.user._id,
+              name: day.user.name,
+              surname: day.user.surname,
+            },
+            totalHoursWorked: 0,
+          };
+        }
+        userHoursMap[userId].totalHoursWorked += hoursWorked;
+      });
+    });
+
+    const summaryData = Object.values(userHoursMap);
+
+    return res.status(200).json({
+      month,
+      year,
+      summaryData,
+    });
+  } catch (error) {
+    console.error('Error in getMonthlySummaryForAllUsers:', error);
+    return res.status(500).json({ error: 'Błąd serwera' });
+  }
+};
+
+
+const downloadMonthlySummaryForAllUsers = async (req, res) => {
+  try {
+    const manager = req.user;
+
+    if (manager.role !== 'manager') {
+      return res.status(403).json({ error: 'Brak dostępu' });
+    }
+
+    let { month, year } = req.query;
+
+    month = xss(month);
+    year = xss(year);
+
+    if (!validateMonthName(month)) {
+      return res.status(400).json({ error: 'Niepoprawna nazwa miesiąca' });
+    }
+
+    if (!validateYear(year)) {
+      return res.status(400).json({ error: 'Niepoprawny rok' });
+    }
+
+    const scheduler = await Scheduler.findOne({
+      company: manager.company,
+      team: manager.team,
+      month,
+      year,
+    })
+      .populate({
+        path: 'map_month',
+        populate: {
+          path: 'employersHours',
+          populate: {
+            path: 'user',
+            select: 'name surname',
+          },
+        },
+      })
+      .lean();
+
+    if (!scheduler) {
+      return res.status(404).json({ error: 'Grafik nie został znaleziony' });
+    }
+
+    // Calculate total hours worked per user
+    const userHoursMap = {};
+
+    scheduler.map_month.forEach((dayInfo) => {
+      dayInfo.employersHours.forEach((day) => {
+        const userId = day.user._id.toString();
+        const hoursWorked = day.end_hour - day.start_hour;
+
+        if (!userHoursMap[userId]) {
+          userHoursMap[userId] = {
+            name: day.user.name,
+            surname: day.user.surname,
+            totalHoursWorked: 0,
+          };
+        }
+        userHoursMap[userId].totalHoursWorked += hoursWorked;
+      });
+    });
+
+    const summaryData = Object.values(userHoursMap);
+
+    // Generate Excel file
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Podsumowanie');
+
+    // Add headers
+    worksheet.columns = [
+      { header: 'Imię', key: 'name', width: 20 },
+      { header: 'Nazwisko', key: 'surname', width: 20 },
+      { header: 'Ilość godzin', key: 'totalHoursWorked', width: 15 },
+    ];
+
+    // Add data
+    summaryData.forEach((data) => {
+      worksheet.addRow(data);
+    });
+
+    // Set response headers
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename=Podsumowanie_${month}_${year}.xlsx`
+    );
+
+    // Write file to response
+    await workbook.xlsx.write(res);
+
+    // No need to call res.end()
+
+  } catch (error) {
+    console.error('Error in downloadMonthlySummaryForAllUsers:', error);
+    return res.status(500).json({ error: 'Błąd serwera' });
+  }
+};
+
 module.exports = {
   createScheduler,
   getScheduler,
@@ -643,5 +1262,11 @@ module.exports = {
   getStatistic,
   getSchedulers,
   getTeamSchedulerDates,
-  updateAvailability
+  updateAvailability,
+  getUserMonthlyReport,
+  downloadUserMonthlyReport,
+  getUserMonthlySummary,
+  downloadUserMonthlySummary,
+  getMonthlySummaryForAllUsers,
+  downloadMonthlySummaryForAllUsers,
 };

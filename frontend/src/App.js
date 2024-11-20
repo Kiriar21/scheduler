@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './styles/global.scss'; // Import globalnych zmiennych i czcionki
 import LoginPage from './pages/Login/Login';
@@ -14,8 +14,16 @@ import Layout from './components/Layouts/Layout';
 import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 import { jwtDecode } from 'jwt-decode';
 import  SchedulerProvider  from './contexts/SchedulerContext/SchedulerContext';
+import { SchedulerContext } from './contexts/SchedulerContext/SchedulerContext';
 
 function App() {
+
+  const { loading } = useContext(SchedulerContext);
+
+  if (loading) {
+    return <div className="loading-screen">Ładowanie danych...</div>;
+  }
+
   const getRole = () => {
     const token = localStorage.getItem('token');
     if (!token) return null;
@@ -31,7 +39,6 @@ function App() {
   const role = getRole();
   
   return (
-    <SchedulerProvider>
     <Router>
       <div className="App">
         <Routes>
@@ -77,7 +84,6 @@ function App() {
         </Routes>
       </div>
     </Router>
-    </SchedulerProvider>
   );
 }
 

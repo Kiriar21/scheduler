@@ -36,6 +36,7 @@ const LoginPage = () => {
       });
 
       const data = response.data;
+      localStorage.setItem('token', data.token); 
 
       if (response.status === 200 && data.token) {
         setErrorMessage(null); 
@@ -43,7 +44,6 @@ const LoginPage = () => {
         const expiryTime = new Date();
         expiryTime.setDate(expiryTime.getDate() + 1); 
 
-        localStorage.setItem('token', data.token); 
 
         return true; 
       } else {

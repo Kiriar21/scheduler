@@ -1,4 +1,4 @@
-// components/AutoFillAvailability/AutoFillAvailability.js
+// components/Availibility/AutoAvailibility/AutoAvailibility.js
 
 import React, { useState } from 'react';
 import styles from './AutoAvailibility.scss';
@@ -21,7 +21,8 @@ const AutoFillAvailability = ({ onAutoFill }) => {
     { label: 'Cały miesiąc', value: 'all' },
   ];
 
-  const handleDaySelection = (value) => {
+  const handleDaySelection = (e) => {
+    const value = e.target.value;
     let days = [];
     if (value === 'weekend') {
       days = ['sobota', 'niedziela'];
@@ -68,7 +69,7 @@ const AutoFillAvailability = ({ onAutoFill }) => {
       </div>
       <div className={styles.formGroup}>
         <label>Wybierz dni:</label>
-        <select onChange={(e) => handleDaySelection(e.target.value)}>
+        <select onChange={handleDaySelection}>
           <option value="">--Wybierz--</option>
           {daysOptions.map((option) => (
             <option key={option.value} value={option.value}>

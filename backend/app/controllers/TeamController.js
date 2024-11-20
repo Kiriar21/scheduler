@@ -2,7 +2,7 @@ const Team = require('../db/models/Team');
 const Company = require('../db/models/Company');
 const Scheduler = require('../db/models/Scheduler');
 const { defaultShift } = require('./ShiftController');
-const { validateName, validateNameTeam } = require('../utils/validation');
+const { validateNameTeam } = require('../utils/validation');
 
 const teamAdd = async (req, res) => {
   try {
@@ -83,7 +83,7 @@ const editTeam = async (req, res) => {
     const teamId = req.params.teamId;
     let { name } = req.body;
 
-    if (!validateName(name)) {
+    if (!validateNameTeam(name)) {
       return res.status(400).json({ error: 'Nazwa teamu musi mieć co najmniej 3 znaki' });
     }
 
@@ -104,19 +104,30 @@ const deleteTeam = async (req, res) => {
 
     const teamId = req.params.teamId;
 
-    // Znajdź i usuń zespół
-    const deletedTeam = await Team.findByIdAndDelete(teamId);
+    // Znajdź zespół, aby sprawdzić jego powiązania
+    const teamToDelete = await Team.findById(teamId);
 
-    if (!deletedTeam) {
+    if (!teamToDelete) {
       return res.status(404).json({ error: 'Team nie został znaleziony' });
     }
+
+    // Sprawdź, czy zespół jest przypisany do administratora firmy
+    const company = await Company.findById(req.user.company).populate('admin');
+
+    if (company.admin && company.admin.team && company.admin.team.toString() === teamId) {
+      return res.status(400).json({
+        error: 'Nie można usunąć zespołu administratora firmy.',
+      });
+    }
+
+    // Usuń zespół
+    const deletedTeam = await Team.findByIdAndDelete(teamId);
 
     // Usuń team z listy zespołów firmy
     await Company.findByIdAndUpdate(req.user.company, { $pull: { teams: teamId } });
 
     // Usuń wszystkie grafiki powiązane z tym zespołem
     const deletedSchedulers = await Scheduler.deleteMany({ team: teamId, company: req.user.company });
-
 
     return res.status(200).json({
       message: `Team został usunięty, a powiązane ${deletedSchedulers.deletedCount} grafik(i) zostały również usunięte.`,

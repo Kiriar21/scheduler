@@ -25,6 +25,7 @@ const registerCompany = async (companyData) => {
       nip,
       name,
       admin,
+      users: [admin],
     });
 
     const savedCompany = await newCompany.save();
@@ -37,6 +38,7 @@ const registerCompany = async (companyData) => {
 
 const getInfoCompany = async (req, res) => {
   try {
+    console.log(req.user)
     const company = await Company.findById(req.user.company).select('nip name');
 
     return res.status(200).json({ company });
