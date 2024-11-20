@@ -127,6 +127,66 @@ const userRegister = async (req, res) => {
     await Company.findByIdAndUpdate(req.user.company, { $push: { users: savedUser._id } });
     await Team.findByIdAndUpdate(teamId, { $push: { users: savedUser._id } });
 
+      // **Add User to Team Schedulers**
+      const currentDate = new Date();
+      const currentMonthIndex = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+  
+      const monthNameToIndex = {
+        'styczeń': 0,
+        'luty': 1,
+        'marzec': 2,
+        'kwiecień': 3,
+        'maj': 4,
+        'czerwiec': 5,
+        'lipiec': 6,
+        'sierpień': 7,
+        'wrzesień': 8,
+        'październik': 9,
+        'listopad': 10,
+        'grudzień': 11,
+      };
+  
+      // Find all schedulers for the team
+      const schedulers = await Scheduler.find({
+        company: req.user.company,
+        team: teamId,
+      });
+  
+      for (const scheduler of schedulers) {
+        const schedulerMonthIndex = monthNameToIndex[scheduler.month.toLowerCase()];
+        const schedulerYear = scheduler.year;
+  
+        // Only add to current and future schedulers
+        if (
+          schedulerYear > currentYear ||
+          (schedulerYear === currentYear && schedulerMonthIndex >= currentMonthIndex)
+        ) {
+          for (const dayInfoId of scheduler.map_month) {
+            const dayInfo = await DayInfo.findById(dayInfoId);
+  
+            if (dayInfo) {
+              // Create a new Day for the user
+              const day = new Day({
+                user: savedUser._id,
+                start_hour: 0,
+                end_hour: 0,
+                prefferedHours: '',
+                availability: '',
+                userSubmit: false,
+                managerSubmit: false,
+              });
+  
+              const savedDay = await day.save();
+  
+              // Add the Day to the dayInfo's employersHours
+              dayInfo.employersHours.push(savedDay._id);
+              await dayInfo.save();
+            }
+          }
+        }
+      }
+
     return res.status(201).json({ message: 'Użytkownik został pomyślnie zarejestrowany' });
   } catch (error) {
     console.error(error);
