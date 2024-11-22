@@ -30,7 +30,7 @@
 
 .list {
   width: 60%;
-  padding:  20px;
+  padding:  10px;
 
   h2 {
     font-size: 1.5rem;
@@ -51,10 +51,11 @@
   gap: 20px;
   overflow-y: auto;
   box-sizing: border-box;
+  background-color: $white;
 
   /* Styl scrolla */
   &::-webkit-scrollbar {
-    width: 8px; // Zmniejszona szerokość scrolla
+    width: 12px; // Zmniejszona szerokość scrolla
   }
 
   &::-webkit-scrollbar-track {

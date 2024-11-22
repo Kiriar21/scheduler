@@ -1,41 +1,104 @@
-/* components/DayView/DayView.module.scss */
+/* components/Scheduler/DayView/DayView.module.scss */
+@import '../../../styles/global.scss';
+/* components/Scheduler/DayView/DayView.module.scss */
+
 .dayView {
+  /* Twoje istniejące style */
+}
+
+.scheduleContainer {
   display: flex;
   flex-direction: column;
-  align-items: center;
-}
-
-.table {
   margin-top: 20px;
-  border-collapse: collapse;
-  width: 80%;
 }
 
-.table th,
-.table td {
-  border: 1px solid #ddd;
-  padding: 8px;
+.timeLabels {
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin-bottom: 10px;
 }
 
-.table th {
-  background-color: #f2f2f2;
-  text-align: center;
+.timeLabel {
+  position: absolute;
+  top: -20px;
+  transform: translateX(-50%);
+  font-size: 12px;
+  white-space: nowrap;
 }
 
-.table td {
-  text-align: center;
+.workerName {
+  width: 150px; /* Dostosuj w razie potrzeby */
+  flex-shrink: 0;
+}
+
+.scheduleRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.timeGrid {
+  flex: 1;
+  position: relative;
+  height: 40px; /* Dostosuj w razie potrzeby */
+}
+
+.timeBarContainer {
+  position: relative;
+  height: 100%;
+  background-color: #f0f0f0; /* Kolor tła siatki */
+}
+
+.timeBar {
+  position: absolute;
+  height: 100%;
+  background-color: #007bff; /* Kolor prostokąta */
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
   cursor: default;
 }
 
-.table tr:hover {
-  background-color: #f9f9f9;
-}
-
-.editableCell {
+.editableBar {
   cursor: pointer;
-  color: blue;
 }
 
-.editableCell:hover {
-  background-color: #e6f7ff;
+.timeBar:hover {
+  opacity: 0.8;
+}
+
+.gridLines {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+}
+
+.gridLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: #ccc;
+}
+
+.timeGrid::before,
+.timeGrid::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: #ccc;
+}
+
+.timeGrid::before {
+  left: 0;
+}
+
+.timeGrid::after {
+  right: 0;
 }

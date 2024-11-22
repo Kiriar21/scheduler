@@ -6,6 +6,7 @@ import ViewSwitcher from '../../components/Scheduler/ViewSwitcher/ViewSwitcher';
 import DayView from '../../components/Scheduler/DayView/DayView';
 import WeekView from '../../components/Scheduler/WeekView/WeekView';
 import MonthView from '../../components/Scheduler/MonthView/MonthView';
+import CalendarMonth from '@mui/icons-material/CalendarMonth';
 import styles from './Schedule.module.scss';
 import axiosInstance from '../../api/axiosInstance';
 
@@ -18,18 +19,18 @@ const SchedulePage = () => {
   const [userId, setUserId] = useState('');
 
   const monthIndex = {
-    styczeń: 0,
-    luty: 1,
-    marzec: 2,
-    kwiecień: 3,
-    maj: 4,
-    czerwiec: 5,
-    lipiec: 6,
-    sierpień: 7,
-    wrzesień: 8,
-    październik: 9,
-    listopad: 10,
-    grudzień: 11,
+    Styczeń: 0,
+    Luty: 1,
+    Marzec: 2,
+    Kwiecień: 3,
+    Maj: 4,
+    Czerwiec: 5,
+    Lipiec: 6,
+    Sierpień: 7,
+    Wrzesień: 8,
+    Październik: 9,
+    Listopad: 10,
+    Grudzień: 11,
   };
 
   const getCurrentMonthYear = () => {
@@ -107,16 +108,22 @@ const SchedulePage = () => {
     );
   }
 
+  const capitalizeFirstLetter = (string) => {
+    if (!string) return '';
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
   return (
     <div className={styles.content}>
-      <h2>Wybierz grafik zespołu</h2>
+    <div className={styles.tools}>
 
       {/* Wybór grafiku */}
       <div className={styles.selector}>
+      <CalendarMonth />
         <select value={selectedSchedule} onChange={handleSelectChange}>
           {availableSchedulers.map((schedule, index) => (
             <option key={index} value={`${schedule.month} ${schedule.year}`}>
-              {schedule.month} {schedule.year}
+              {capitalizeFirstLetter(schedule.month)} {schedule.year}
             </option>
           ))}
         </select>
@@ -124,7 +131,7 @@ const SchedulePage = () => {
 
       {/* Przełącznik widoku */}
       <ViewSwitcher selectedView={selectedView} onViewChange={handleViewChange} />
-
+      </div>
       {/* Wyświetlanie grafiku zgodnie z wybranym widokiem */}
       {currentScheduler ? (
         <div className={styles.scheduler}>

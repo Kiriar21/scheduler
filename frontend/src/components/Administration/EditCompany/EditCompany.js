@@ -1,7 +1,7 @@
 // components/Administration/EditCompany/EditCompany.js
 
 import React, { useState, useEffect } from 'react';
-import styles from './EditCompany.module.scss';
+import styles from '../Form.module.scss';
 import axiosInstance from '../../../api/axiosInstance';
 
 const EditCompany = () => {
@@ -87,7 +87,7 @@ const EditCompany = () => {
         )}
 
         <button type="submit" className={styles.button} disabled={isLoading}>
-          {isLoading ? 'Aktualizowanie...' : 'Zapisz Zmiany'}
+          {isLoading ? 'Aktualizowanie...' : 'Zapisz'}
         </button>
       </form>
     </div>

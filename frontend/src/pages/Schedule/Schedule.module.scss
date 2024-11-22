@@ -1,7 +1,64 @@
 /* src/pages/HomePage/HomePage.module.scss */
-.container {
-    display: flex;
-    flex-direction: row;
+@import '../../styles/global.scss';
+.content{
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  h2{
+    font-size: 2rem;
+    margin: 10px 20px;
+    color: $dark-blue;
   }
+
+.tools{
+  display: flex;
+  flex-direction: row;
+  padding: 10px 20px;
+  width: 100%;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+
+
+ .selector{
+   height: 40px;
+   width: 15%;
+   border: 4px solid $grey;
+   border-radius: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0px 10px;
+  color: $dark-blue;
+
+    select{
+      width: 100%;
+      height: 100%;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border: none;
+      color: $grey;
+      transition: color 0.3s ease-in-out;
+
+      &:focus{
+        outline: none;
+        color: $dark-blue;
+      }
+      &:hover{
+        outline: none;
+        color: $dark-blue;
+      }
+
+      option::first-letter {
+        text-transform: capitalize; /* Ustawia pierwszą literę na dużą */
+      }
+    }
+ 
+  }
+}
+}
+
   
   

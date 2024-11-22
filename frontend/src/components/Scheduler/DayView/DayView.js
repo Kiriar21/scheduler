@@ -82,6 +82,11 @@ const DayView = ({ scheduler, userRole, userId }) => {
     }
   };
 
+  // Aktualizacja zakresu godzin
+  const startTime = 0;  // Początek doby
+  const endTime = 24;   // Koniec doby
+  const totalHours = endTime - startTime;
+
   return (
     <div className={styles.dayView}>
       <h3>
@@ -96,40 +101,76 @@ const DayView = ({ scheduler, userRole, userId }) => {
         ))}
       </select>
 
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>Imię</th>
-            <th>Nazwisko</th>
-            <th>Godzina rozpoczęcia</th>
-            <th>Godzina zakończenia</th>
-          </tr>
-        </thead>
-        <tbody>
-          {dayInfo.employersHours.map((eh) => {
-            if (!eh.user) return null; // Pomijamy brakującego użytkownika
-            const isEditable = canEdit(eh.user._id);
-            return (
-              <tr key={eh._id}>
-                <td>{eh.user.name}</td>
-                <td>{eh.user.surname}</td>
-                <td
-                  onClick={() => isEditable && handleCellClick(eh)}
-                  className={isEditable ? styles.editableCell : ''}
-                >
-                  {eh.start_hour}
-                </td>
-                <td
-                  onClick={() => isEditable && handleCellClick(eh)}
-                  className={isEditable ? styles.editableCell : ''}
-                >
-                  {eh.end_hour}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className={styles.scheduleContainer}>
+        {/* Wyświetlanie godzin na górze siatki */}
+        <div className={styles.timeLabels}>
+          <div className={styles.workerName}></div>
+          <div className={styles.timeGrid}>
+            {[...Array(totalHours + 1)].map((_, index) => (
+              <div
+                key={index}
+                className={styles.timeLabel}
+                style={{ left: `${(index / totalHours) * 100}%` }}
+              >
+                {String(startTime + index).padStart(2, '0')}:00
+              </div>
+            ))}
+          </div>
+        </div>
+        {dayInfo.employersHours.map((eh) => {
+          if (!eh.user) return null;
+          const isEditable = canEdit(eh.user._id);
+          const startHour = parseFloat(eh.start_hour);
+          const endHour = parseFloat(eh.end_hour);
+
+          // Obliczanie pozycji i szerokości prostokąta
+          let barStart = ((startHour - startTime) / totalHours) * 100;
+          let barWidth = ((endHour - startHour) / totalHours) * 100;
+
+          // Upewnienie się, że prostokąt mieści się w siatce
+          if (barStart < 0) {
+            barWidth += barStart; // Zmniejszenie szerokości, jeśli zaczyna przed siatką
+            barStart = 0;
+          }
+          if (barStart + barWidth > 100) {
+            barWidth = 100 - barStart; // Zmniejszenie szerokości, jeśli kończy po siatce
+          }
+
+          return (
+            <div key={eh._id} className={styles.scheduleRow}>
+              <div className={styles.workerName}>
+                {eh.user.name}<br></br> {eh.user.surname}
+              </div>
+              <div className={styles.timeGrid}>
+                {/* Linie siatki */}
+                <div className={styles.gridLines}>
+                  {[...Array(totalHours + 1)].map((_, index) => (
+                    <div
+                      key={index}
+                      className={styles.gridLine}
+                      style={{ left: `${(index / totalHours) * 100}%` }}
+                    ></div>
+                  ))}
+                </div>
+                <div className={styles.timeBarContainer}>
+                  <div
+                    className={`${styles.timeBar} ${
+                      isEditable ? styles.editableBar : ''
+                    }`}
+                    style={{
+                      left: `${barStart}%`,
+                      width: `${barWidth}%`,
+                    }}
+                    onClick={() => isEditable && handleCellClick(eh)}
+                  >
+                    {eh.start_hour} - {eh.end_hour}
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
 
       {/* TimeEditModal */}
       <TimeEditModal

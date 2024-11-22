@@ -1,10 +1,28 @@
-// components/ViewSwitcher/ViewSwitcher.js
 import React from 'react';
 import styles from './ViewSwitcher.module.scss';
 
 const ViewSwitcher = ({ selectedView, onViewChange }) => {
+  const getActivePosition = () => {
+    switch (selectedView) {
+      case 'day':
+        return '0%';
+      case 'week':
+        return '33.33%';
+      case 'month':
+        return '66.66%';
+      default:
+        return '0%';
+    }
+  };
+
   return (
     <div className={styles.viewSwitcher}>
+      {/* Animowany wskaźnik */}
+      <div
+        className={styles.activeIndicator}
+        style={{ left: getActivePosition() }}
+      ></div>
+
       <button
         className={selectedView === 'day' ? styles.active : ''}
         onClick={() => onViewChange('day')}
