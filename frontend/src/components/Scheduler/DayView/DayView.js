@@ -1,5 +1,3 @@
-// components/Scheduler/DayView/DayView.js
-
 import React, { useState, useContext } from 'react';
 import styles from './DayView.module.scss';
 import axiosInstance from '../../../api/axiosInstance';
@@ -35,6 +33,7 @@ const DayView = ({ scheduler, userRole, userId }) => {
         isOpen: true,
         dayInfo,
         employersHour,
+        
       });
     }
   };
@@ -71,7 +70,6 @@ const DayView = ({ scheduler, userRole, userId }) => {
         }
       );
 
-      // Odświeżenie danych w kontekście
       changeScheduler(month, year);
       alert('Zmiany zostały zapisane.');
     } catch (error) {
@@ -82,17 +80,18 @@ const DayView = ({ scheduler, userRole, userId }) => {
     }
   };
 
-  // Aktualizacja zakresu godzin
-  const startTime = 0;  // Początek doby
-  const endTime = 24;   // Koniec doby
+  const startTime = 0;
+  const endTime = 24;
   const totalHours = endTime - startTime;
+  const hourWidth = 59;
+  const timeGridWidth = hourWidth * totalHours;
 
   return (
     <div className={styles.dayView}>
+      <div  className={styles.dayViewTop}>
       <h3>
-        Dzień {dayInfo.dayOfMonth} ({dayInfo.nameDayOfWeek})
+        Dzień: 
       </h3>
-      <label>Wybierz dzień: </label>
       <select value={selectedDay} onChange={handleDayChange}>
         {scheduler.map_month.map((day) => (
           <option key={day._id} value={day.dayOfMonth}>
@@ -101,75 +100,93 @@ const DayView = ({ scheduler, userRole, userId }) => {
         ))}
       </select>
 
+      </div>
       <div className={styles.scheduleContainer}>
-        {/* Wyświetlanie godzin na górze siatki */}
-        <div className={styles.timeLabels}>
+        {/* Kolumna z nazwami pracowników */}
+        <div className={styles.namesColumn}>
           <div className={styles.workerName}></div>
-          <div className={styles.timeGrid}>
+          {dayInfo.employersHours.map((eh) => {
+            if (!eh.user) return null;
+            return (
+              <div key={eh._id} className={styles.workerName}>
+                {eh.user.name}
+                <br /> {eh.user.surname}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Kolumna z harmonogramem */}
+        <div className={styles.scheduleColumn}>
+          {/* Siatka godzin na górze */}
+          <div
+            className={styles.scheduleHeader}
+            style={{ minWidth: `${timeGridWidth}px` }}
+          >
             {[...Array(totalHours + 1)].map((_, index) => (
               <div
                 key={index}
                 className={styles.timeLabel}
-                style={{ left: `${(index / totalHours) * 100}%` }}
+                style={{ left: `${index * hourWidth}px` }}
               >
                 {String(startTime + index).padStart(2, '0')}:00
               </div>
             ))}
           </div>
-        </div>
-        {dayInfo.employersHours.map((eh) => {
-          if (!eh.user) return null;
-          const isEditable = canEdit(eh.user._id);
-          const startHour = parseFloat(eh.start_hour);
-          const endHour = parseFloat(eh.end_hour);
 
-          // Obliczanie pozycji i szerokości prostokąta
-          let barStart = ((startHour - startTime) / totalHours) * 100;
-          let barWidth = ((endHour - startHour) / totalHours) * 100;
+          {/* Wiersze z zakresami godzin pracowników */}
+          <div className={styles.scheduleBody}>
+            {dayInfo.employersHours.map((eh) => {
+              if (!eh.user) return null;
+              const isEditable = canEdit(eh.user._id);
+              const startHour = parseFloat(eh.start_hour);
+              const endHour = parseFloat(eh.end_hour);
 
-          // Upewnienie się, że prostokąt mieści się w siatce
-          if (barStart < 0) {
-            barWidth += barStart; // Zmniejszenie szerokości, jeśli zaczyna przed siatką
-            barStart = 0;
-          }
-          if (barStart + barWidth > 100) {
-            barWidth = 100 - barStart; // Zmniejszenie szerokości, jeśli kończy po siatce
-          }
+              const barStart = (startHour - startTime) * hourWidth;
+              const barWidth = (endHour - startHour) * hourWidth;
 
-          return (
-            <div key={eh._id} className={styles.scheduleRow}>
-              <div className={styles.workerName}>
-                {eh.user.name}<br></br> {eh.user.surname}
-              </div>
-              <div className={styles.timeGrid}>
-                {/* Linie siatki */}
-                <div className={styles.gridLines}>
-                  {[...Array(totalHours + 1)].map((_, index) => (
-                    <div
-                      key={index}
-                      className={styles.gridLine}
-                      style={{ left: `${(index / totalHours) * 100}%` }}
-                    ></div>
-                  ))}
-                </div>
-                <div className={styles.timeBarContainer}>
+              return (
+                <div
+                  key={eh._id}
+                  className={styles.timeGridRow}
+                  onClick={() => isEditable && handleCellClick(eh)}
+                >
+                  {/* Tło wiersza */}
                   <div
-                    className={`${styles.timeBar} ${
-                      isEditable ? styles.editableBar : ''
-                    }`}
-                    style={{
-                      left: `${barStart}%`,
-                      width: `${barWidth}%`,
-                    }}
-                    onClick={() => isEditable && handleCellClick(eh)}
+                    className={styles.timeBarBackground}
+                    style={{ minWidth: `${timeGridWidth}px` }}
                   >
-                    {eh.start_hour} - {eh.end_hour}
+                    {/* Linie siatki */}
+                    <div className={styles.gridLines}>
+                      {[...Array(totalHours + 1)].map((_, index) => (
+                        <div
+                          key={index}
+                          className={styles.gridLine}
+                          style={{ left: `${index * hourWidth}px` }}
+                        ></div>
+                      ))}
+                    </div>
+
+                    {/* Prostokąt z wybranymi godzinami */}
+                    {!(startHour === 0 && endHour === 0) && (
+                      <div
+                        className={`${styles.timeBar} ${
+                          isEditable ? styles.editableBar : ''
+                        }`}
+                        style={{
+                          left: `${barStart}px`,
+                          width: `${barWidth}px`,
+                        }}
+                      >
+                        {eh.start_hour} - {eh.end_hour}
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-            </div>
-          );
-        })}
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* TimeEditModal */}

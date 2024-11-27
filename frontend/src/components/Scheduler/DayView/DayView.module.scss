@@ -1,104 +1,177 @@
-/* components/Scheduler/DayView/DayView.module.scss */
 @import '../../../styles/global.scss';
-/* components/Scheduler/DayView/DayView.module.scss */
+
+/* DayView.module.scss */
 
 .dayView {
-  /* Twoje istniejące style */
+  width: 100%;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .dayViewTop{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: $grey;
+    color: $white ;
+    align-items: center;
+    width: 20%;
+    height: 50px;
+    padding: 0px 10px;
+    border-radius: 10px;
+
+    h3{
+      height: 30px;
+      align-items: center;
+      text-align: center;
+    }
+    select{
+      height: 30px;
+      border-radius: 5px;
+      width: 80%;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+  }
 }
 
 .scheduleContainer {
   display: flex;
-  flex-direction: column;
-  margin-top: 20px;
-}
-
-.timeLabels {
-  display: flex;
-  align-items: center;
-  position: relative;
-  margin-bottom: 10px;
-}
-
-.timeLabel {
-  position: absolute;
-  top: -20px;
-  transform: translateX(-50%);
-  font-size: 12px;
-  white-space: nowrap;
-}
-
-.workerName {
-  width: 150px; /* Dostosuj w razie potrzeby */
-  flex-shrink: 0;
-}
-
-.scheduleRow {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.timeGrid {
-  flex: 1;
-  position: relative;
-  height: 40px; /* Dostosuj w razie potrzeby */
-}
-
-.timeBarContainer {
-  position: relative;
-  height: 100%;
-  background-color: #f0f0f0; /* Kolor tła siatki */
-}
-
-.timeBar {
-  position: absolute;
-  height: 100%;
-  background-color: #007bff; /* Kolor prostokąta */
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  cursor: default;
-}
-
-.editableBar {
-  cursor: pointer;
-}
-
-.timeBar:hover {
-  opacity: 0.8;
-}
-
-.gridLines {
-  position: absolute;
-  top: 0;
-  bottom: 0;
+  box-sizing: border-box;
+  margin-top: 16px;
+  background-color: $grey;
+  border-radius: 10px;
+  padding: 10px;
   width: 100%;
+ box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-.gridLine {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background-color: #ccc;
+.namesColumn {
+  flex: 0 0 auto;
+  min-width: 150px; // Możesz dostosować szerokość według potrzeb
+  margin-right: 8px;
+
+  .workerName {
+    height: 40px; // Wysokość powinna być taka sama jak w .timeGridRow
+    display: flex;
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 5px;
+    font-weight: 600;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    
+    &:nth-of-type(1){
+      background-color: rgba($color: #000000, $alpha: 0);
+    }
+    
+  }
 }
 
-.timeGrid::before,
-.timeGrid::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background-color: #ccc;
-}
+.scheduleColumn {
+  flex: 1 1 auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  
+    /* Scrollbar customization */
+    &::-webkit-scrollbar {
+      height: 12px;
+    }
+  
+    &::-webkit-scrollbar-track {
+      background-color: $dark-grey;
+      border-radius: 5px;
+    }
+  
+    &::-webkit-scrollbar-thumb {
+      background-color: $light-grey;
+      border-radius: 5px;
+    }
+  
+    scrollbar-width: thin;
+    scrollbar-color: $light-grey $dark-grey;
+  
 
-.timeGrid::before {
-  left: 0;
-}
+  .scheduleHeader {
+    position: relative;
+    height: 40px;
+    color: $white;
+    padding: 5px;
+    margin-bottom: 10px;
 
-.timeGrid::after {
-  right: 0;
+    .timeLabel {
+      position: absolute;
+      top: 0;
+      width: 50px; // Używamy tej samej wartości co hourWidth w komponencie
+      text-align: left;
+      font-size: 15px;
+      height: 100%;
+      border-left: 1px dashed #e0e0e0;
+      padding-left: 2px;
+    }
+  }
+
+  .scheduleBody {
+    .timeGridRow {
+      position: relative;
+      height: 40px; // Wysokość wiersza
+      background-color: $white;
+      padding: 5px 0px;
+      border-radius: 5px;
+margin-bottom: 10px;
+
+      .timeBarBackground {
+        position: relative;
+        height: 100%;
+
+        .gridLines {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 100%;
+
+          .gridLine {
+            position: absolute;
+            top: 0;
+            width: 1px;
+            height: 100%;
+            background-color: #c3c3c3;
+
+            &:first-child {
+              background-color: transparent;
+            }
+
+            &:nth-last-of-type(9){
+              width: 3px;
+              color: $dark-grey;
+            }
+            &:nth-last-of-type(17){
+              width: 3px;
+              color: $dark-grey;
+            }
+          }
+        }
+
+        .timeBar {
+          position: absolute;
+          top: 5px;
+          height: 30px; // Dopasuj wysokość, aby prostokąt był mniejszy niż wiersz
+          background-color: #4caf50;
+          color: white;
+          text-align: center;
+          font-size: 12px;
+          line-height: 30px; // Aby tekst był wyśrodkowany pionowo
+          border-radius: 4px;
+
+          &.editableBar {
+            cursor: pointer;
+            background-color: #ff9800;
+          }
+        }
+      }
+    }
+  }
 }

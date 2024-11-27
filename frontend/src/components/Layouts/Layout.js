@@ -6,7 +6,7 @@ import styles from './Layout.module.scss';
 export default function Layout() {
     return (
         <div className={styles.container}>
-            <header style={{ width: '15em' }}>
+            <header>
                 <NavigationPanel />
             </header>
             <main className={styles.main}>

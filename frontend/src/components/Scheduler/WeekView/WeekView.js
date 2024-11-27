@@ -97,49 +97,105 @@ const WeekView = ({ scheduler, userRole, userId }) => {
     }
   };
 
+  const dayNameToNumber = {
+    'poniedziałek': 0,
+    'wtorek': 1,
+    'środa': 2,
+    'czwartek': 3,
+    'piątek': 4,
+    'sobota': 5,
+    'niedziela': 6,
+  };
+
+  // Przypisanie dayOfWeek dla każdego dnia z normalizacją
+  daysInWeek.forEach((day) => {
+    const normalizedDayName = day.nameDayOfWeek.trim().toLowerCase();
+    day.dayOfWeek = dayNameToNumber[normalizedDayName];
+    if (day.dayOfWeek === undefined) {
+      console.warn(`Nieznany dzień tygodnia: "${day.nameDayOfWeek}"`);
+    }
+  });
+
+  // Poprawiona funkcja fillWeekDays
+  const fillWeekDays = (daysInWeek) => {
+    const filledDays = new Array(7).fill(null);
+
+    daysInWeek.forEach((day) => {
+      const index = day.dayOfWeek;
+      if (index !== undefined) {
+        filledDays[index] = day;
+      }
+    });
+
+    return filledDays;
+  };
+
+  // Logowanie dayOfWeek dla każdego dnia
+  daysInWeek.forEach((day) => {
+    console.log(`Dzień: "${day.nameDayOfWeek}", dayOfWeek: ${day.dayOfWeek}`);
+  });
+
   return (
     <div className={styles.weekView}>
-      <h3>Tydzień {selectedWeek}</h3>
-      <label>Wybierz tydzień: </label>
-      <select value={selectedWeek} onChange={handleWeekChange}>
-        {weeksInMonth.map((week) => (
-          <option key={week} value={week}>
-            Tydzień {week}
-          </option>
-        ))}
-      </select>
+      <div className={styles.weekViewTop}>
+        <h3>Wybierz tydzień: </h3>
+        <select value={selectedWeek} onChange={handleWeekChange}>
+          {weeksInMonth.map((week) => (
+            <option key={week} value={week}>
+              Tydzień {week}
+            </option>
+          ))}
+        </select>
+      </div>
       <table className={styles.table}>
         <thead>
           <tr>
             <th>Pracownik</th>
-            {daysInWeek.map((day) => (
-              <th key={day._id}>
-                {day.dayOfMonth} ({day.nameDayOfWeek})
+            {fillWeekDays(daysInWeek).map((day, index) => (
+              <th key={index}>
+                {day ? `${day.dayOfMonth} (${day.nameDayOfWeek})` : ''}
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {Object.values(users).map((user) => (
-            <tr key={user._id}>
-              <td>{user.name} {user.surname}</td>
-              {daysInWeek.map((day) => {
-                const eh = day.employersHours.find(
-                  (eh) => eh.user && eh.user._id === user._id
-                );
-                return (
-                  <td
-                    key={day._id}
-                    onClick={() => eh && handleCellClick(eh, day)}
-                    className={eh && canEdit(eh.user._id) ? styles.editableCell : ''}
-                  >
-                    {eh ? `${eh.start_hour} - ${eh.end_hour}` : 'Brak'}
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
+  {Object.values(users).map((user) => {
+    const isEditable = canEdit(user._id); // Sprawdzenie, czy użytkownik jest edytowalny
+    return (
+      <tr
+        key={user._id}
+        className={isEditable ? `${styles.editableRow}` : ''}
+      >
+        <td className={styles.namecell}>
+        <div className={styles.names}>
+          {user.name} {user.surname}
+          </div>
+        </td>
+        {fillWeekDays(daysInWeek).map((day, index) => {
+          if (!day) {
+            return <td key={index} className={styles.emptyCell}></td>;
+          }
+          const eh = day.employersHours.find(
+            (eh) => eh.user && eh.user._id === user._id
+          );
+          return (
+            <td
+              key={index}
+              onClick={() => eh && handleCellClick(eh, day)}
+              className={
+                eh && canEdit(eh.user._id) ? styles.editableCell : ''
+              }
+            >
+              <div className={styles.hours}>
+                {eh ? `${eh.start_hour} - ${eh.end_hour}` : 'Brak'}
+              </div>
+            </td>
+          );
+        })}
+      </tr>
+    );
+  })}
+</tbody>
       </table>
 
       {/* TimeEditModal */}

@@ -116,9 +116,10 @@ const SchedulePage = () => {
   return (
     <div className={styles.content}>
     <div className={styles.tools}>
-
+      <h3>Grafik:</h3>
       {/* Wybór grafiku */}
       <div className={styles.selector}>
+
       <CalendarMonth />
         <select value={selectedSchedule} onChange={handleSelectChange}>
           {availableSchedulers.map((schedule, index) => (

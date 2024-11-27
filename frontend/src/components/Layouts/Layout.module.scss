@@ -1,10 +1,32 @@
 @import '../../styles/global.scss';
 
-.main{
-    width: 100%;
+.container {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden; // Prevent scrollbars caused by overflow
 }
-.container{
-    display: flex;
-    flex-direction: row;
-    height: 100vh;
+
+header {
+  flex: 0 0 12%; // Do not grow, do not shrink, base width at 12%
+  min-width: 200px; // Minimum width for the header
+  max-width: 300px; // Optional: Set a maximum width if desired
+}
+
+main {
+  flex: 1 1 auto; // Allow to grow and shrink as needed
+  overflow-y: auto; // Enable vertical scrolling within main if content overflows
+  overflow-x: hidden; // Prevent horizontal scrolling
+  width: 100%; // Ensure it takes up the remaining width
+}
+
+.footer {
+  /* Footer styles if needed */
+}
+
+/* Ensure that all direct children of main take full width */
+.main > * {
+  width: 100%;
+  box-sizing: border-box; // Include padding and border in width calculation
 }

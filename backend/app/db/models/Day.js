@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const DaySchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  start_hour: { type: Number, min: 0, max: 23 },
-  end_hour: { type: Number, min: 0, max: 23 },
+  start_hour: { type: Number, min: 0, max: 24 },
+  end_hour: { type: Number, min: 0, max: 24 },
   hours: { type: Number, default: 0 },
   prefferedHours: { type: String, default: '' },
   availability: { type: String, default: '' },
