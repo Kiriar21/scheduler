@@ -130,11 +130,6 @@ const WeekView = ({ scheduler, userRole, userId }) => {
     return filledDays;
   };
 
-  // Logowanie dayOfWeek dla każdego dnia
-  daysInWeek.forEach((day) => {
-    console.log(`Dzień: "${day.nameDayOfWeek}", dayOfWeek: ${day.dayOfWeek}`);
-  });
-
   return (
     <div className={styles.weekView}>
       <div className={styles.weekViewTop}>

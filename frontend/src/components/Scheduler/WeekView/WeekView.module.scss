@@ -46,24 +46,22 @@
   th,
   td {
     text-align: center;
-    border-bottom: 1px solid $white; /* Dodano obramowanie */
+    border-bottom: 1px solid $grey; /* Dodano obramowanie */
     padding: 8px;
 
-  }
- 
-  th{
-    border-radius: 10px 10px 0px 0px;
-    border-left: 1px solid $white; /* Dodano lewe obramowanie */
   }
 
   th {
     color: $white;
+    border-radius: 10px 10px 0px 0px;
+    border-left: 1px solid $white; /* Dodano lewe obramowanie */
     font-size: 1.2rem;
     background-color: $grey;
-    border-bottom: 1px solid $white; /* Dodano dolną granicę dla nagłówków */
+    border-bottom: 2px solid $grey; /* Dodano dolną granicę dla nagłówków */
 
     &:first-child {
       border-left: none;
+      color: $white;
     }
   }
 
@@ -78,12 +76,13 @@
     }
 
     &:not(.namecell) {
-      background-color: $grey;
+      background-color: $white;
     }
   }
 
   .hours {
     width: 60%;
+    height: 40px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -99,7 +98,14 @@
     width: 20%;
     font-weight: 600;
     text-align: left;
+    background-color: $white;
+    color: $grey;
+  }
+
+
+  th:first-child {
     background-color: $grey;
+    color: $white;
   }
 
   .names{
@@ -111,7 +117,8 @@
     text-align: left;
     align-items: center;
     border-radius: 5px;
-    background-color: $white;
+    background-color: $grey;
+    color: $white;
   }
 
   /* Ustaw szerokość dla pozostałych kolumn */
