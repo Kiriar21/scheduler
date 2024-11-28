@@ -39,11 +39,16 @@
   border-radius: 10px;
   overflow-x: auto;
 
+  tr{
+    height:60px;
+  }
+
   th,
   td {
     text-align: center;
     border-bottom: 1px solid $white; /* Dodano obramowanie */
     padding: 8px;
+
   }
  
   th{
@@ -90,6 +95,7 @@
   /* Ustaw szerokość dla pierwszej kolumny (Pracownik) */
   th:first-child,
   td.namecell {
+    height: 40px;
     width: 20%;
     font-weight: 600;
     text-align: left;

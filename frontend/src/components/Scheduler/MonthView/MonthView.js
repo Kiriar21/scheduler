@@ -1,5 +1,3 @@
-// components/Scheduler/MonthView/MonthView.js
-
 import React, { useState, useContext } from 'react';
 import styles from './MonthView.module.scss';
 import TimeEditModal from '../TimeEditModal/TimeEditModal';
@@ -7,14 +5,24 @@ import axiosInstance from '../../../api/axiosInstance';
 import { SchedulerContext } from '../../../contexts/SchedulerContext/SchedulerContext';
 
 const MonthView = ({ scheduler, userRole, userId }) => {
-  const weeksInMonth = [
-    ...new Set(scheduler.map_month.map((day) => day.numberOfWeek)),
-  ];
   const { changeScheduler } = useContext(SchedulerContext);
   const [modalData, setModalData] = useState({
     isOpen: false,
     dayInfo: null,
     employersHour: null,
+  });
+
+  // Stan dla wybranego pracownika
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
+
+  // Wyciąganie listy unikalnych pracowników
+  const employees = [];
+  scheduler.map_month.forEach((day) => {
+    day.employersHours.forEach((eh) => {
+      if (!employees.find((e) => e._id === eh.user._id)) {
+        employees.push(eh.user);
+      }
+    });
   });
 
   const canEdit = (targetUserId) => {
@@ -74,73 +82,132 @@ const MonthView = ({ scheduler, userRole, userId }) => {
     }
   };
 
+  // Funkcja do generowania tygodni z odpowiednim rozmieszczeniem dni
+  const generateCalendar = () => {
+    const weeks = [];
+    let currentWeek = [];
+
+    // Zakładamy, że tydzień zaczyna się od poniedziałku (1) i kończy na niedzieli (7)
+    const daysInMonth = scheduler.map_month;
+    let dayIndex = 0;
+
+    while (dayIndex < daysInMonth.length) {
+      const day = daysInMonth[dayIndex];
+      const dayOfWeek = day.dayOfWeek; // 1 (poniedziałek) - 7 (niedziela)
+
+      // Jeśli to początek miesiąca, dodaj puste komórki
+      if (currentWeek.length === 0) {
+        for (let i = 1; i < dayOfWeek; i++) {
+          currentWeek.push(null);
+        }
+      }
+
+      currentWeek.push(day);
+      dayIndex++;
+
+      // Jeśli tydzień jest pełny lub to ostatni dzień miesiąca
+      if (currentWeek.length === 7 || dayIndex === daysInMonth.length) {
+        // Jeśli tydzień nie jest pełny, uzupełnij puste komórki
+        while (currentWeek.length < 7) {
+          currentWeek.push(null);
+        }
+        weeks.push(currentWeek);
+        currentWeek = [];
+      }
+    }
+
+    return weeks;
+  };
+
+  const weeks = generateCalendar();
+
+  // Funkcja do pobierania inicjałów pracownika
+  const getInitials = (name, surname) => {
+    const firstNameInitial = name.charAt(0).toUpperCase();
+    const lastNameInitial = surname.charAt(0).toUpperCase();
+    return `${firstNameInitial}${lastNameInitial}`;
+  };
+
   return (
     <div className={styles.monthView}>
-      <h3>
-        Grafik dla {scheduler.month} {scheduler.year}
-      </h3>
-      {weeksInMonth.map((week) => {
-        const daysInWeek = scheduler.map_month.filter(
-          (day) => day.numberOfWeek === week
-        );
-        // Zbieranie unikalnych użytkowników
-        const users = {};
-        daysInWeek.forEach((day) => {
-          day.employersHours.forEach((eh) => {
-            if (eh.user) {
-              users[eh.user._id] = eh.user;
-            }
-          });
-        });
+      {/* Lista rozwijana z pracownikami */}
+      <select
+        value={selectedEmployeeId}
+        onChange={(e) => setSelectedEmployeeId(e.target.value)}
+      >
+        <option value="">Wybierz pracownika</option>
+        {employees.map((employee) => (
+          <option key={employee._id} value={employee._id}>
+            {employee.name} {employee.surname}
+          </option>
+        ))}
+      </select>
 
-        return (
-          <div key={week} className={styles.weekSection}>
-            <h4>Tydzień {week}</h4>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Pracownik</th>
-                  {daysInWeek.map((day) => (
-                    <th key={day._id}>
-                      {day.dayOfMonth} ({day.nameDayOfWeek})
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {Object.values(users).map((user) => (
-                  <tr key={user._id}>
-                    <td>{user.name} {user.surname}</td>
-                    {daysInWeek.map((day) => {
-                      const eh = day.employersHours.find(
-                        (eh) => eh.user && eh.user._id === user._id
-                      );
-                      return (
-                        <td
-                          key={day._id}
-                          onClick={() => eh && handleCellClick(eh, day)}
-                          className={eh && canEdit(eh.user._id) ? styles.editableCell : ''}
-                        >
-                          {eh ? `${eh.start_hour} - ${eh.end_hour}` : 'Brak'}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        );
-      })}
+      {/* Tabela kalendarza */}
+      <table className={styles.calendarTable}>
+        <thead>
+          <tr>
+            <th>Pon</th>
+            <th>Wt</th>
+            <th>Śr</th>
+            <th>Czw</th>
+            <th>Pt</th>
+            <th>Sob</th>
+            <th>Nd</th>
+          </tr>
+        </thead>
+        <tbody>
+          {weeks.map((week, weekIdx) => (
+            <tr key={weekIdx}>
+              {week.map((day, dayIdx) => (
+                <td key={dayIdx} className={styles.calendarCell}>
+                  {day ? (
+                    <div className={styles.cellContent}>
+                      <div className={styles.dayNumber}>{day.dayOfMonth}</div>
+                      {/* Filtruj godziny pracy dla wybranego pracownika */}
+                      {day.employersHours
+                        .filter((eh) =>
+                          selectedEmployeeId
+                            ? eh.user._id === selectedEmployeeId
+                            : true
+                        )
+                        .map((eh) => (
+                          <div
+                            key={eh.user._id}
+                            className={styles.hourRange}
+                            onClick={() => handleCellClick(eh, day)}
+                          >
+                            {/* Dodaj inicjały jeśli żaden pracownik nie jest wybrany */}
+                            {!selectedEmployeeId && (
+                              <span className={styles.initials}>
+                               {getInitials(
+                                  eh.user.name,
+                                  eh.user.surname
+                                )}
+                                :
+                              </span>
+                            )}
+                            {eh.start_hour} - {eh.end_hour}
+                          </div>
+                        ))}
+                    </div>
+                  ) : null}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
-      {/* TimeEditModal */}
-      <TimeEditModal
-        isOpen={modalData.isOpen}
-        onClose={handleModalClose}
-        onSave={handleModalSave}
-        initialData={modalData.employersHour || {}}
-        dayInfo={modalData.dayInfo}
-      />
+      {/* Modal do edycji godzin */}
+      {modalData.isOpen && (
+        <TimeEditModal
+          isOpen={modalData.isOpen}
+          onClose={handleModalClose}
+          onSave={handleModalSave}
+          initialData={modalData.employersHour}
+        />
+      )}
     </div>
   );
 };
