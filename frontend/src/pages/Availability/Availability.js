@@ -260,10 +260,13 @@ const AvailabilityPage = () => {
 
   return (
     <div className={styles.content}>
+      <div className={styles.left}>
       <h2>Dyspozycyjność</h2>
 
       {/* Wybór grafiku */}
+      <div className={styles.selects}>
       <div className={styles.selector}>
+      <label>Grafik: </label>
         <select value={selectedSchedule} onChange={handleSelectChange}>
           {availableSchedulers.map((schedule, index) => (
             <option key={index} value={`${schedule.month} ${schedule.year}`}>
@@ -271,11 +274,12 @@ const AvailabilityPage = () => {
             </option>
           ))}
         </select>
+        </div>
       </div>
-
+      <div className={styles.selectsRow}>
       {/* Wybór użytkownika dla menedżera */}
       {userRole === 'manager' && (
-        <div className={styles.userSelector}>
+        <div className={styles.selector}>
           <label>Wybierz użytkownika:</label>
           <select
             value={selectedUserId}
@@ -287,24 +291,53 @@ const AvailabilityPage = () => {
               </option>
             ))}
           </select>
-        </div>
+          </div>
       )}
-
-      {/* Informacje o statusie zatwierdzenia */}
-      <div className={styles.submitStatus}>
-        <p>
-          Status użytkownika: {userSubmitStatus ? 'Zatwierdzony' : 'Niezatwierdzony'}
-        </p>
-        <p>
-          Status menedżera: {managerSubmitStatus ? 'Zatwierdzony' : 'Niezatwierdzony'}
-        </p>
-      </div>
+</div>
 
       {/* Komponent auto-uzupełniania */}
       {canEdit() && (
         <AutoFillAvailability onAutoFill={handleAutoFill} />
       )}
 
+      {/* Informacje o statusie zatwierdzenia */}
+      <div className={styles.submitStatus}>
+  <p>
+    Status pracownika:{' '}
+    <span
+      className={
+        userSubmitStatus ? styles.approved : styles.notApproved
+      }
+    >
+      {userSubmitStatus ? 'Zatwierdzony' : 'Niezatwierdzony'}
+    </span>
+  </p>
+  <p>
+    Status menedżera:{' '}
+    <span
+      className={
+        managerSubmitStatus ? styles.approved : styles.notApproved
+      }
+    >
+      {managerSubmitStatus ? 'Zatwierdzony' : 'Niezatwierdzony'}
+    </span>
+  </p>
+</div>
+
+              {/* Przycisk zapisz */}
+              {canEdit() && (
+        <button className={styles.saveButton} onClick={handleSave} disabled={isSaving}>
+          {isSaving ? 'Zapisywanie...' : 'Zatwierdź dostępność'}
+        </button>
+      )}
+
+      {/* Przycisk zatwierdź dla menedżera */}
+      {userRole === 'manager' && selectedUserId !== userId && (
+        <button className={styles.confirmButton} onClick={handleConfirm} disabled={isSaving}>
+          {isSaving ? 'Zapisywanie...' : 'Zatwierdź dostępność'}
+        </button>
+      )}
+</div>
       {/* Formularz dostępności */}
       <div className={styles.availabilityForm}>
         <table className={styles.table}>
@@ -346,20 +379,6 @@ const AvailabilityPage = () => {
           </tbody>
         </table>
       </div>
-
-      {/* Przycisk zapisz */}
-      {canEdit() && (
-        <button className={styles.saveButton} onClick={handleSave} disabled={isSaving}>
-          {isSaving ? 'Zapisywanie...' : 'Zapisz'}
-        </button>
-      )}
-
-      {/* Przycisk zatwierdź dla menedżera */}
-      {userRole === 'manager' && selectedUserId !== userId && (
-        <button className={styles.confirmButton} onClick={handleConfirm} disabled={isSaving}>
-          {isSaving ? 'Zapisywanie...' : 'Zatwierdź dostępność'}
-        </button>
-      )}
     </div>
   );
 };

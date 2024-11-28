@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import styles from './MonthView.module.scss';
 import TimeEditModal from '../TimeEditModal/TimeEditModal';
 import axiosInstance from '../../../api/axiosInstance';
@@ -87,13 +87,18 @@ const MonthView = ({ scheduler, userRole, userId }) => {
     const weeks = [];
     let currentWeek = [];
 
-    // Zakładamy, że tydzień zaczyna się od poniedziałku (1) i kończy na niedzieli (7)
+    if (!scheduler || !scheduler.map_month) {
+      return weeks;
+    }
+
     const daysInMonth = scheduler.map_month;
     let dayIndex = 0;
 
     while (dayIndex < daysInMonth.length) {
       const day = daysInMonth[dayIndex];
-      const dayOfWeek = day.dayOfWeek; // 1 (poniedziałek) - 7 (niedziela)
+
+      // Dostosowanie numeracji dayOfWeek
+      const dayOfWeek = ((day.dayOfWeek) % 7) + 1; // 1 (poniedziałek) - 7 (niedziela)
 
       // Jeśli to początek miesiąca, dodaj puste komórki
       if (currentWeek.length === 0) {
@@ -119,7 +124,8 @@ const MonthView = ({ scheduler, userRole, userId }) => {
     return weeks;
   };
 
-  const weeks = generateCalendar();
+  // Użycie useMemo, aby ponownie wygenerować tygodnie przy zmianie scheduler
+  const weeks = useMemo(() => generateCalendar(), [scheduler]);
 
   // Funkcja do pobierania inicjałów pracownika
   const getInitials = (name, surname) => {
@@ -180,11 +186,7 @@ const MonthView = ({ scheduler, userRole, userId }) => {
                             {/* Dodaj inicjały jeśli żaden pracownik nie jest wybrany */}
                             {!selectedEmployeeId && (
                               <span className={styles.initials}>
-                               {getInitials(
-                                  eh.user.name,
-                                  eh.user.surname
-                                )}
-                                :
+                                {getInitials(eh.user.name, eh.user.surname)}:
                               </span>
                             )}
                             {eh.start_hour} - {eh.end_hour}

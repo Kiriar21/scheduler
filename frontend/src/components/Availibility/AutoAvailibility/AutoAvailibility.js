@@ -1,7 +1,7 @@
 // components/Availibility/AutoAvailibility/AutoAvailibility.js
 
 import React, { useState } from 'react';
-import styles from './AutoAvailibility.scss';
+import styles from './AutoAvailibility.module.scss';
 
 const AutoFillAvailability = ({ onAutoFill }) => {
   const [prefferedHours, setPrefferedHours] = useState('');
@@ -51,7 +51,7 @@ const AutoFillAvailability = ({ onAutoFill }) => {
   return (
     <div className={styles.autoFill}>
       <h3>Auto-uzupełnianie</h3>
-      <div className={styles.formGroup}>
+      <div className={styles.form}>
         <label>Preferowane godziny:</label>
         <input
           type="text"
@@ -59,7 +59,7 @@ const AutoFillAvailability = ({ onAutoFill }) => {
           onChange={(e) => setPrefferedHours(e.target.value)}
         />
       </div>
-      <div className={styles.formGroup}>
+      <div className={styles.form}>
         <label>Dostępność:</label>
         <input
           type="text"
@@ -67,7 +67,7 @@ const AutoFillAvailability = ({ onAutoFill }) => {
           onChange={(e) => setAvailability(e.target.value)}
         />
       </div>
-      <div className={styles.formGroup}>
+      <div className={styles.form}>
         <label>Wybierz dni:</label>
         <select onChange={handleDaySelection}>
           <option value="">--Wybierz--</option>
