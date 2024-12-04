@@ -57,6 +57,8 @@ const StatisticsPage = () => {
             </option>
           ))}
         </select>
+
+        <p className={styles.total}>Suma godzin zespołu: <span>{totalTeamHours}</span></p>
       </div>
 
       {/* Wyświetlanie statystyk */}
@@ -69,7 +71,7 @@ const StatisticsPage = () => {
               <tr>
                 <th>Imię</th>
                 <th>Nazwisko</th>
-                <th>Łączna liczba godzin</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -80,12 +82,12 @@ const StatisticsPage = () => {
                 >
                   <td>{stat.name}</td>
                   <td>{stat.surname}</td>
-                  <td>{stat.totalHours}</td>
+                  <td>Suma godzin: <span>{stat.totalHours}</span></td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <p className={styles.total}>Łączna liczba godzin zespołu: {totalTeamHours}</p>
+         
         </>
       ) : (
         <p>Brak statystyk do wyświetlenia.</p>

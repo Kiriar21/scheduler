@@ -27,6 +27,9 @@ const DayView = ({ scheduler, userRole, userId }) => {
     return userRole === 'manager' || userId === targetUserId;
   };
 
+
+
+
   const handleCellClick = (employersHour) => {
     if (canEdit(employersHour.user._id)) {
       setModalData({
@@ -83,7 +86,7 @@ const DayView = ({ scheduler, userRole, userId }) => {
   const startTime = 0;
   const endTime = 24;
   const totalHours = endTime - startTime;
-  const hourWidth = 59;
+  const hourWidth = 61;
   const timeGridWidth = hourWidth * totalHours;
 
   return (
@@ -139,6 +142,7 @@ const DayView = ({ scheduler, userRole, userId }) => {
             {dayInfo.employersHours.map((eh) => {
               if (!eh.user) return null;
               const isEditable = canEdit(eh.user._id);
+              const isCurrentUser = eh.user._id === userId;
               const startHour = parseFloat(eh.start_hour);
               const endHour = parseFloat(eh.end_hour);
 
@@ -171,7 +175,7 @@ const DayView = ({ scheduler, userRole, userId }) => {
                     {!(startHour === 0 && endHour === 0) && (
                       <div
                         className={`${styles.timeBar} ${
-                          isEditable ? styles.editableBar : ''
+                          isCurrentUser ? styles.editableBar : ''
                         }`}
                         style={{
                           left: `${barStart}px`,

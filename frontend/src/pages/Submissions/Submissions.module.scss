@@ -1,7 +1,244 @@
-/* src/pages/HomePage/HomePage.module.scss */
-.container {
-    display: flex;
-    flex-direction: row;
+// Submissions.module.scss
+
+@import '../../styles/global.scss';
+
+.content {
+  padding: 20px;
+  font-family: $default-font;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  h2 {
+    font-size: 1.5rem;
+    color: $dark-blue;
+    margin-bottom: 20px;
   }
-  
-  
+}
+
+.form {
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .input {
+    width: 100%;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    label {
+      font-size: 1rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid $light-grey;
+      border-radius: 5px;
+      background-color: $semi-white;
+
+      &:focus {
+        outline: none;
+        border-color: $blue;
+      }
+    }
+  }
+
+  .button {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: $white;
+    background-color: $blue;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-bottom: 10px;
+    text-align: center;
+
+    &:hover {
+      background-color: $dark-blue;
+    }
+
+    &:disabled {
+      background-color: $light-grey;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.summary {
+  width: 100%;
+  max-width: 800px;
+  margin-bottom: 20px;
+
+  h4 {
+    font-size: 1.2rem;
+    color: $dark-blue;
+    margin-bottom: 10px;
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 2px solid $grey;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: $white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    thead {
+      background-color: $grey;
+      color: $white;
+
+      th {
+        padding: 10px;
+        text-align: center;
+      }
+    }
+
+    tbody {
+      tr {
+        &:nth-child(even) {
+          background-color: $semi-white;
+        }
+
+        &:hover {
+          background-color: $light-blue;
+        }
+
+        td {
+          padding: 10px;
+          text-align: center;
+        }
+      }
+    }
+
+    tfoot {
+      tr {
+        background-color: $light-grey;
+
+        td {
+          font-weight: bold;
+          padding: 10px;
+          text-align: center;
+        }
+      }
+    }
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  border: 2px solid $grey;
+  border-radius: 10px;
+  overflow: hidden;
+
+  thead {
+    background-color: $grey;
+    color: $white;
+
+    th {
+      padding: 10px;
+      text-align: center;
+    }
+  }
+
+  tbody {
+    tr {
+      &:nth-child(even) {
+        background-color: $semi-white;
+      }
+
+      &:hover {
+        background-color: $light-blue;
+      }
+
+      td {
+        padding: 10px;
+        text-align: center;
+      }
+    }
+  }
+
+  tfoot {
+    tr {
+      background-color: $light-grey;
+      color: $white;
+
+      td {
+        font-weight: bold;
+        padding: 10px;
+        text-align: center;
+      }
+    }
+  }
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+  .form {
+    .input {
+      label {
+        font-size: 0.9rem;
+      }
+
+      select {
+        font-size: 0.9rem;
+      }
+    }
+
+    .button {
+      font-size: 0.9rem;
+    }
+  }
+
+  .summary {
+    .table {
+      font-size: 0.8rem;
+
+      thead {
+        display: none;
+      }
+
+      tbody {
+        tr {
+          display: flex;
+          flex-direction: column;
+          align-items: stretch;
+          margin-bottom: 10px;
+          border: 1px solid $grey;
+          border-radius: 5px;
+          padding: 10px;
+        }
+
+        td {
+          display: flex;
+          justify-content: space-between;
+          padding: 5px;
+
+          &:before {
+            content: attr(data-label);
+            font-weight: bold;
+            margin-right: 10px;
+            color: $dark-grey;
+          }
+        }
+      }
+    }
+  }
+}

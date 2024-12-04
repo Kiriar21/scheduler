@@ -103,20 +103,26 @@
     .timeLabel {
       position: absolute;
       top: 0;
-      width: 50px; // Używamy tej samej wartości co hourWidth w komponencie
+      width: 55px; // Używamy tej samej wartości co hourWidth w komponencie
       text-align: left;
       font-size: 15px;
       height: 100%;
       border-left: 1px dashed #e0e0e0;
       padding-left: 2px;
+
+      &:last-of-type{
+        display: none;
+      }
     }
+
+
   }
 
   .scheduleBody {
     .timeGridRow {
       position: relative;
       height: 40px; // Wysokość wiersza
-      background-color: $white;
+      // background-color: $white;
       padding: 5px 0px;
       border-radius: 5px;
 margin-bottom: 10px;
@@ -124,8 +130,12 @@ margin-bottom: 10px;
       .timeBarBackground {
         position: relative;
         height: 100%;
+        background-color: $white;
+        border-radius: 5px;
+        
 
         .gridLines {
+          flex: 1;
           position: absolute;
           top: 0;
           left: 0;
@@ -158,7 +168,7 @@ margin-bottom: 10px;
           position: absolute;
           top: 5px;
           height: 30px; // Dopasuj wysokość, aby prostokąt był mniejszy niż wiersz
-          background-color: #4caf50;
+          background-color: $blue;
           color: white;
           text-align: center;
           font-size: 12px;
@@ -167,7 +177,7 @@ margin-bottom: 10px;
 
           &.editableBar {
             cursor: pointer;
-            background-color: #ff9800;
+            background-color: #ff8000;
           }
         }
       }

@@ -1,7 +1,90 @@
-/* src/pages/HomePage/HomePage.module.scss */
-.container {
-    display: flex;
-    flex-direction: row;
+
+  //Form.module.scss
+  @import '../../styles/global.scss';
+
+  h2 {
+    color: $dark-blue;
+    margin: 20px;
   }
   
+  .container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    font-size: 0.9rem;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+  
+  
+  
+    h3 {
+      color: $white;
+      margin: 0 0 20px;
+      text-align: center;
+    }
+  
+    label {
+      color: $white;
+      margin-bottom: 5px;
+    }
+  
+    // Użycie mixin dla formularza
+    form {
+      @include form-style;
+      width: 30%;
+      background-color: $grey;
+      box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.5); // Delikatny cień
+      padding: 20px;
+        border-radius: 10px;
+    }
+  
+    .button {
+      @include button-style($blue, darken($blue, 10%));
+    }
+  
+    .deleteButton {
+      @include button-style($red, darken($red, 10%));
+    }
+  }
+  
+  .error{
+    color: $white;
+    text-align: center;
+  }
+  // TWOJ KOCHANY ❤️
+  
+  
+  .success{
+    text-align: center;
+    color: green;
+  }
+  
+  .loader {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .spinner {
+    width: 24px;
+    height: 24px;
+    border: 4px solid #ccc;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
   

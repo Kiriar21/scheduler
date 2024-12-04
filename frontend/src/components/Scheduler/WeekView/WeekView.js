@@ -155,11 +155,12 @@ const WeekView = ({ scheduler, userRole, userId }) => {
         </thead>
         <tbody>
   {Object.values(users).map((user) => {
-    const isEditable = canEdit(user._id); // Sprawdzenie, czy użytkownik jest edytowalny
+    const isCurrentUser = user._id === userId;
+    
     return (
       <tr
         key={user._id}
-        className={isEditable ? `${styles.editableRow}` : ''}
+        className={isCurrentUser ? `${styles.editableRow}` : ''}
       >
         <td className={styles.namecell}>
         <div className={styles.names}>

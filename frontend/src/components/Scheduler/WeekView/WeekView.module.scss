@@ -1,148 +1,170 @@
-/* components/DayView/DayView.module.scss */
+// WeekView.module.scss
+
 @import '../../../styles/global.scss';
 
 .weekView {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  padding: 20px;
 
   .weekViewTop {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
     align-items: center;
-    background-color: $grey;
-    color: $white;
-    width: 20%;
-    height: 50px;
-    padding: 0px 10px;
-    border-radius: 10px;
+    justify-content: flex-start;
     margin-bottom: 20px;
 
     h3 {
-      height: 30px;
-      text-align: center;
+      margin-right: 10px;
+      font-size: 1.2rem;
+      color: $dark-blue;
     }
+
     select {
-      height: 30px;
-      border-radius: 5px;
-      width: 50%;
+      padding: 10px;
       font-size: 1rem;
-      font-weight: 600;
+      border: 1px solid $light-grey;
+      border-radius: 5px;
+      background-color: $semi-white;
+      color: $dark-grey;
+
+      &:focus {
+        outline: none;
+        border-color: $blue;
+      }
     }
   }
-}
 
-.table {
-  width: 100%;
-  border-collapse: collapse; /* Zmieniono na collapse */
-  /* border-spacing: 0; */   /* Zakomentowano, jeśli nie jest potrzebne */
-  border-radius: 10px;
-  overflow-x: auto;
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    border: 2px solid $grey;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: $white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    table-layout: fixed; // Dodano to
 
-  tr{
-    height:60px;
-  }
-
-  th,
-  td {
-    text-align: center;
-    border-bottom: 1px solid $grey; /* Dodano obramowanie */
-    padding: 8px;
-
-  }
-
-  th {
-    color: $white;
-    border-radius: 10px 10px 0px 0px;
-    border-left: 1px solid $white; /* Dodano lewe obramowanie */
-    font-size: 1.2rem;
-    background-color: $grey;
-    border-bottom: 2px solid $grey; /* Dodano dolną granicę dla nagłówków */
-
-    &:first-child {
-      border-left: none;
+    thead {
+      background-color: $grey;
       color: $white;
+
+      th {
+        padding: 10px;
+        text-align: center;
+        font-size: 0.9rem;
+
+        &:first-child {
+          text-align: left;
+          width: 20%; // Ustawiono szerokość dla pierwszej kolumny
+        }
+
+        &:not(:first-child) {
+          width: 11.4286%; // Ustawiono równą szerokość dla pozostałych kolumn (80% / 7)
+        }
+      }
+    }
+
+    tbody {
+      tr {
+        &:nth-child(even) {
+          background-color: $semi-white;
+        }
+
+        &:hover {
+          background-color: $lighter-blue;
+        }
+
+        td {
+          padding: 10px;
+          text-align: center;
+          vertical-align: middle;
+          font-size: 0.8rem;
+          border: 1px solid $light-grey;
+
+          &:first-child {
+            text-align: left;
+            font-weight: bold;
+            width: 20%; // Ustawiono szerokość dla pierwszej kolumny
+          }
+
+          &:not(:first-child) {
+            width: 11.4286%; // Ustawiono równą szerokość dla pozostałych kolumn
+          }
+
+          &.editableCell {
+            cursor: pointer;
+            background-color: $white;
+
+            &:hover {
+              background-color: $lighter-blue;
+            }
+          }
+
+          &.emptyCell {
+            background-color: $dark-white;
+            color: $light-grey;
+          }
+
+          .hours {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+          }
+        }
+      }
+    }
+
+    .editableRow {
+      border: 2px solid #ff8000;
+
+      td {
+        font-weight: 600;
+      }
     }
   }
 
-  td {
-    color: $grey;
-    background-color: $white;
-    font-size: 1.2rem;
-    font-weight: 600;
+  // /* Responsywność */
+  // @media (max-width: 768px) {
+  //   .table {
+  //     font-size: 0.8rem;
 
-    &:first-child {
-      border-left: none;
-    }
+  //     thead {
+  //       display: none;
+  //     }
 
-    &:not(.namecell) {
-      background-color: $white;
-    }
-  }
+  //     tbody {
+  //       tr {
+  //         display: flex;
+  //         flex-direction: column;
+  //         margin-bottom: 10px;
+  //         border: 1px solid $grey;
+  //         border-radius: 5px;
+  //         padding: 10px;
 
-  .hours {
-    width: 60%;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: auto;
-    border-radius: 5px;
-    background-color: $white;
-  }
+  //         td {
+  //           display: flex;
+  //           justify-content: space-between;
+  //           padding: 5px 0;
 
-  /* Ustaw szerokość dla pierwszej kolumny (Pracownik) */
-  th:first-child,
-  td.namecell {
-    height: 40px;
-    width: 20%;
-    font-weight: 600;
-    text-align: left;
-    background-color: $white;
-    color: $grey;
-  }
+  //           &:before {
+  //             content: attr(data-label);
+  //             font-weight: bold;
+  //             margin-right: 10px;
+  //             color: $dark-grey;
+  //           }
 
-
-  th:first-child {
-    background-color: $grey;
-    color: $white;
-  }
-
-  .names{
-    width: 98%;
-    height: 100%;
-    padding-left: 2%;
-    display: flex;
-    justify-content: flex-start;
-    text-align: left;
-    align-items: center;
-    border-radius: 5px;
-    background-color: $grey;
-    color: $white;
-  }
-
-  /* Ustaw szerokość dla pozostałych kolumn */
-  th:not(:first-child),
-  td:not(.namecell) {
-    width: calc(80% / 7);
-  }
-
-  /* Styl dla komórek w edytowalnym wierszu */
-  tr.editableRow td {
-    border-top: 2px solid orange;
-    border-bottom: 2px solid orange;
-
-    &:first-child {
-      border-left: 2px solid orange;
-    }
-    &:last-child {
-      border-right: 2px solid orange;
-    }
-  }
-}
-
-.names{
-  width: 80%;
-  height: 20px;
-  background-color: $white;
+  //           &.emptyCell {
+  //             &:before {
+  //               content: "Brak danych";
+  //               color: $light-grey;
+  //             }
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 }

@@ -7,7 +7,12 @@ import styles from './Availability.module.scss';
 import AutoFillAvailability from '../../components/Availibility/AutoAvailibility/AutoAvailibility';
 
 const AvailabilityPage = () => {
-  const { currentScheduler, changeScheduler, availableSchedulers, selectedDate } = useContext(SchedulerContext);
+  const {
+    currentScheduler,
+    changeScheduler,
+    availableSchedulers,
+    selectedDate,
+  } = useContext(SchedulerContext);
   const [selectedSchedule, setSelectedSchedule] = useState('');
   const [userId, setUserId] = useState('');
   const [userRole, setUserRole] = useState('');
@@ -43,9 +48,12 @@ const AvailabilityPage = () => {
   // Ustawienie domyślnego grafiku
   useEffect(() => {
     if (availableSchedulers.length > 0 && !selectedSchedule) {
-      const defaultScheduler = availableSchedulers.find(
-        (schedule) => schedule.month === selectedDate.month && schedule.year === selectedDate.year
-      ) || availableSchedulers[0];
+      const defaultScheduler =
+        availableSchedulers.find(
+          (schedule) =>
+            schedule.month === selectedDate.month &&
+            schedule.year === selectedDate.year
+        ) || availableSchedulers[0];
 
       setSelectedSchedule(`${defaultScheduler.month} ${defaultScheduler.year}`);
       changeScheduler(defaultScheduler.month, defaultScheduler.year);
@@ -226,7 +234,13 @@ const AvailabilityPage = () => {
         (selectedDays.includes('weekend') &&
           (dayNameLower === 'sobota' || dayNameLower === 'niedziela')) ||
         (selectedDays.includes('weekday') &&
-          ['poniedziałek', 'wtorek', 'środa', 'czwartek', 'piątek'].includes(dayNameLower))
+          [
+            'poniedziałek',
+            'wtorek',
+            'środa',
+            'czwartek',
+            'piątek',
+          ].includes(dayNameLower))
       ) {
         return {
           ...day,
@@ -252,99 +266,110 @@ const AvailabilityPage = () => {
     );
   }
 
-
   if (isLoading || !currentScheduler) {
     return <p>Ładowanie danych...</p>;
   }
 
-
   return (
     <div className={styles.content}>
       <div className={styles.left}>
-      <h2>Dyspozycyjność</h2>
+        <h2>Dyspozycyjność</h2>
 
-      {/* Wybór grafiku */}
-      <div className={styles.selects}>
-      <div className={styles.selector}>
-      <label>Grafik: </label>
-        <select value={selectedSchedule} onChange={handleSelectChange}>
-          {availableSchedulers.map((schedule, index) => (
-            <option key={index} value={`${schedule.month} ${schedule.year}`}>
-              {schedule.month} {schedule.year}
-            </option>
-          ))}
-        </select>
+        {/* Wybór grafiku */}
+        <div className={styles.selects}>
+          <div className={styles.selector}>
+            <label>Grafik:</label>
+            <select value={selectedSchedule} onChange={handleSelectChange}>
+              {availableSchedulers.map((schedule, index) => (
+                <option key={index} value={`${schedule.month} ${schedule.year}`}>
+                  {schedule.month} {schedule.year}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Wybór użytkownika dla menedżera */}
+        {userRole === 'manager' && (
+          <div className={styles.selectsRow}>
+            <div className={styles.selector}>
+              <label>Wybierz użytkownika:</label>
+              <select
+                value={selectedUserId}
+                onChange={(e) => setSelectedUserId(e.target.value)}
+              >
+                {teamUsers.map((user) => (
+                  <option key={user._id} value={user._id}>
+                    {user.name} {user.surname}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+
+
+        {/* Informacje o statusie zatwierdzenia */}
+        <div className={styles.submitStatus}>
+          <p>
+            Status pracownika:{' '}
+            <span
+              className={
+                userSubmitStatus ? styles.approved : styles.notApproved
+              }
+            >
+              {userSubmitStatus ? 'Zatwierdzony' : 'Niezatwierdzony'}
+            </span>
+          </p>
+          <p>
+            Status menedżera:{' '}
+            <span
+              className={
+                managerSubmitStatus ? styles.approved : styles.notApproved
+              }
+            >
+              {managerSubmitStatus ? 'Zatwierdzony' : 'Niezatwierdzony'}
+            </span>
+          </p>
+
+           {/* Przycisk zapisz i zatwierdź */}
+        <div className={styles.buttonContainer}>
+          {canEdit() && (
+            <button
+              className={styles.saveButton}
+              onClick={handleSave}
+              disabled={isSaving}
+            >
+              {isSaving ? 'Zapisywanie...' : 'Zatwierdź dostępność'}
+            </button>
+          )}
+          {userRole === 'manager' && selectedUserId !== userId && (
+            <button
+              className={styles.confirmButton}
+              onClick={handleConfirm}
+              disabled={isSaving}
+            >
+              {isSaving ? 'Zapisywanie...' : 'Zatwierdź dostępność'}
+            </button>
+          )}
+        </div>
+
+       
+        </div>
+        <div className={styles.autofill}>
+                {/* Komponent auto-uzupełniania */}
+                {canEdit() && <AutoFillAvailability onAutoFill={handleAutoFill} />}
         </div>
       </div>
-      <div className={styles.selectsRow}>
-      {/* Wybór użytkownika dla menedżera */}
-      {userRole === 'manager' && (
-        <div className={styles.selector}>
-          <label>Wybierz użytkownika:</label>
-          <select
-            value={selectedUserId}
-            onChange={(e) => setSelectedUserId(e.target.value)}
-          >
-            {teamUsers.map((user) => (
-              <option key={user._id} value={user._id}>
-                {user.name} {user.surname}
-              </option>
-            ))}
-          </select>
-          </div>
-      )}
-</div>
 
-      {/* Komponent auto-uzupełniania */}
-      {canEdit() && (
-        <AutoFillAvailability onAutoFill={handleAutoFill} />
-      )}
-
-      {/* Informacje o statusie zatwierdzenia */}
-      <div className={styles.submitStatus}>
-  <p>
-    Status pracownika:{' '}
-    <span
-      className={
-        userSubmitStatus ? styles.approved : styles.notApproved
-      }
-    >
-      {userSubmitStatus ? 'Zatwierdzony' : 'Niezatwierdzony'}
-    </span>
-  </p>
-  <p>
-    Status menedżera:{' '}
-    <span
-      className={
-        managerSubmitStatus ? styles.approved : styles.notApproved
-      }
-    >
-      {managerSubmitStatus ? 'Zatwierdzony' : 'Niezatwierdzony'}
-    </span>
-  </p>
-</div>
-
-              {/* Przycisk zapisz */}
-              {canEdit() && (
-        <button className={styles.saveButton} onClick={handleSave} disabled={isSaving}>
-          {isSaving ? 'Zapisywanie...' : 'Zatwierdź dostępność'}
-        </button>
-      )}
-
-      {/* Przycisk zatwierdź dla menedżera */}
-      {userRole === 'manager' && selectedUserId !== userId && (
-        <button className={styles.confirmButton} onClick={handleConfirm} disabled={isSaving}>
-          {isSaving ? 'Zapisywanie...' : 'Zatwierdź dostępność'}
-        </button>
-      )}
-</div>
       {/* Formularz dostępności */}
       <div className={styles.availabilityForm}>
+
         <table className={styles.table}>
           <thead>
             <tr>
               <th>Dzień</th>
-              <th>Preferowane godziny</th>
+              <th>Preferowane</th>
               <th>Dostępność</th>
             </tr>
           </thead>

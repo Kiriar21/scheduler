@@ -269,10 +269,10 @@ const Submissions = () => {
 
         {/* Download Buttons */}
         <button className={styles.button} onClick={handleDownload}>
-          Pobierz raport XLSX
+          Pobierz raport pracownika (XLSX)
         </button>
         <button className={styles.button} onClick={handleDownloadSummary}>
-          Pobierz podsumowanie XLSX
+          Pobierz podsumowanie zespołu (XLSX)
         </button>
       </div>
 

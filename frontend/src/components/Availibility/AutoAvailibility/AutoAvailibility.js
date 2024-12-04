@@ -50,9 +50,9 @@ const AutoFillAvailability = ({ onAutoFill }) => {
 
   return (
     <div className={styles.autoFill}>
-      <h3>Auto-uzupełnianie</h3>
+      <h3>Autouzupełnianie</h3>
       <div className={styles.form}>
-        <label>Preferowane godziny:</label>
+        <label>Preferowane:</label>
         <input
           type="text"
           value={prefferedHours}
