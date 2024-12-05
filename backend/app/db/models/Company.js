@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Counter = require('./Counter');
 
+//Schemat firmy
 const CompanySchema = new mongoose.Schema({
   id_company: { type: Number, unique: true },
   nip: { type: String, unique: true, required: true },

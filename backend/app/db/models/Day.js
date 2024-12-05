@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+//Schemat Dnia - jeden dzien - jeden uzytkownik 
 const DaySchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   start_hour: { type: Number, min: 0, max: 24 },

@@ -13,6 +13,7 @@ const {
   validateObjectId,
 } = require('../utils/validation');
 
+//Tworzenie nowego grafiku
 const createScheduler = async (req, res) => {
   try {
     const user = req.user;
@@ -118,6 +119,7 @@ const createScheduler = async (req, res) => {
   }
 };
 
+//Tworzenie mapy miesiąca dla danego grafiku
 const createMapMonth = async (month, year) => {
   try {
     const months = [
@@ -178,6 +180,7 @@ const createMapMonth = async (month, year) => {
   }
 };
 
+//Wypełnianie grafiku dla danego miesiąca 
 const fillEmployersHours = async (schedulerId, mapMonth, teamId) => {
   try {
     const team = await Team.findById(teamId).populate('users');
@@ -201,7 +204,7 @@ const fillEmployersHours = async (schedulerId, mapMonth, teamId) => {
   }
 };
 
-
+//Usuwanie grafiku dla danego zespołu z określonym rokiem i miesiącem
 const deleteScheduler = async (req, res) => {
   try {
     const user = req.user;
@@ -250,6 +253,7 @@ const deleteScheduler = async (req, res) => {
   }
 };
 
+//Pobieranie jednego grafiku dla danego zespołu
 const getScheduler = async (req, res) => {
   try {
     const user = req.user;
@@ -302,6 +306,7 @@ const getScheduler = async (req, res) => {
   }
 };
 
+//Pobieranie wszystkich grafików dla danego zespołu
 const getSchedulers = async (req, res) => {
   try {
     const user = req.user;
@@ -312,7 +317,7 @@ const getSchedulers = async (req, res) => {
       return res.status(400).json({ error: 'Użytkownik nie jest przypisany do zespołu' });
     }
 
-    // Pobierz dostępne grafiki dla zespołu użytkownika
+    // Pobieranie dostępnych grafików dla zespołu użytkownika
     const schedulers = await Scheduler.find({
       company: user.company,
       team: teamId,
@@ -329,7 +334,7 @@ const getSchedulers = async (req, res) => {
   }
 };
 
-
+//Edycja danego dnia użytkownika
 const editDayInScheduler = async (req, res) => {
   try {
     const user = req.user;
@@ -415,6 +420,7 @@ const editDayInScheduler = async (req, res) => {
   }
 };
 
+//Potwierdzenie dostępności przez pracownika
 const confirmAvailabilityUser = async (req, res) => {
   try {
     const user = req.user;
@@ -478,15 +484,12 @@ const confirmAvailabilityUser = async (req, res) => {
   }
 };
 
-
-
-// controllers/SchedulerController.js
+//Edycja dostępności przez pracownika
 const updateAvailability = async (req, res) => {
   try {
     const user = req.user;
     let { month, year, updates } = req.body;
 
-    // Walidacja danych
     month = xss(month);
     year = parseInt(xss(year));
 
@@ -551,9 +554,7 @@ const updateAvailability = async (req, res) => {
   }
 };
 
-
-// controllers/SchedulerController.js
-
+//Pobieranie statystyk z danego miesiąca 
 const getStatistic = async (req, res) => {
   try {
     const user = req.user;
@@ -632,8 +633,7 @@ const getStatistic = async (req, res) => {
   }
 };
 
-
-
+//Pobieranie informacji jakie grafiki są stworzone dla danego zespołu
 const getTeamSchedulerDates = async (req, res) => {
   try {
     if (req.user.role !== 'admin') {
@@ -666,9 +666,7 @@ const getTeamSchedulerDates = async (req, res) => {
   }
 };
 
-
-// controllers/SchedulerController.js
-
+//Pobieranie miesięcznego raportu z grafiku 
 const getUserMonthlyReport = async (req, res) => {
   try {
     const manager = req.user;
@@ -757,9 +755,7 @@ const getUserMonthlyReport = async (req, res) => {
   }
 };
 
-
-// controllers/SchedulerController.js
-
+//Pobieranie pliku raportu z miesięcznego grafiku
 const downloadUserMonthlyReport = async (req, res) => {
   try {
     const manager = req.user;
@@ -881,9 +877,7 @@ const downloadUserMonthlyReport = async (req, res) => {
   }
 };
 
-
-// controllers/SchedulerController.js
-
+//Pobieranie informacji o danym pracowniku w danym miesiacu
 const getUserMonthlySummary = async (req, res) => {
   try {
     const manager = req.user;
@@ -963,6 +957,7 @@ const getUserMonthlySummary = async (req, res) => {
   }
 };
 
+//Pobieranie pliku o danym pracowniku w danym miesiącu
 const downloadUserMonthlySummary = async (req, res) => {
   try {
     const manager = req.user;
@@ -1072,7 +1067,7 @@ const downloadUserMonthlySummary = async (req, res) => {
   }
 };
 
-
+//Pobieranie informacji podsumowania miesiaca 
 const getMonthlySummaryForAllUsers = async (req, res) => {
   try {
     const manager = req.user;
@@ -1151,7 +1146,7 @@ const getMonthlySummaryForAllUsers = async (req, res) => {
   }
 };
 
-
+//Pobieranie pliku z podsumowaniem miesiąca 
 const downloadMonthlySummaryForAllUsers = async (req, res) => {
   try {
     const manager = req.user;

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const DayInfoSchema = require('./DayInfo').schema;
 
+//Schemat grafiku
 const SchedulerSchema = new mongoose.Schema({
   company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
   month: {

@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../db/models/User');
 
+//Sprawdzanie i uwierzytelnienie danego użytkownika
 const authenticateToken = (allowedRoles = []) => {
   return async (req, res, next) => {
     const authHeader = req.headers['authorization'];

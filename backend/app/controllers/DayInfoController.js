@@ -1,6 +1,7 @@
 const DayInfo = require('../db/models/DayInfo');
 const DayController = require('./DayController');
 
+//Tworzenie nowego dnia w grafiku
 const createDayInfo = async (dayInfoData, users) => {
   try {
     const employersHours = [];

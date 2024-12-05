@@ -17,6 +17,7 @@ const {
   validatePasswordUser,
 } = require('../utils/validation');
 
+//Rejestracja admina
 const adminRegister = async (req, res) => {
   try {
     let { email, pwd, name, surname, nip, companyName, confirmPwd } = req.body;
@@ -97,7 +98,7 @@ const adminRegister = async (req, res) => {
   }
 };
 
-
+//Rejestracja managera i pracownika
 const userRegister = async (req, res) => {
   try {
     if (req.user.role !== 'admin') {
@@ -220,6 +221,7 @@ const userRegister = async (req, res) => {
   }
 };
 
+//Logowanie uzytkownikow
 const loginUser = async (req, res) => {
   try {
     let { email, pwd } = req.body;
@@ -252,6 +254,7 @@ const loginUser = async (req, res) => {
   }
 };
 
+//Edycja podstawowych danych uzytkownika
 const editUser = async (req, res) => {
   try {
     let { userId, name, surname } = req.body;
@@ -274,6 +277,7 @@ const editUser = async (req, res) => {
   }
 };
 
+//Edycja hasła uzytkownika
 const editPassword = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -303,7 +307,7 @@ const editPassword = async (req, res) => {
   }
 };
 
-
+//Edycja zespolu uzytkownika i managera przez admina
 const modifyUser = async (req, res) => {
   try {
     if (req.user.role !== 'admin') {
@@ -446,8 +450,7 @@ const modifyUser = async (req, res) => {
   }
 };
 
-
-
+//Usuwanie uzytkownika
 const deleteUser = async (req, res) => {
   try {
     if (req.user.role !== 'admin') {
@@ -475,6 +478,7 @@ const deleteUser = async (req, res) => {
   }
 };
 
+//Pobieranie informacji o uzytkowniku
 const getUser = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -490,6 +494,7 @@ const getUser = async (req, res) => {
   }
 };
 
+//Pobieranie informacji o uzytkownikach w zespole
 const getUsers = async (req, res) => {
   try {
     if (!['admin', 'manager'].includes(req.user.role)) {
@@ -508,6 +513,7 @@ const getUsers = async (req, res) => {
   }
 };
 
+//Dodawanie nowego pracownika do zespolu
 const addUserToTeam = async (req, res) => {
   try {
     const user = req.user;
@@ -618,6 +624,7 @@ const addUserToTeam = async (req, res) => {
   }
 };
 
+//Edycja zespolu pracownika
 const editUserTeam = async (req, res) => {
   try {
     const user = req.user;

@@ -4,6 +4,7 @@ const Scheduler = require('../db/models/Scheduler');
 const { defaultShift } = require('./ShiftController');
 const { validateNameTeam } = require('../utils/validation');
 
+//Dodawanie nowego teamu 
 const teamAdd = async (req, res) => {
   try {
     if (req.user.role !== 'admin') {
@@ -43,6 +44,7 @@ const teamAdd = async (req, res) => {
   }
 };
 
+//Pobieranie informacji o wybranym zespole
 const getTeam = async (req, res) => {
   try {
     const teamId = req.params.teamId;
@@ -60,6 +62,7 @@ const getTeam = async (req, res) => {
   }
 };
 
+//Pobieranie wszystkich zespolow
 const getTeams = async (req, res) => {
   try {
     const teams = await Team.find({ company: req.user.company })
@@ -74,6 +77,7 @@ const getTeams = async (req, res) => {
   }
 };
 
+//Edycja danego zespolu 
 const editTeam = async (req, res) => {
   try {
     if (req.user.role !== 'admin') {
@@ -96,6 +100,7 @@ const editTeam = async (req, res) => {
   }
 };
 
+//Usuwanie danego zespolu 
 const deleteTeam = async (req, res) => {
   try {
     if (req.user.role !== 'admin') {
@@ -138,7 +143,7 @@ const deleteTeam = async (req, res) => {
   }
 };
 
-
+//Pobieranie wszystkich nazw zespołów
 const getAllTeamNames = async (req, res) => {
   try {
     if (req.user.role !== 'admin') {
@@ -153,6 +158,8 @@ const getAllTeamNames = async (req, res) => {
     return res.status(500).json({ error: 'Błąd serwera' });
   }
 };
+
+//Pobieranie wszystkich pracownikow i managerow danego teamu
 const getTeamUsers = async (req, res) => {
   try {
     const user = req.user;
@@ -173,7 +180,6 @@ const getTeamUsers = async (req, res) => {
     return res.status(500).json({ error: 'Błąd serwera' });
   }
 };
-
 
 module.exports = {
   teamAdd,

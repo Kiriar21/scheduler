@@ -1,5 +1,6 @@
 const Day = require('../db/models/Day');
 
+//Tworzenie nowego dnia danego użytkownika w grafiku
 const createDay = async (userId) => {
   try {
     const day = new Day({

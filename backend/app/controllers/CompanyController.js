@@ -4,6 +4,7 @@ const {
   validateName,
 } = require('../utils/validation');
 
+//Rejestracja firmy
 const registerCompany = async (companyData) => {
   try {
     let { nip, name, admin } = companyData;
@@ -36,6 +37,7 @@ const registerCompany = async (companyData) => {
   }
 };
 
+//Pobieranie danych firmy
 const getInfoCompany = async (req, res) => {
   try {
     console.log(req.user)
@@ -48,6 +50,7 @@ const getInfoCompany = async (req, res) => {
   }
 };
 
+//Edycja danych firmy
 const editInfoCompany = async (req, res) => {
   try {
     if (req.user.role !== 'admin') {

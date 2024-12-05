@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 dotenv.config();
 
+//Połączenie z bazą danych 
 async function connection() {
     try{
         mongoose.connect(process.env.MONGO_URI, {

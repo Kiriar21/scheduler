@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+//Schemat zmiany
 const ShiftSchema = new mongoose.Schema({
   start_shift: { type: Number, min: 0, max: 23 },
   end_shift: { type: Number, min: 0, max: 23 },

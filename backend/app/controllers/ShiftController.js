@@ -8,6 +8,7 @@ const defaultShift = () => {
   };
 };
 
+//Pobieranie info o zmianie
 const getInfoShift = async (req, res) => {
   try {
     const shiftId = req.params.shiftId;
@@ -25,6 +26,7 @@ const getInfoShift = async (req, res) => {
   }
 };
 
+//Edycja informacji w zmianie
 const editShift = async (req, res) => {
   try {
     const shiftId = req.params.shiftId;
