@@ -86,7 +86,14 @@ const DayView = ({ scheduler, userRole, userId }) => {
   const startTime = 0;
   const endTime = 24;
   const totalHours = endTime - startTime;
-  const hourWidth = 61;
+  
+  // Dynamiczna szerokość kontenera (np. 90% szerokości okna)
+  const containerWidth = Math.floor(window.innerWidth * 1);
+  
+  // Szerokość jednej godziny
+  const hourWidth = containerWidth / totalHours;
+  
+  // Oblicz szerokość całej siatki
   const timeGridWidth = hourWidth * totalHours;
 
   return (

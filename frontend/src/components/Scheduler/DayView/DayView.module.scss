@@ -11,27 +11,29 @@
 
   .dayViewTop{
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
     align-items: center;
-    background-color: $grey;
-    color: $white ;
-    align-items: center;
-    width: 20%;
-    height: 40px;
-    padding: 0px 5px 0px 10px;
-    border-radius: 10px;
+    justify-content: flex-start;
+    margin-bottom: 20px;
 
-    h3{
-      height: 25px;
-      text-align: center;
-      font-size: 1rem;
+    h3 {
+      margin-right: 10px;
+      font-size: 1.2rem;
+      color: $dark-blue;
     }
-    select{
-      height: 30px;
-      border-radius: 5px;
-      width: 80%;
+
+    select {
+      padding: 10px;
       font-size: 1rem;
-      font-weight: 600;
+      border: 1px solid $light-grey;
+      border-radius: 5px;
+      background-color: $semi-white;
+      color: $dark-grey;
+
+      &:focus {
+        outline: none;
+        border-color: $blue;
+      }
     }
   }
 }
