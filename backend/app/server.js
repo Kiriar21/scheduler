@@ -1,3 +1,4 @@
+//Główny kod serwera backendu
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -8,7 +9,7 @@ const xssClean = require('xss-clean');
 const session = require('express-session');
 const connection = require('./db/mongoose_connection');
 const dotenv = require('dotenv');
-const { PORT, FRONTEND_URL, SESSION_KEY_SECRET } = require('./config');
+const { PORT, FRONTEND_URL, SESSION_KEY_SECRET } = require('./config'); // Pobieranie zmiennych z configu
 const morgan = require('morgan');
 
 
@@ -31,6 +32,8 @@ app.use(helmet({
       }
   }
 }));
+
+//Sesja ustawiona na rok działania
 
 app.use(session({
   secret: SESSION_KEY_SECRET,
@@ -56,8 +59,10 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(compression());
 
+//Wywołanie endpointów
 app.use(apiRoutes);
 
+//Uruchomienie serwera
 app.listen(PORT, () => {
   console.log(`Serwer działa na porcie ${PORT}`);
 });

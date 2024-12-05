@@ -1,45 +1,44 @@
 const express = require('express');
 const router = express.Router();
 
-const { authenticateToken } = require('../middleware/authMiddleware');
-const UserController = require('../controllers/UserController');
+const { authenticateToken } = require('../middleware/authMiddleware'); //Pobieranie middleware dla autentykacji
+const UserController = require('../controllers/UserController'); 
 const CompanyController = require('../controllers/CompanyController');
 const TeamController = require('../controllers/TeamController');
 const ShiftController = require('../controllers/ShiftController');
 const SchedulerController = require('../controllers/SchedulerController');
 
 // Trasy użytkownika
-router.post('/register/admin', UserController.adminRegister); // use
-router.post('/login', UserController.loginUser); // use
-router.post('/register/user', authenticateToken(['admin']), UserController.userRegister);
-router.put('/user/edit', authenticateToken(['user', 'manager', 'admin']), UserController.editUser);
-router.put('/user/password', authenticateToken(['user', 'manager', 'admin']), UserController.editPassword);
-router.put('/user/modify', authenticateToken(['admin']), UserController.modifyUser);
-router.delete('/user/delete/:userId', authenticateToken(['admin']), UserController.deleteUser);
-router.get('/user', authenticateToken(['user', 'manager', 'admin']), UserController.getUser);
-router.get('/users', authenticateToken(['manager', 'admin']), UserController.getUsers);
+router.post('/register/admin', UserController.adminRegister); //Rejestracja admina
+router.post('/login', UserController.loginUser);  //Logowanie uzytkownikow
+router.post('/register/user', authenticateToken(['admin']), UserController.userRegister); //Rejestracja managera i pracownika
+router.put('/user/edit', authenticateToken(['user', 'manager', 'admin']), UserController.editUser); //Edycja podstawowych danych uzytkownika
+router.put('/user/password', authenticateToken(['user', 'manager', 'admin']), UserController.editPassword); //Edycja hasła uzytkownika
+router.put('/user/modify', authenticateToken(['admin']), UserController.modifyUser); //Edycja zespolu uzytkownika i managera przez admina
+router.delete('/user/delete/:userId', authenticateToken(['admin']), UserController.deleteUser); //Usuwanie uzytkownika
+router.get('/user', authenticateToken(['user', 'manager', 'admin']), UserController.getUser); //Pobieranie informacji o uzytkowniku
+router.get('/users', authenticateToken(['manager', 'admin']), UserController.getUsers); //Pobieranie informacji o uzytkownikach w zespole
 
 // Nowe trasy użytkownika
-router.post('/user/addToTeam', authenticateToken(['admin']), UserController.addUserToTeam);
-router.put('/user/editTeam', authenticateToken(['admin']), UserController.editUserTeam);
+router.post('/user/addToTeam', authenticateToken(['admin']), UserController.addUserToTeam); //Dodawanie nowego zespolu
+router.put('/user/editTeam', authenticateToken(['admin']), UserController.editUserTeam); //Edycja nazwy zespolu
 
 // Trasy firmy
-router.get('/company/info', authenticateToken(['user', 'manager', 'admin']), CompanyController.getInfoCompany);
-router.put('/company/edit', authenticateToken(['admin']), CompanyController.editInfoCompany);
+router.get('/company/info', authenticateToken(['user', 'manager', 'admin']), CompanyController.getInfoCompany); //Pobieranie informacji o firmie uzytkownika
+router.put('/company/edit', authenticateToken(['admin']), CompanyController.editInfoCompany); //Edycja danych firmy uzytkownika 
 
 // Trasy teamu
-router.get('/team/users', authenticateToken(['manager']), TeamController.getTeamUsers);
-router.post('/team/add', authenticateToken(['admin']), TeamController.teamAdd);
-router.get('/team/:teamId', authenticateToken(['user', 'manager', 'admin']), TeamController.getTeam);
-// router.get('/team/names', authenticateToken(['admin']), TeamController.getAllTeamNames);
-router.get('/teams', authenticateToken(['user', 'manager', 'admin']), TeamController.getTeams);
-router.put('/team/edit/:teamId', authenticateToken(['admin']), TeamController.editTeam);
-router.delete('/team/delete/:teamId', authenticateToken(['admin']), TeamController.deleteTeam);
+router.get('/team/users', authenticateToken(['manager']), TeamController.getTeamUsers); //Pobieranie wszystkich pracownikow i managerow danego teamu
+router.post('/team/add', authenticateToken(['admin']), TeamController.teamAdd); //Dodawanie nowego teamu 
+router.get('/team/:teamId', authenticateToken(['user', 'manager', 'admin']), TeamController.getTeam); //Pobieranie informacji o wybranym zespole
+router.get('/teams', authenticateToken(['user', 'manager', 'admin']), TeamController.getTeams); //Pobieranie wszystkich zespolow
+router.put('/team/edit/:teamId', authenticateToken(['admin']), TeamController.editTeam); //Edycja danego zespolu 
+router.delete('/team/delete/:teamId', authenticateToken(['admin']), TeamController.deleteTeam); //Usuwanie danego zespolu 
 
 
 // Trasy shiftu
-router.get('/shift/:shiftId', authenticateToken(['user', 'manager', 'admin']), ShiftController.getInfoShift);
-router.put('/shift/edit/:shiftId', authenticateToken(['user', 'manager', 'admin']), ShiftController.editShift);
+router.get('/shift/:shiftId', authenticateToken(['user', 'manager', 'admin']), ShiftController.getInfoShift); //Pobieranie info o zmianie
+router.put('/shift/edit/:shiftId', authenticateToken(['user', 'manager', 'admin']), ShiftController.editShift); //Edycja informacji w zmianie
 
 // Trasy schedulerów
 router.post('/scheduler/create', authenticateToken(['manager', 'admin']), SchedulerController.createScheduler);
