@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import './styles/global.scss'; // Import globalnych zmiennych i czcionki
+import './styles/global.scss';
 import LoginPage from './pages/Login/Login';
 import RegisterPage from './pages/Register/Register';
 import SchedulePage from './pages/Schedule/Schedule';

@@ -12,7 +12,7 @@
     "build": "echo \"Building the project...\"",
     "heroku-postbuild": "npm install && npm run build"
   },
-  "author": "Kiriar, Emma",
+  "author": "Artur M., Emilia P.",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",

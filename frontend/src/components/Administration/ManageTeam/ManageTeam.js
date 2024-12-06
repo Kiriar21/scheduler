@@ -1,5 +1,3 @@
-// components/Administration/ManageTeam/ManageTeam.js
-
 import React, { useContext, useState } from 'react';
 import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';

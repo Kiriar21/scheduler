@@ -57,11 +57,11 @@
 
         &:first-child {
           text-align: left;
-          width: 20%; // Ustawiono szerokość dla pierwszej kolumny
+          width: 20%;
         }
 
         &:not(:first-child) {
-          width: 11.4286%; // Ustawiono równą szerokość dla pozostałych kolumn (80% / 7)
+          width: 11.4286%;
         }
       }
     }
@@ -86,11 +86,11 @@
           &:first-child {
             text-align: left;
             font-weight: bold;
-            width: 20%; // Ustawiono szerokość dla pierwszej kolumny
+            width: 20%; 
           }
 
           &:not(:first-child) {
-            width: 11.4286%; // Ustawiono równą szerokość dla pozostałych kolumn
+            width: 11.4286%; 
           }
 
           &.editableCell {
@@ -125,46 +125,4 @@
       }
     }
   }
-
-  // /* Responsywność */
-  // @media (max-width: 768px) {
-  //   .table {
-  //     font-size: 0.8rem;
-
-  //     thead {
-  //       display: none;
-  //     }
-
-  //     tbody {
-  //       tr {
-  //         display: flex;
-  //         flex-direction: column;
-  //         margin-bottom: 10px;
-  //         border: 1px solid $grey;
-  //         border-radius: 5px;
-  //         padding: 10px;
-
-  //         td {
-  //           display: flex;
-  //           justify-content: space-between;
-  //           padding: 5px 0;
-
-  //           &:before {
-  //             content: attr(data-label);
-  //             font-weight: bold;
-  //             margin-right: 10px;
-  //             color: $dark-grey;
-  //           }
-
-  //           &.emptyCell {
-  //             &:before {
-  //               content: "Brak danych";
-  //               color: $light-grey;
-  //             }
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
 }

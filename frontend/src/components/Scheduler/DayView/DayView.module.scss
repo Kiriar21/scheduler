@@ -1,7 +1,5 @@
 @import '../../../styles/global.scss';
 
-/* DayView.module.scss */
-
 .dayView {
   width: 100%;
   overflow-y: hidden;
@@ -51,11 +49,11 @@
 
 .namesColumn {
   flex: 0 0 auto;
-  min-width: 150px; // Możesz dostosować szerokość według potrzeb
+  min-width: 150px; 
   margin-right: 8px;
 
   .workerName {
-    height: 40px; // Wysokość powinna być taka sama jak w .timeGridRow
+    height: 40px; 
     display: flex;
     align-items: center;
     background-color: #f9f9f9;
@@ -76,7 +74,6 @@
   overflow-x: auto;
   overflow-y: hidden;
   
-    /* Scrollbar customization */
     &::-webkit-scrollbar {
       height: 12px;
     }
@@ -105,7 +102,7 @@
     .timeLabel {
       position: absolute;
       top: 0;
-      width: 55px; // Używamy tej samej wartości co hourWidth w komponencie
+      width: 55px; 
       text-align: left;
       font-size: 15px;
       height: 100%;
@@ -123,8 +120,7 @@
   .scheduleBody {
     .timeGridRow {
       position: relative;
-      height: 40px; // Wysokość wiersza
-      // background-color: $white;
+      height: 40px; 
       padding: 5px 0px;
       border-radius: 5px;
 margin-bottom: 10px;
@@ -169,12 +165,12 @@ margin-bottom: 10px;
         .timeBar {
           position: absolute;
           top: 5px;
-          height: 30px; // Dopasuj wysokość, aby prostokąt był mniejszy niż wiersz
+          height: 30px; 
           background-color: $blue;
           color: white;
           text-align: center;
           font-size: 12px;
-          line-height: 30px; // Aby tekst był wyśrodkowany pionowo
+          line-height: 30px;
           border-radius: 4px;
 
           &.editableBar {

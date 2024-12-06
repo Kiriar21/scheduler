@@ -1,4 +1,3 @@
-// src/pages/HomePage/HomePage.js
 import React from 'react';
 import styles from './Home.module.scss';
 

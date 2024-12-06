@@ -1,14 +1,7 @@
 :root{
-  /* kolory do zmiany - obsluga motywu w themehandler i zmiana skryptem*/
-  /* Zmienne do zmiany - domyślnie tryb ciemny */
+
   --bg-color: #494949;
   --main-color:#000000;
-  /* Zmienna do zmiany - tryb jasny */
-  /* --bg-color: #8F8F8F;
-  --main-color:#AEAEAE; */
-
-  /* kolory do zmiany i nazwy  */
-  /* Zmienne stałe */
   --Nav-color: linear-gradient(180deg, rgba(150,0,0,1) 0%, rgba(77,5,5,1) 90%, rgba(72,5,5,1) 100%);
   --Second-nav-color: linear-gradient(180deg, rgba(188,81,81,1) 0%, rgba(214,18,18,1) 100%);
   --Text-color: #FFFFFF;

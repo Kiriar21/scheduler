@@ -12,7 +12,7 @@ const SchedulePage = () => {
   const { currentScheduler, changeScheduler, availableSchedulers, loading, fetchAvailableSchedulers } = useContext(SchedulerContext);
   const [selectedSchedule, setSelectedSchedule] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedView, setSelectedView] = useState('day'); // Domyślnie 'month'
+  const [selectedView, setSelectedView] = useState('day'); 
   const [userRole, setUserRole] = useState('');
   const [userId, setUserId] = useState('');
 

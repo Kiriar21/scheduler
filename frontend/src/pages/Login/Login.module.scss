@@ -1,13 +1,11 @@
 @import '../../styles/global.scss';
 
-/* Mixin do centracji */
 @mixin flex-center {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* Styl głównego kontenera */
 .container {
   width: 100vw;
   height: 100vh;
@@ -20,7 +18,7 @@
 
   .error {
     position: absolute;
-    top: 20px; // Umieszczone 20px od góry kontenera
+    top: 20px; 
     color: $light-red;
     background-color: $dark-white;
     padding: 0.5rem 1rem;
@@ -38,7 +36,6 @@
   }
 }
 
-/* Styl dla containerBox */
 .containerBox {
   @include flex-center;
   flex-direction: column;
@@ -63,14 +60,10 @@
     flex-direction: column;
     gap: 1rem;
 
-    /* Przycisk ma zajmować 60% szerokości */
     button {
       width: 60%;
-      align-self: center; /* Wyrównanie do środka */
+      align-self: center; 
     }
-
-    /* Stylowanie błędu, który pojawia się pod przyciskiem */
-    
 
     .registerPrompt {
       text-align: center;
@@ -92,7 +85,6 @@
   }
 }
 
-/* Media queries */
 @media (max-width: 768px) {
   .containerBox {
     width: 95%;
@@ -106,7 +98,6 @@
   form {
     gap: 0.8rem;
 
-    /* Przycisk dla mniejszych ekranów */
     button {
       width: 80%;
     }

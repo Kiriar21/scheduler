@@ -12,7 +12,7 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import '../../styles/global.scss'; // Import globalnych zmiennych i czcionki
+import '../../styles/global.scss'; 
 import { checkTokenExpiration } from '../../utils/checkTokenExpiration';
 
 const theme = createTheme({

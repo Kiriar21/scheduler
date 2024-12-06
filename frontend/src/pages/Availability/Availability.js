@@ -1,5 +1,3 @@
-// pages/Availability/Availability.js
-
 import React, { useContext, useState, useEffect } from 'react';
 import { SchedulerContext } from '../../contexts/SchedulerContext/SchedulerContext';
 import axiosInstance from '../../api/axiosInstance';

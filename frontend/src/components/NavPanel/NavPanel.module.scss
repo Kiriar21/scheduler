@@ -94,7 +94,6 @@
             transition: background-color 0.2s ease-in;
             user-select: none;
 
-            // Standard hover effect - white background and dark text
             &:hover {
                 background-color: $white;
                 color: $dark-grey;
@@ -102,20 +101,18 @@
             }
 
             &--highlight-blue {
-                color: $light-blue; // Dark grey text on blue background
+                color: $light-blue; 
             }
 
             &--highlight-red {
-                color: $light-red; // Dark grey text on blue background
+                color: $light-red; 
             }
 
-            // Specific hover effect for items with highlight-blue
             &--highlight-blue:hover {
                 background-color: $light-blue;
-                color: $dark-grey; // Dark grey text on blue background
+                color: $dark-grey; 
             }
 
-            // Specific hover effect for items with highlight-red
             &--highlight-red:hover {
                 background-color: $light-red;
                 color: $dark-grey;

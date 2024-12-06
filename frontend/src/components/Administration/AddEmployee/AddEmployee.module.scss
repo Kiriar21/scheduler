@@ -1,4 +1,3 @@
-//AddEmplyoee
 @import '../../../styles/global.scss';
 
 .container {
@@ -45,8 +44,8 @@
       padding: 5px 0px;
 
 
-      input, select { // Dostosowanie zarówno dla inputów, jak i select
-        width: 60%; // Inputy na 100% szerokości kontenera
+      input, select { 
+        width: 60%; 
         height: 100%;
         height: 30px;
         border-radius: 5px;

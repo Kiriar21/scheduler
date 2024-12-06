@@ -7,7 +7,6 @@
   flex-direction: column;
   overflow-x: hidden;
   background-color: $dark-white;
-  // background-image: url(../Login/blob-scene-haikei.svg);
 
   .scheduler{
     box-sizing: border-box;
@@ -15,7 +14,6 @@
     padding: 20px;
     overflow-x: hidden;
 
-    /* Scrollbar customization */
     &::-webkit-scrollbar {
       height: 12px;
     }
@@ -91,7 +89,7 @@
       }
 
       option::first-letter {
-        text-transform: capitalize; /* Ustawia pierwszą literę na dużą */
+        text-transform: capitalize; 
       }
     }
  

@@ -1,6 +1,4 @@
-
-  //Form.module.scss
-  @import '../../styles/global.scss';
+@import '../../styles/global.scss';
 
   h2 {
     color: $dark-blue;
@@ -32,12 +30,11 @@
       margin-bottom: 5px;
     }
   
-    // Użycie mixin dla formularza
     form {
       @include form-style;
       width: 30%;
       background-color: $grey;
-      box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.5); // Delikatny cień
+      box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.5);
       padding: 20px;
         border-radius: 10px;
     }
@@ -55,9 +52,7 @@
     color: $white;
     text-align: center;
   }
-  // TWOJ KOCHANY ❤️
-  
-  
+
   .success{
     text-align: center;
     color: green;

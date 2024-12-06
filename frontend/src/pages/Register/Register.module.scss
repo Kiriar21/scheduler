@@ -1,13 +1,11 @@
 @import '../../styles/global.scss';
 
-/* Mixin do centracji */
 @mixin flex-center {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* Styl głównego kontenera */
 .container {
   width: 100vw;
   height: 100vh;
@@ -19,7 +17,7 @@
 
   .error {
     position: absolute;
-    top: 1px; // Umieszczone 20px od góry kontenera
+    top: 1px; 
     color: $light-red;
     background-color: $dark-white;
     padding: 0.5rem 1rem;
@@ -37,7 +35,6 @@
   }
 }
 
-/* Styl dla containerBox */
 .containerBox {
   @include flex-center;
   flex-direction: column;
@@ -47,7 +44,7 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 800px;
-  height: 750px; /* Stabilna wysokość */
+  height: 750px; 
   color: $white;
   
   .heading {
@@ -73,12 +70,8 @@
       padding-bottom: 0.5rem;
       border-bottom: 1px solid $white;
     }
-
-    /* Stylowanie błędu, który pojawia się pod przyciskiem */
-
   }
 
-  /* Styl dla pól formularza */
   .inputs {
     display: flex;
     flex-direction: row;
@@ -87,7 +80,7 @@
 
     .leftBox, .rightBox {
       flex: 1;
-      min-width: 45%; /* Minimalna szerokość */
+      min-width: 45%; 
     }
   }
 
@@ -110,7 +103,6 @@
   }
 }
 
-/* Responsywność */
 @media (max-width: 768px) {
   .containerBox {
     width: 95%;
@@ -131,7 +123,6 @@
     gap: 1.5rem;
   }
 
-  /* Przycisk dla mniejszych ekranów */
   form button {
     width: 80%;
   }

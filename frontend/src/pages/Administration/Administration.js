@@ -1,5 +1,3 @@
-// pages/Administration/Administration.js
-
 import React, { createContext, useState, useEffect } from 'react';
 import styles from './Administration.module.scss';
 import AddEmployee from '../../components/Administration/AddEmployee/AddEmployee';

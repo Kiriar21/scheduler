@@ -1,5 +1,3 @@
-// Statistics.module.scss
-
 @import '../../styles/global.scss';
 
 .content {
@@ -126,7 +124,6 @@ h2 {
   text-align: center;
 }
 
-/* Responsywność */
 @media (max-width: 768px) {
 
   .selector {
@@ -153,7 +150,6 @@ h2 {
         display: flex;
         flex-direction: column;
         margin-bottom: 10px;
-        // border: 1px solid $light-grey;
         border-radius: 5px;
         padding: 10px;
         background-color: $white;

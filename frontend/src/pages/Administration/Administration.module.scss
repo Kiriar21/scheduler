@@ -6,7 +6,7 @@
   justify-content: space-around;
   height: 100vh;
   overflow: hidden;
-  padding-bottom: 20px; // Dodaje dolny margines, aby uniknąć przyklejania się do dolnej krawędzi
+  padding-bottom: 20px; 
   box-sizing: border-box;
   background-color: $white;
 }
@@ -15,7 +15,7 @@
   display: flex;
   flex-direction: row;
   flex: 1;
-  height: 100%; // Uwzględnia marginesy po 20px z góry i dołu
+  height: 100%; 
   gap: 20px;
   box-sizing: border-box;
   background-color: $white;
@@ -23,7 +23,6 @@
 
 .list, .tools {
   height: 100%;
-  // border: 1px solid $dark-grey;
   box-sizing: border-box;
   padding-top: 20px;
 }
@@ -53,24 +52,24 @@
   box-sizing: border-box;
   background-color: $white;
 
-  /* Styl scrolla */
+
   &::-webkit-scrollbar {
-    width: 12px; // Zmniejszona szerokość scrolla
+    width: 12px; 
   }
 
   &::-webkit-scrollbar-track {
-    background-color: $semi-white; // Kolor tła dla scrolla
+    background-color: $semi-white; 
     border-radius: 10px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: $blue; // Minimalistyczny kolor dla suwaka
+    background-color: $blue; 
     border-radius: 10px;
-    border: 2px solid $semi-white; // Efekt "wewnętrznego" scrolla
+    border: 2px solid $semi-white; 
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background-color: $dark-blue; // Efekt hover dla scrolla
+    background-color: $dark-blue; 
   }
   
 

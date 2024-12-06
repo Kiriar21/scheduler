@@ -1,4 +1,4 @@
-//Form.module.scss
+
 @import '../../styles/global.scss';
 
 .container {
@@ -11,7 +11,7 @@
   padding: 10px;
   margin-bottom: 20px;
   box-sizing: border-box;
-  box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.5); // Delikatny cień
+  box-shadow: 5px 5px 8px rgba(0, 0, 0, 0.5); 
 
   h3 {
     color: $white;
@@ -24,7 +24,6 @@
     margin-bottom: 5px;
   }
 
-  // Użycie mixin dla formularza
   form {
     @include form-style;
   }
@@ -42,7 +41,6 @@
   color: $white;
   text-align: center;
 }
-// TWOJ KOCHANY ❤️
 
 
 .success{

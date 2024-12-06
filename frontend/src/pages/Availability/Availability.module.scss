@@ -1,22 +1,19 @@
-/* Availability.module.scss */
-
-@import '../../styles/global.scss'; // Jeśli korzystasz z globalnych zmiennych
-
+@import '../../styles/global.scss'; 
 .content {
   display: flex;
-  flex-direction: column; /* Domyślnie układ jednokolumnowy */
+  flex-direction: column; 
 
   @media (min-width: 1060px) {
-    flex-direction: row; /* Na szerokich ekranach układ dwukolumnowy */
+    flex-direction: row; 
   }
 
   .left {
-    width: 100%; /* Pełna szerokość na wąskich ekranach */
+    width: 100%; 
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     @media (min-width: 1060px) {
-      width: 50%; /* Połowa szerokości na szerokich ekranach */
+      width: 50%; 
     }
     padding: 20px;
 
@@ -61,7 +58,6 @@
       }
     }
 
-    /* Styl dla komponentu AutoFillAvailability, jeśli potrzebny */
     .autoFillComponent {
       margin-top: 20px;
     }
@@ -127,12 +123,12 @@
   }
 
   .availabilityForm {
-    width: 100%; /* Pełna szerokość na wąskich ekranach */
+    width: 100%; 
     @media (min-width: 1060px) {
-      width: 50%; /* Połowa szerokości na szerokich ekranach */
+      width: 50%; 
     }
     padding: 20px;
-    overflow-x: auto; /* Dla tabeli na wąskich ekranach */
+    overflow-x: auto; 
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -140,12 +136,12 @@
   
     table {
       width: 100%;
-      border-collapse: separate; /* Użycie 'separate' pozwala na zastosowanie border-radius */
-      border-spacing: 0; /* Usuń odstępy między komórkami */
+      border-collapse: separate; 
+      border-spacing: 0; 
       font-size: 1rem;
       border: 2px solid $grey;
-      border-radius: 10px; /* Zaokrąglone rogi */
-      overflow: hidden; /* Ukrycie wystających elementów */
+      border-radius: 10px; 
+      overflow: hidden; 
       background-color: $grey;
   
       th,
@@ -154,7 +150,7 @@
         border: 1px solid $grey;
   
         &:first-child {
-          border-left: none; /* Usuń podwójne ramki */
+          border-left: none; 
         }
   
         &:last-child {
@@ -168,21 +164,21 @@
         text-align: center;
   
         &:first-child {
-          border-top-left-radius: 10px; /* Zaokrąglenie lewego górnego rogu */
+          border-top-left-radius: 10px; 
         }
   
         &:last-child {
-          border-top-right-radius: 10px; /* Zaokrąglenie prawego górnego rogu */
+          border-top-right-radius: 10px; 
         }
       }
   
       tr:last-child {
         td:first-child {
-          border-bottom-left-radius: 10px; /* Zaokrąglenie lewego dolnego rogu */
+          border-bottom-left-radius: 10px;
         }
   
         td:last-child {
-          border-bottom-right-radius: 10px; /* Zaokrąglenie prawego dolnego rogu */
+          border-bottom-right-radius: 10px; 
         }
       }
   

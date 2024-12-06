@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import styles from './Settings.module.scss';
 import axiosInstance from '../../api/axiosInstance';
-import { useNavigate } from 'react-router-dom'; // Importujemy useNavigate
-import { checkTokenExpiration } from '../../utils/checkTokenExpiration'; // Importujemy funkcję sprawdzającą token
+import { useNavigate } from 'react-router-dom'; 
+import { checkTokenExpiration } from '../../utils/checkTokenExpiration';
 import { SchedulerContext } from '../../contexts/SchedulerContext/SchedulerContext';
 
 const SettingsPage = () => {
