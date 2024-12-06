@@ -4,6 +4,7 @@ import CalendarMonth from '@mui/icons-material/CalendarMonth';
 import ChevronRight from '@mui/icons-material/ChevronRight';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
 
+//Obsługa wybierania miesiaca 
 const MonthYearPicker = ({ availableSchedulers, selectedMonth, selectedYear, onChange }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);

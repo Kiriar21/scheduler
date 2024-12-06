@@ -1,10 +1,12 @@
 import axios from 'axios';
 import { checkTokenExpiration } from '../utils/checkTokenExpiration';
 
+//Pobiera base url do serwera
 const axiosInstance = axios.create({
     baseURL: process.env.REACT_APP_API_BASE_URL || '',
 });
 
+//Sprawdzaj przy kazdym zapytaniu czy token jest wazny
 axiosInstance.interceptors.request.use(
     (config) => {
         const isTokenValid = checkTokenExpiration();

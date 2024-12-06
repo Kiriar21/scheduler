@@ -4,6 +4,7 @@ import TimeEditModal from '../TimeEditModal/TimeEditModal';
 import axiosInstance from '../../../api/axiosInstance';
 import { SchedulerContext } from '../../../contexts/SchedulerContext/SchedulerContext';
 
+//Obsługa widoku miesiaca - komponent
 const MonthView = ({ scheduler, userRole, userId }) => {
   const { changeScheduler } = useContext(SchedulerContext);
   const [modalData, setModalData] = useState({
@@ -47,6 +48,7 @@ const MonthView = ({ scheduler, userRole, userId }) => {
     });
   };
 
+  //Obsługa zapisu godzin pracy w grafiku
   const handleModalSave = async (updatedData) => {
     const { employersHour, dayInfo } = modalData;
     try {

@@ -1,7 +1,7 @@
-// components/UserDisplay/UserDisplay.js
 import React from 'react';
 import styles from './UserDisplay.module.scss';
 
+//Wyswietlanie danych usera
 const UserDisplay = ({ user, full }) => {
   return (
     <div className={full ? styles.userFull : styles.userBrief}>

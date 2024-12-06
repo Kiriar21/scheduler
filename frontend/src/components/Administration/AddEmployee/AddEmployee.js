@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react';
 import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
-// import axios from 'axios';
 import axiosInstance from '../../../api/axiosInstance';
 
+//Dodawanie pracownika - komponent
 const AddEmployee = () => {
   const { fetchEmployees, teams, fetchTeams } = useContext(AdminContext);
   const [formData, setFormData] = useState({
@@ -15,11 +15,13 @@ const AddEmployee = () => {
     teamId: '',
   });
 
+  //Reaguje na zmiane w inpucie
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  //Obsługa dodawania pracownika 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

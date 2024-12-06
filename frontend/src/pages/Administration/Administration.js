@@ -18,6 +18,7 @@ const AdministrationPage = () => {
   const [employees, setEmployees] = useState([]);
   const [teams, setTeams] = useState([]);
 
+  //Pobieranie wszystkich pracowników
   const fetchEmployees = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -29,7 +30,8 @@ const AdministrationPage = () => {
       console.error('Error fetching employees:', error);
     }
   };
-
+  
+  //Pobieranie wszystkich zespołów
   const fetchTeams = async () => {
     try {
       const token = localStorage.getItem('token');

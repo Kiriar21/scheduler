@@ -19,6 +19,7 @@ const RegisterPage = () => {
 
   const [errorMessage, setErrorMessage] = useState('');
 
+  //Zmiana danych w inpucie rejestracji
   const handleChange = (e) => {
     const { name, value } = e.target;
     setRegisterData({
@@ -27,6 +28,7 @@ const RegisterPage = () => {
     });
   };
 
+  //Obsługa rejestracji
   const handleSubmit = async (e) => {
     e.preventDefault();
 

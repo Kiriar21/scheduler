@@ -16,6 +16,7 @@ const LoginPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
+  //Zmiana danych w inpucie logowania
   const handleChange = (e) => {
     const { name, value } = e.target;
     setLoginData({
@@ -24,6 +25,7 @@ const LoginPage = () => {
     });
   };
 
+  //Walidacja logowania
   const validateLogin = async () => {
     try {
       const response = await axios.post('/login', {
@@ -60,6 +62,7 @@ const LoginPage = () => {
     }
   };
 
+  //Obsługa logowania
   const handleSubmit = async (e) => {
     e.preventDefault();
 

@@ -21,6 +21,7 @@ const theme = createTheme({
     },
 });
 
+//Tworzenie menu nawigacyjnego
 const NavigationPanel = () => {
     const [user, setUser] = useState(null);
     const navigate = useNavigate();

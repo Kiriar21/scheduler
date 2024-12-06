@@ -1,11 +1,10 @@
-// components/Scheduler/WeekView/WeekView.js
-
 import React, { useState, useContext } from 'react';
 import styles from './WeekView.module.scss';
 import TimeEditModal from '../TimeEditModal/TimeEditModal';
 import axiosInstance from '../../../api/axiosInstance';
 import { SchedulerContext } from '../../../contexts/SchedulerContext/SchedulerContext';
 
+//Obsługa widoku tygodnia - komponent
 const WeekView = ({ scheduler, userRole, userId }) => {
   const weeksInMonth = [
     ...new Set(scheduler.map_month.map((day) => day.numberOfWeek)),
@@ -62,6 +61,7 @@ const WeekView = ({ scheduler, userRole, userId }) => {
     });
   };
 
+  //Obsługa zapisu godzin pracy w grafiku
   const handleModalSave = async (updatedData) => {
     const { employersHour, dayInfo } = modalData;
     try {

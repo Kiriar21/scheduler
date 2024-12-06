@@ -1,5 +1,3 @@
-// contexts/SchedulerContext/SchedulerContext.js
-
 import React, { createContext, useState, useEffect } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 

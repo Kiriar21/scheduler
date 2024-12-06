@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react';
 import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
-// import axios from 'axios';
 import axiosInstance from '../../../api/axiosInstance';
 
+//Edycja pracownika - komponent
 const EditEmployee = () => {
   const { employees, teams, fetchEmployees, fetchTeams } = useContext(AdminContext);
   const [selectedEmployee, setSelectedEmployee] = useState('');
@@ -15,6 +15,7 @@ const EditEmployee = () => {
     teamId: '',
   });
 
+  //Obsługa wybrania pracownika
   const handleEmployeeSelect = (e) => {
     const employeeId = e.target.value;
     setSelectedEmployee(employeeId);
@@ -43,11 +44,13 @@ const EditEmployee = () => {
     }
   };
 
+  //Obsługa zmian inputów
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  //Obsługa edycji pracownika
   const handleUpdate = async (e) => {
     e.preventDefault();
     if (!selectedEmployee) return;
@@ -87,6 +90,7 @@ const EditEmployee = () => {
     }
   };
 
+  //Obsługa usunięcia pracownika
   const handleDelete = async () => {
     if (!selectedEmployee) return;
 

@@ -3,6 +3,7 @@ import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
 import axiosInstance from '../../../api/axiosInstance';
 
+//Usuwanie grafiku - komponent
 const DeleteScheduler = () => {
   const { teams } = useContext(AdminContext); // Pobieramy zespoły z kontekstu
   const [selectedTeam, setSelectedTeam] = useState('');

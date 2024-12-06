@@ -1,8 +1,7 @@
-// components/Availibility/AutoAvailibility/AutoAvailibility.js
-
 import React, { useState } from 'react';
 import styles from './AutoAvailibility.module.scss';
 
+//Obsługa uzupełniania dostępności na stronie
 const AutoFillAvailability = ({ onAutoFill }) => {
   const [prefferedHours, setPrefferedHours] = useState('');
   const [availability, setAvailability] = useState('');
@@ -21,6 +20,7 @@ const AutoFillAvailability = ({ onAutoFill }) => {
     { label: 'Cały miesiąc', value: 'all' },
   ];
 
+  //Obsługa wyboru autouzupełniania
   const handleDaySelection = (e) => {
     const value = e.target.value;
     let days = [];
@@ -36,6 +36,7 @@ const AutoFillAvailability = ({ onAutoFill }) => {
     setSelectedDays(days);
   };
 
+  //Obsługa zapisu
   const handleApply = () => {
     if (selectedDays.length === 0) {
       alert('Wybierz dni do wypełnienia.');

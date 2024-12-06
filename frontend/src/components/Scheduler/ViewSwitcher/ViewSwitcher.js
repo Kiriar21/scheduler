@@ -1,6 +1,7 @@
 import React from 'react';
 import styles from './ViewSwitcher.module.scss';
 
+//Obsługa selecta z wyborem dzien miesiac i tydzien
 const ViewSwitcher = ({ selectedView, onViewChange }) => {
   const getActivePosition = () => {
     switch (selectedView) {

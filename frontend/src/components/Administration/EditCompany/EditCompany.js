@@ -1,14 +1,14 @@
-// components/Administration/EditCompany/EditCompany.js
-
 import React, { useState, useEffect } from 'react';
 import styles from '../Form.module.scss';
 import axiosInstance from '../../../api/axiosInstance';
 
+//Edycja danych firmy - komponent
 const EditCompany = () => {
   const [companyData, setCompanyData] = useState({ name: '', nip: '' });
   const [message, setMessage] = useState({ text: '', type: '' });
   const [isLoading, setIsLoading] = useState(false);
 
+  //Pobieranie danych o firmie
   useEffect(() => {
     const fetchCompanyData = async () => {
       try {
@@ -24,10 +24,12 @@ const EditCompany = () => {
     fetchCompanyData();
   }, []);
 
+  //Obsługa zmiany danych firmy
   const handleChange = (e) => {
     setCompanyData({ ...companyData, [e.target.name]: e.target.value });
   };
 
+  //Obsługa przesłania zmiany danych firmy
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);

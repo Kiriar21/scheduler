@@ -1,54 +1,77 @@
-// pages/Statistics/Statistics.js
-
 import React, { useContext, useState, useEffect } from 'react';
 import styles from './Statistics.module.scss';
 import { SchedulerContext } from '../../contexts/SchedulerContext/SchedulerContext';
 import axiosInstance from '../../api/axiosInstance';
 
+/**
+ * Komponent odpowiedzialny za wyświetlanie miesięcznych statystyk grafiku.
+ */
 const StatisticsPage = () => {
+  // Pobranie danych z kontekstu grafiku
   const { availableSchedulers, selectedDate, changeScheduler } = useContext(SchedulerContext);
+
+  // Stan przechowujący aktualnie wybrany grafik (miesiąc i rok)
   const [selectedSchedule, setSelectedSchedule] = useState(`${selectedDate.month} ${selectedDate.year}`);
+  // Statystyki użytkowników
   const [statistics, setStatistics] = useState([]);
+  // Całkowity czas zespołu
   const [totalTeamHours, setTotalTeamHours] = useState(0);
+  // ID obecnego użytkownika
   const [currentUserId, setCurrentUserId] = useState('');
+  // Flaga ładowania
   const [isLoading, setIsLoading] = useState(false);
 
+  /**
+   * Funkcja pobierająca statystyki dla danego miesiąca i roku.
+   * @param {string} month - Nazwa miesiąca
+   * @param {number} year - Rok
+   */
   const fetchStatistics = async (month, year) => {
-    setIsLoading(true);
+    setIsLoading(true); // Ustawia stan ładowania na true
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('token'); // Pobranie tokenu z localStorage
 
+      // Wykonanie żądania do API
       const response = await axiosInstance.get('/scheduler/statistics', {
-        headers: { Authorization: `Bearer ${token}` },
-        params: { month, year },
+        headers: { Authorization: `Bearer ${token}` }, // Dodanie nagłówka autoryzacji
+        params: { month, year }, // Przekazanie parametrów do API
       });
 
+      // Ustawienie danych w stanie
       setCurrentUserId(response.data.currentUserId);
       setStatistics(response.data.statistics);
       setTotalTeamHours(response.data.totalTeamHours);
     } catch (error) {
-      console.error('Error fetching statistics:', error);
+      console.error('Error fetching statistics:', error); // Logowanie błędu w konsoli
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Ustawienie stanu ładowania na false
     }
   };
 
+  /**
+   * Efekt pobierający statystyki po zmianie wybranego grafiku.
+   */
   useEffect(() => {
-    const [month, year] = selectedSchedule.split(' ');
-    fetchStatistics(month, year);
-  }, [selectedSchedule]);
+    const [month, year] = selectedSchedule.split(' '); // Rozdzielenie miesiąca i roku
+    fetchStatistics(month, year); // Pobranie statystyk
+  }, [selectedSchedule]); // Wywoływany przy zmianie `selectedSchedule`
 
+  /**
+   * Obsługa zmiany wybranego grafiku z dropdowna.
+   * @param {Object} e - Event zmiany wartości w <select>
+   */
   const handleSelectChange = (e) => {
-    const selectedValue = e.target.value;
-    setSelectedSchedule(selectedValue);
-    const [month, year] = selectedValue.split(' ');
-    changeScheduler(month, parseInt(year, 10));
+    const selectedValue = e.target.value; // Pobranie wybranej wartości
+    setSelectedSchedule(selectedValue); // Ustawienie stanu z wybraną wartością
+    const [month, year] = selectedValue.split(' '); // Rozdzielenie miesiąca i roku
+    changeScheduler(month, parseInt(year, 10)); // Wywołanie funkcji zmieniającej grafik w kontekście
   };
 
   return (
     <div className={styles.content}>
       <h2>Statystyki Miesięczne</h2>
-      {/* Wybór grafiku */}
+
+      {/* Sekcja wyboru grafiku */}
       <div className={styles.selector}>
         <select value={selectedSchedule} onChange={handleSelectChange}>
           {availableSchedulers.map((schedule, index) => (
@@ -58,14 +81,17 @@ const StatisticsPage = () => {
           ))}
         </select>
 
+        {/* Wyświetlenie sumy godzin zespołu */}
         <p className={styles.total}>Suma godzin zespołu: <span>{totalTeamHours}</span></p>
       </div>
 
       {/* Wyświetlanie statystyk */}
       {isLoading ? (
+        // Wiadomość o ładowaniu
         <p>Ładowanie statystyk...</p>
       ) : statistics.length > 0 ? (
         <>
+          {/* Tabela z wynikami */}
           <table className={styles.table}>
             <thead>
               <tr>
@@ -87,9 +113,9 @@ const StatisticsPage = () => {
               ))}
             </tbody>
           </table>
-         
         </>
       ) : (
+        // Wiadomość, gdy brak danych
         <p>Brak statystyk do wyświetlenia.</p>
       )}
     </div>

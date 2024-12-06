@@ -3,10 +3,12 @@ import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
 import axiosInstance from '../../../api/axiosInstance';
 
+//Usuwanie zespołu - komponent
 const DeleteTeam = () => {
   const { teams, fetchTeams } = useContext(AdminContext);
   const [selectedTeam, setSelectedTeam] = useState('');
 
+  //Obsługa usuwania zespołu
   const handleDelete = async (e) => {
     e.preventDefault();
     if (!selectedTeam) {

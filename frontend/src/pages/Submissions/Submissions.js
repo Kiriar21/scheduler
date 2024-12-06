@@ -1,70 +1,73 @@
-// pages/UserReport/UserReportPage.js
-
 import React, { useState, useEffect } from 'react';
 import styles from './Submissions.module.scss';
 import axiosInstance from '../../api/axiosInstance';
 
+/**
+ * Komponent odpowiedzialny za wyświetlanie raportów użytkowników oraz podsumowań miesięcznych.
+ */
 const Submissions = () => {
+  // Stan przechowujący listę użytkowników
   const [users, setUsers] = useState([]);
+  // Stan wybranego ID użytkownika
   const [selectedUserId, setSelectedUserId] = useState('');
+  // Szczegółowe dane wybranego użytkownika
   const [selectedUser, setSelectedUser] = useState(null);
+  // Lista dostępnych grafików
   const [availableSchedulers, setAvailableSchedulers] = useState([]);
+  // Wybrany grafik (miesiąc i rok)
   const [selectedSchedule, setSelectedSchedule] = useState('');
+  // Dane szczegółowego raportu użytkownika
   const [reportData, setReportData] = useState([]);
+  // Dane podsumowania miesięcznego
   const [summaryData, setSummaryData] = useState([]);
+  // Flaga ładowania danych
   const [isLoading, setIsLoading] = useState(false);
+  // Łączna liczba godzin użytkownika
   const [totalHours, setTotalHours] = useState(0);
+  // Łączna liczba godzin zespołu
   const [totalTeamHours, setTotalTeamHours] = useState(0);
 
-  // Fetch users in manager's team
+  // Pobieranie listy użytkowników przy załadowaniu komponentu
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token'); // Pobierz token z localStorage
         const response = await axiosInstance.get('/team/users', {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUsers(response.data.users);
+        setUsers(response.data.users); // Ustaw listę użytkowników w stanie
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error('Błąd podczas pobierania użytkowników:', error);
       }
     };
     fetchUsers();
   }, []);
 
-  // Fetch available schedulers
+  // Pobieranie dostępnych grafików
   useEffect(() => {
     const fetchSchedulers = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token'); // Pobierz token z localStorage
         const response = await axiosInstance.get('/schedulers', {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         const schedulers = response.data.schedulers;
-        setAvailableSchedulers(schedulers);
+        setAvailableSchedulers(schedulers); // Ustaw listę grafików w stanie
+
+        // Automatyczny wybór grafiku
         if (schedulers.length > 0) {
           const currentDate = new Date();
-          const currentMonthIndex = currentDate.getMonth(); // 0-11
+          const currentMonthIndex = currentDate.getMonth(); // Obecny miesiąc (0-11)
           const currentYear = currentDate.getFullYear();
 
           const months = [
-            'styczeń',
-            'luty',
-            'marzec',
-            'kwiecień',
-            'maj',
-            'czerwiec',
-            'lipiec',
-            'sierpień',
-            'wrzesień',
-            'październik',
-            'listopad',
-            'grudzień',
+            'styczeń', 'luty', 'marzec', 'kwiecień', 'maj', 'czerwiec',
+            'lipiec', 'sierpień', 'wrzesień', 'październik', 'listopad', 'grudzień',
           ];
-
           const currentMonthName = months[currentMonthIndex];
 
-          // Find scheduler for current month and year
+          // Znajdź grafik dla obecnego miesiąca i roku
           const currentScheduler = schedulers.find(
             (schedule) => schedule.month === currentMonthName && schedule.year === currentYear
           );
@@ -72,47 +75,47 @@ const Submissions = () => {
           if (currentScheduler) {
             setSelectedSchedule(`${currentScheduler.month} ${currentScheduler.year}`);
           } else {
-            // If current month scheduler doesn't exist, select the latest
+            // Ustaw ostatni grafik, jeśli brak odpowiedniego
             const lastScheduler = schedulers[schedulers.length - 1];
             setSelectedSchedule(`${lastScheduler.month} ${lastScheduler.year}`);
           }
         }
       } catch (error) {
-        console.error('Error fetching schedulers:', error);
+        console.error('Błąd podczas pobierania grafików:', error);
       }
     };
     fetchSchedulers();
   }, []);
 
-  // Fetch summary data when the page loads or schedule changes
+  // Pobieranie danych podsumowania po zmianie wybranego grafiku
   useEffect(() => {
     if (selectedSchedule) {
       fetchSummaryData();
     }
   }, [selectedSchedule]);
 
-  // Fetch summary data
+  /**
+   * Pobierz dane podsumowania dla wybranego grafiku.
+   */
   const fetchSummaryData = async () => {
     setIsLoading(true);
     try {
-      const [month, year] = selectedSchedule.split(' ');
+      const [month, year] = selectedSchedule.split(' '); // Rozdziel miesiąc i rok
       const token = localStorage.getItem('token');
       const response = await axiosInstance.get('/scheduler/monthlySummary', {
         headers: { Authorization: `Bearer ${token}` },
-        params: {
-          month,
-          year,
-        },
+        params: { month, year },
       });
       setSummaryData(response.data.summaryData);
-      // Calculate total team hours
+
+      // Oblicz łączną liczbę godzin zespołu
       const totalHours = response.data.summaryData.reduce(
         (sum, userData) => sum + userData.totalHoursWorked,
         0
       );
       setTotalTeamHours(totalHours);
     } catch (error) {
-      console.error('Error fetching summary data:', error);
+      console.error('Błąd podczas pobierania danych podsumowania:', error);
       setSummaryData([]);
       setTotalTeamHours(0);
     } finally {
@@ -120,7 +123,7 @@ const Submissions = () => {
     }
   };
 
-  // Fetch report data when a user is selected
+  // Pobieranie danych użytkownika po zmianie użytkownika lub grafiku
   useEffect(() => {
     if (selectedUserId && selectedSchedule) {
       fetchReportData();
@@ -130,23 +133,22 @@ const Submissions = () => {
     }
   }, [selectedUserId, selectedSchedule]);
 
+  /**
+   * Pobierz dane szczegółowego raportu dla wybranego użytkownika i grafiku.
+   */
   const fetchReportData = async () => {
     setIsLoading(true);
     try {
-      const [month, year] = selectedSchedule.split(' ');
+      const [month, year] = selectedSchedule.split(' '); // Rozdziel miesiąc i rok
       const token = localStorage.getItem('token');
       const response = await axiosInstance.get('/scheduler/userMonthlyReport', {
         headers: { Authorization: `Bearer ${token}` },
-        params: {
-          userId: selectedUserId,
-          month,
-          year,
-        },
+        params: { userId: selectedUserId, month, year },
       });
       setReportData(response.data.reportData);
-      setTotalHours(response.data.totalHours);
+      setTotalHours(response.data.totalHours); // Ustaw łączną liczbę godzin
     } catch (error) {
-      console.error('Error fetching report data:', error);
+      console.error('Błąd podczas pobierania danych raportu:', error);
       setReportData([]);
       setTotalHours(0);
     } finally {
@@ -154,6 +156,7 @@ const Submissions = () => {
     }
   };
 
+  // Obsługa zmiany wybranego użytkownika
   const handleUserChange = (e) => {
     const userId = e.target.value;
     setSelectedUserId(userId);
@@ -161,10 +164,14 @@ const Submissions = () => {
     setSelectedUser(user || null);
   };
 
+  // Obsługa zmiany wybranego grafiku
   const handleScheduleChange = (e) => {
     setSelectedSchedule(e.target.value);
   };
 
+  /**
+   * Pobierz raport użytkownika w formacie XLSX.
+   */
   const handleDownload = async () => {
     if (!selectedUserId || !selectedSchedule) {
       alert('Wybierz użytkownika i grafik.');
@@ -175,15 +182,12 @@ const Submissions = () => {
       const token = localStorage.getItem('token');
       const response = await axiosInstance.get('/scheduler/downloadUserMonthlyReport', {
         headers: { Authorization: `Bearer ${token}` },
-        params: {
-          userId: selectedUserId,
-          month,
-          year,
-        },
+        params: { userId: selectedUserId, month, year },
         responseType: 'blob',
       });
+
+      // Logika pobierania pliku
       if (response.status === 200) {
-        // Create download link
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
@@ -197,11 +201,14 @@ const Submissions = () => {
         alert('Wystąpił błąd podczas pobierania raportu.');
       }
     } catch (error) {
-      console.error('Error downloading report:', error);
+      console.error('Błąd podczas pobierania raportu:', error);
       alert('Wystąpił błąd podczas pobierania raportu.');
     }
   };
 
+  /**
+   * Pobierz podsumowanie zespołu w formacie XLSX.
+   */
   const handleDownloadSummary = async () => {
     if (!selectedSchedule) {
       alert('Wybierz grafik.');
@@ -212,28 +219,23 @@ const Submissions = () => {
       const token = localStorage.getItem('token');
       const response = await axiosInstance.get('/scheduler/downloadMonthlySummary', {
         headers: { Authorization: `Bearer ${token}` },
-        params: {
-          month,
-          year,
-        },
+        params: { month, year },
         responseType: 'blob',
       });
+
+      // Logika pobierania pliku
       if (response.status === 200) {
-        // Create download link
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute(
-          'download',
-          `Podsumowanie_${month}_${year}.xlsx`
-        );
+        link.setAttribute('download', `Podsumowanie_${month}_${year}.xlsx`);
         document.body.appendChild(link);
         link.click();
       } else {
         alert('Wystąpił błąd podczas pobierania podsumowania.');
       }
     } catch (error) {
-      console.error('Error downloading summary:', error);
+      console.error('Błąd podczas pobierania podsumowania:', error);
       alert('Wystąpił błąd podczas pobierania podsumowania.');
     }
   };
@@ -241,8 +243,9 @@ const Submissions = () => {
   return (
     <div className={styles.content}>
       <h2>Raport Użytkownika</h2>
+      {/* Formularz wyboru */}
       <div className={styles.form}>
-        {/* User Selection */}
+        {/* Wybór użytkownika */}
         <div className={styles.input}>
           <label>Użytkownik:</label>
           <select value={selectedUserId} onChange={handleUserChange}>
@@ -255,7 +258,7 @@ const Submissions = () => {
           </select>
         </div>
 
-        {/* Schedule Selection */}
+        {/* Wybór grafiku */}
         <div className={styles.input}>
           <label>Miesiąc i rok:</label>
           <select value={selectedSchedule} onChange={handleScheduleChange}>
@@ -267,7 +270,7 @@ const Submissions = () => {
           </select>
         </div>
 
-        {/* Download Buttons */}
+        {/* Przyciski pobierania */}
         <button className={styles.button} onClick={handleDownload}>
           Pobierz raport pracownika (XLSX)
         </button>
@@ -276,7 +279,7 @@ const Submissions = () => {
         </button>
       </div>
 
-      {/* Summary Data */}
+      {/* Wyświetlanie podsumowania */}
       {isLoading ? (
         <p>Ładowanie danych...</p>
       ) : summaryData.length > 0 ? (
@@ -311,7 +314,7 @@ const Submissions = () => {
         <p>Brak danych do wyświetlenia.</p>
       )}
 
-      {/* Report Data */}
+      {/* Wyświetlanie szczegółowego raportu */}
       {selectedUserId && reportData.length > 0 && (
         <div>
           <h4>Szczegółowy raport dla {selectedUser.name} {selectedUser.surname}</h4>

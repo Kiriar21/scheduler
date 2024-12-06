@@ -1,8 +1,7 @@
-// components/Scheduler/TimeEditModal/TimeEditModal.js
-
 import React, { useState, useEffect } from 'react';
 import styles from './TimeEditModal.module.scss';
 
+//Modal do edycji godzin w danym dniu
 const TimeEditModal = ({ isOpen, onClose, onSave, initialData, dayInfo }) => {
   const [startHour, setStartHour] = useState(initialData.start_hour || 0);
   const [endHour, setEndHour] = useState(initialData.end_hour || 0);

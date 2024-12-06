@@ -1,5 +1,3 @@
-// pages/Schedule/Schedule.js
-
 import React, { useContext, useState, useEffect } from 'react';
 import { SchedulerContext } from '../../contexts/SchedulerContext/SchedulerContext';
 import ViewSwitcher from '../../components/Scheduler/ViewSwitcher/ViewSwitcher';
@@ -14,7 +12,7 @@ const SchedulePage = () => {
   const { currentScheduler, changeScheduler, availableSchedulers, loading, fetchAvailableSchedulers } = useContext(SchedulerContext);
   const [selectedSchedule, setSelectedSchedule] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedView, setSelectedView] = useState('month'); // Domyślnie 'month'
+  const [selectedView, setSelectedView] = useState('day'); // Domyślnie 'month'
   const [userRole, setUserRole] = useState('');
   const [userId, setUserId] = useState('');
 
@@ -33,6 +31,7 @@ const SchedulePage = () => {
     Grudzień: 11,
   };
 
+  //Pobieranie aktualnego miesiaca i roku
   const getCurrentMonthYear = () => {
     const now = new Date();
     const currentMonth = Object.keys(monthIndex).find(

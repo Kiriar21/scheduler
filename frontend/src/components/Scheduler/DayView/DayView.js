@@ -4,6 +4,7 @@ import axiosInstance from '../../../api/axiosInstance';
 import { SchedulerContext } from '../../../contexts/SchedulerContext/SchedulerContext';
 import TimeEditModal from '../TimeEditModal/TimeEditModal';
 
+//Obsługa widoku dnia - komponent
 const DayView = ({ scheduler, userRole, userId }) => {
   const [selectedDay, setSelectedDay] = useState(
     scheduler.map_month[0]?.dayOfMonth || null
@@ -19,6 +20,7 @@ const DayView = ({ scheduler, userRole, userId }) => {
     (day) => day.dayOfMonth === selectedDay
   );
 
+
   const handleDayChange = (e) => {
     setSelectedDay(parseInt(e.target.value));
   };
@@ -26,8 +28,6 @@ const DayView = ({ scheduler, userRole, userId }) => {
   const canEdit = (targetUserId) => {
     return userRole === 'manager' || userId === targetUserId;
   };
-
-
 
 
   const handleCellClick = (employersHour) => {
@@ -49,6 +49,7 @@ const DayView = ({ scheduler, userRole, userId }) => {
     });
   };
 
+  //Obsługa zapisu godzin pracy w grafiku
   const handleModalSave = async (updatedData) => {
     const { employersHour, dayInfo } = modalData;
     try {

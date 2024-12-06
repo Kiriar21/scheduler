@@ -3,6 +3,7 @@ import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
 import axiosInstance from '../../../api/axiosInstance';
 
+//Dodawanie grafiku - komponent
 const AddScheduler = () => {
   const { teams, fetchTeams } = useContext(AdminContext);
   const [selectedTeam, setSelectedTeam] = useState('');
@@ -29,6 +30,7 @@ const AddScheduler = () => {
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth();
 
+  //Obsługa dodawania grafiku
   const handleCreateScheduler = async (e) => {
     e.preventDefault();
     setMessage({ text: '', type: '' }); // Resetuj komunikaty

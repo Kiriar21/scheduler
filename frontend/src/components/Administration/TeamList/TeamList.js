@@ -4,10 +4,12 @@ import ArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import ArrowUp from '@mui/icons-material/KeyboardArrowUp';
 import { AdminContext } from '../../../pages/Administration/Administration';
 
+//Pobieranie listy zespołów
 const TeamList = () => {
   const [expandedTeams, setExpandedTeams] = useState({});
   const { teams } = useContext(AdminContext); // Bezpośredni dostęp do zespołów z kontekstu
 
+  //Obsługa zmiany teamu
   const toggleTeam = (teamId) => {
     setExpandedTeams((prevState) => ({
       ...prevState,

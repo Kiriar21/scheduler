@@ -1,5 +1,3 @@
-// pages/Settings/Settings.js
-
 import React, { useState, useEffect } from 'react';
 import styles from './Account.module.scss';
 import axiosInstance from '../../api/axiosInstance';
@@ -10,7 +8,7 @@ const AccountPage = () => {
   const [passwordData, setPasswordData] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
   const [message, setMessage] = useState({ text: '', type: '' });
 
-  // Fetch user data
+  // Pobierz dane uzytkownika
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -27,18 +25,18 @@ const AccountPage = () => {
     fetchUser();
   }, []);
 
-  // Handle input changes
+  // Obsługa edycji inputów
   const handleEditChange = (e) => {
     const { name, value } = e.target;
     setEditData((prev) => ({ ...prev, [name]: value }));
   };
-
+  // Obsługa edycji hasla
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setPasswordData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle form submissions
+  //obsluga zmiany danych uzytkownika
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -61,6 +59,7 @@ const AccountPage = () => {
     }
   };
 
+  //obsluga zmiany hasla
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     if (passwordData.newPassword !== passwordData.confirmPassword) {

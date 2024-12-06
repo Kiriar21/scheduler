@@ -1,17 +1,19 @@
 import React, { useContext, useState } from 'react';
 import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
-// import axios from 'axios';
 import axiosInstance from '../../../api/axiosInstance';
 
+//Dodawanie zespołu - komponent
 const AddTeam = () => {
   const { fetchTeams } = useContext(AdminContext);
   const [teamName, setTeamName] = useState('');
 
+  //Reaguje na zmiane w inpucie
   const handleChange = (e) => {
     setTeamName(e.target.value);
   };
 
+  //Obsługa dodawania zespołu
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

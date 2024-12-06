@@ -5,12 +5,14 @@ import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
 import axiosInstance from '../../../api/axiosInstance';
 
+//Edycja zespołu - komponent
 const ManageTeam = () => {
   const { teams, fetchTeams } = useContext(AdminContext);
   const [selectedTeam, setSelectedTeam] = useState('');
   const [newTeamName, setNewTeamName] = useState('');
   const [action, setAction] = useState('edit'); // 'edit' lub 'delete'
 
+  //Obsługa wyboru zespolu
   const handleTeamSelect = (e) => {
     const teamId = e.target.value;
     setSelectedTeam(teamId);
@@ -18,12 +20,14 @@ const ManageTeam = () => {
     setNewTeamName(team ? team.name : '');
   };
 
+  //Obsługa wyboru zespolu
   const handleActionChange = (e) => {
     setAction(e.target.value);
     setSelectedTeam('');
     setNewTeamName('');
   };
 
+  //Obsługa edycji zespolu
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedTeam) {

@@ -3,11 +3,13 @@ import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
 import axiosInstance from '../../../api/axiosInstance';
 
+//Edycja zespołu - zmiana nazwy - komponent
 const EditTeam = () => {
   const { teams, fetchTeams } = useContext(AdminContext);
   const [selectedTeam, setSelectedTeam] = useState('');
   const [newTeamName, setNewTeamName] = useState('');
 
+  //Obsługa wybrania zespołu do zmiany
   const handleTeamSelect = (e) => {
     const teamId = e.target.value;
     setSelectedTeam(teamId);
@@ -15,6 +17,7 @@ const EditTeam = () => {
     setNewTeamName(team ? team.name : '');
   };
 
+  //Obsługa edycji zespołu
   const handleEdit = async (e) => {
     e.preventDefault();
     if (!selectedTeam || !newTeamName) {

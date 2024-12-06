@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+//Walidacja danych rejestracyjnych
 const RegisterValidation = ({ firstName, lastName, email, password, confirmPassword, companyName, nip }) => {
   const [error, setError] = useState(null);
   const [isValid, setIsValid] = useState(false);
