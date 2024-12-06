@@ -13,6 +13,9 @@
   height: 100vh;
   @include flex-center;
   flex-direction: column;
+  background-image: url(./blob-scene-haikei.svg);
+  background-repeat: no-repeat;
+  background-size: cover;
 
   .error {
     position: absolute;
