@@ -10,7 +10,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint .",
     "build": "echo \"Building the project...\"",
-    "heroku-postbuild": "npm install && npm run build"
+    "heroku-postbuild": "npm install && npm run build",
+    "docs": "jsdoc -c jsdoc.json"
   },
   "author": "Artur M., Emilia P.",
   "license": "ISC",
