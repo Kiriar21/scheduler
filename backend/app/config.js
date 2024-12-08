@@ -1,3 +1,8 @@
+/**
+ * Konfiguruje zmienne środowiskowe z pliku .env i eksportuje je.
+ * @module config
+ */
+
 require('dotenv').config();
 
 //Exportowanie zmiennych środowiskowych do aplikacji

@@ -1,5 +1,7 @@
-
-
+/**
+ * Kontroler obsługujący operacje na grafikach (Scheduler).
+ * @module controllers/SchedulerController
+ */
 const Scheduler = require('../db/models/Scheduler');
 const User = require('../db/models/User');
 const Team = require('../db/models/Team');
@@ -14,6 +16,13 @@ const {
 } = require('../utils/validation');
 
 
+/**
+ * Tworzy nowy grafik (scheduler) dla danego zespołu i miesiąca.
+ * @async
+ * @function createScheduler
+ * @param {object} req - Obiekt żądania.
+ * @param {object} res - Obiekt odpowiedzi.
+ */
 //Tworzenie nowego grafiku
 const createScheduler = async (req, res) => {
   try {
@@ -120,6 +129,15 @@ const createScheduler = async (req, res) => {
   }
 };
 
+/**
+ * Tworzy mapę miesiąca z podziałem na dni, ich numery tygodnia oraz dzień tygodnia.
+ * @async
+ * @function createMapMonth
+ * @param {string} month - Nazwa miesiąca (np. "styczeń").
+ * @param {number} year - Rok (np. 2024).
+ * @returns {Promise<Array>} Zwraca tablicę obiektów zawierających informacje o dniach miesiąca.
+ */
+
 //Tworzenie mapy miesiąca dla danego grafiku
 const createMapMonth = async (month, year) => {
   try {
@@ -181,6 +199,16 @@ const createMapMonth = async (month, year) => {
   }
 };
 
+/**
+ * Wypełnia grafik (scheduler) dniami pracy dla wszystkich pracowników zespołu.
+ * @async
+ * @function fillEmployersHours
+ * @param {string} schedulerId - Identyfikator istniejącego schedulera.
+ * @param {Array} mapMonth - Tablica obiektów z informacjami o dniach miesiąca.
+ * @param {string} teamId - Identyfikator zespołu.
+ * @returns {Promise<void>}
+ */
+
 //Wypełnianie grafiku dla danego miesiąca 
 const fillEmployersHours = async (schedulerId, mapMonth, teamId) => {
   try {
@@ -205,6 +233,12 @@ const fillEmployersHours = async (schedulerId, mapMonth, teamId) => {
   }
 };
 
+/**
+ * Usuwa grafik dla danego zespołu i miesiąca (admin).
+ * @function deleteScheduler
+ * @param {object} req - Żądanie zawierające month, year, teamId.
+ * @param {object} res - Odpowiedź.
+ */
 //Usuwanie grafiku dla danego zespołu z określonym rokiem i miesiącem
 const deleteScheduler = async (req, res) => {
   try {
@@ -254,6 +288,12 @@ const deleteScheduler = async (req, res) => {
   }
 };
 
+/**
+ * Pobiera jeden grafik dla zespołu (user, manager, admin).
+ * @function getScheduler
+ * @param {object} req - Żądanie z month, year.
+ * @param {object} res - Odpowiedź.
+ */
 //Pobieranie jednego grafiku dla danego zespołu
 const getScheduler = async (req, res) => {
   try {
@@ -307,6 +347,13 @@ const getScheduler = async (req, res) => {
   }
 };
 
+/**
+ * Pobiera wszystkie grafiki dla zespołu (user, manager, admin).
+ * @function getSchedulers
+ * @param {object} req - Żądanie.
+ * @param {object} res - Odpowiedź.
+ */
+
 //Pobieranie wszystkich grafików dla danego zespołu
 const getSchedulers = async (req, res) => {
   try {
@@ -335,6 +382,12 @@ const getSchedulers = async (req, res) => {
   }
 };
 
+/**
+ * Edytuje dzień w grafiku (user, manager, admin).
+ * @function editDayInScheduler
+ * @param {object} req - Żądanie z dayOfMonth, targetUserId, updates.
+ * @param {object} res - Odpowiedź.
+ */
 //Edycja danego dnia użytkownika
 const editDayInScheduler = async (req, res) => {
   try {
@@ -421,6 +474,12 @@ const editDayInScheduler = async (req, res) => {
   }
 };
 
+/**
+ * Potwierdza dostępność użytkownika (manager, admin).
+ * @function confirmAvailabilityUser
+ * @param {object} req - Żądanie z month, year, targetUserId.
+ * @param {object} res - Odpowiedź.
+ */
 //Potwierdzenie dostępności przez pracownika
 const confirmAvailabilityUser = async (req, res) => {
   try {
@@ -485,6 +544,12 @@ const confirmAvailabilityUser = async (req, res) => {
   }
 };
 
+/**
+ * Edytuje dostępność przez pracownika/managera.
+ * @function updateAvailability
+ * @param {object} req - Żądanie z month, year, updates (tablica obiektów).
+ * @param {object} res - Odpowiedź.
+ */
 //Edycja dostępności przez pracownika
 const updateAvailability = async (req, res) => {
   try {
@@ -555,6 +620,13 @@ const updateAvailability = async (req, res) => {
   }
 };
 
+
+/**
+ * Pobiera statystyki godzin z danego miesiąca.
+ * @function getStatistic
+ * @param {object} req - Żądanie z month, year.
+ * @param {object} res - Odpowiedź.
+ */
 //Pobieranie statystyk z danego miesiąca 
 const getStatistic = async (req, res) => {
   try {
@@ -634,6 +706,12 @@ const getStatistic = async (req, res) => {
   }
 };
 
+/**
+ * Pobiera dostępne daty grafików dla danego zespołu (admin).
+ * @function getTeamSchedulerDates
+ * @param {object} req - Żądanie z parametrem teamId.
+ * @param {object} res - Odpowiedź.
+ */
 //Pobieranie informacji jakie grafiki są stworzone dla danego zespołu
 const getTeamSchedulerDates = async (req, res) => {
   try {
@@ -666,6 +744,13 @@ const getTeamSchedulerDates = async (req, res) => {
     return res.status(500).json({ error: 'Błąd serwera' });
   }
 };
+
+/**
+ * Pobiera miesięczny raport użytkownika (manager).
+ * @function getUserMonthlyReport
+ * @param {object} req - Żądanie z userId, month, year.
+ * @param {object} res - Odpowiedź.
+ */
 
 //Pobieranie miesięcznego raportu z grafiku 
 const getUserMonthlyReport = async (req, res) => {
@@ -756,6 +841,12 @@ const getUserMonthlyReport = async (req, res) => {
   }
 };
 
+/**
+ * Pobiera plik z miesięcznym raportem użytkownika (manager).
+ * @function downloadUserMonthlyReport
+ * @param {object} req - Żądanie z userId, month, year.
+ * @param {object} res - Odpowiedź.
+ */
 //Pobieranie pliku raportu z miesięcznego grafiku
 const downloadUserMonthlyReport = async (req, res) => {
   try {
@@ -887,6 +978,12 @@ const downloadUserMonthlyReport = async (req, res) => {
   }
 };
 
+/**
+ * Pobiera miesięczne podsumowanie wszystkich użytkowników w zespole (manager).
+ * @function getMonthlySummaryForAllUsers
+ * @param {object} req - Żądanie z month, year.
+ * @param {object} res - Odpowiedź.
+ */
 //Pobieranie informacji podsumowania miesiaca 
 const getMonthlySummaryForAllUsers = async (req, res) => {
   try {
@@ -977,8 +1074,12 @@ const getMonthlySummaryForAllUsers = async (req, res) => {
   }
 };
 
-
-
+/**
+ * Pobiera plik z miesięcznym podsumowaniem wszystkich użytkowników (manager).
+ * @function downloadMonthlySummaryForAllUsers
+ * @param {object} req - Żądanie z month, year.
+ * @param {object} res - Odpowiedź.
+ */
 //Pobieranie pliku z podsumowaniem miesiąca 
 const downloadMonthlySummaryForAllUsers = async (req, res) => {
   try {
@@ -1095,6 +1196,12 @@ const downloadMonthlySummaryForAllUsers = async (req, res) => {
   }
 };
 
+/**
+ * Sanitizuje nazwę pliku poprzez usunięcie znaków diakrytycznych i zastąpienie niedozwolonych znaków znakiem podkreślenia.
+ * @function sanitizeFileName
+ * @param {string} fileName - Nazwa pliku do zsanityzowania.
+ * @returns {string} Zwraca zsanityzowaną nazwę pliku.
+ */
 const sanitizeFileName = (fileName) => {
   return fileName
     .normalize('NFD') // Normalizacja Unicode

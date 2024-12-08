@@ -1,3 +1,7 @@
+/**
+ * Kontroler obsługujący operacje na użytkownikach (User).
+ * @module controllers/UserController
+ */
 const User = require('../db/models/User');
 const Company = require('../db/models/Company');
 const Team = require('../db/models/Team');
@@ -17,6 +21,13 @@ const {
   validatePasswordUser,
 } = require('../utils/validation');
 
+/**
+ * Rejestruje nowego administratora, firmę oraz zespół.
+ * @async
+ * @function adminRegister
+ * @param {object} req - Obiekt żądania.
+ * @param {object} res - Obiekt odpowiedzi.
+ */
 //Rejestracja admina
 const adminRegister = async (req, res) => {
   try {
@@ -98,6 +109,13 @@ const adminRegister = async (req, res) => {
   }
 };
 
+/**
+ * Rejestruje nowego pracownika przez admina.
+ * @async
+ * @function userRegister
+ * @param {object} req - Obiekt żądania.
+ * @param {object} res - Obiekt odpowiedzi.
+ */
 //Rejestracja managera i pracownika
 const userRegister = async (req, res) => {
   try {
@@ -221,6 +239,12 @@ const userRegister = async (req, res) => {
   }
 };
 
+/**
+ * Logowanie użytkownika.
+ * @function loginUser
+ * @param {object} req - Żądanie zawierające email i pwd.
+ * @param {object} res - Odpowiedź.
+ */
 //Logowanie uzytkownikow
 const loginUser = async (req, res) => {
   try {
@@ -254,6 +278,12 @@ const loginUser = async (req, res) => {
   }
 };
 
+/**
+ * Edycja podstawowych danych użytkownika (imię, nazwisko).
+ * @function editUser
+ * @param {object} req - Żądanie zawierające userId, name, surname.
+ * @param {object} res - Odpowiedź.
+ */
 //Edycja podstawowych danych uzytkownika
 const editUser = async (req, res) => {
   try {
@@ -277,6 +307,12 @@ const editUser = async (req, res) => {
   }
 };
 
+/**
+ * Edycja hasła użytkownika.
+ * @function editPassword
+ * @param {object} req - Żądanie zawierające oldPassword, newPassword.
+ * @param {object} res - Odpowiedź.
+ */
 //Edycja hasła uzytkownika
 const editPassword = async (req, res) => {
   try {
@@ -307,6 +343,12 @@ const editPassword = async (req, res) => {
   }
 };
 
+/**
+ * Modyfikowanie roli i/lub zespołu użytkownika przez admina.
+ * @function modifyUser
+ * @param {object} req - Żądanie zawierające userId, role, teamId.
+ * @param {object} res - Odpowiedź.
+ */
 //Edycja zespolu uzytkownika i managera przez admina
 const modifyUser = async (req, res) => {
   try {
@@ -450,6 +492,13 @@ const modifyUser = async (req, res) => {
   }
 };
 
+/**
+ * Usuwanie użytkownika przez admina.
+ * @function deleteUser
+ * @param {object} req - Żądanie z parametrem userId.
+ * @param {object} res - Odpowiedź.
+ */
+
 //Usuwanie uzytkownika
 const deleteUser = async (req, res) => {
   try {
@@ -478,6 +527,12 @@ const deleteUser = async (req, res) => {
   }
 };
 
+/**
+ * Pobiera informacje o aktualnie zalogowanym użytkowniku.
+ * @function getUser
+ * @param {object} req - Żądanie.
+ * @param {object} res - Odpowiedź.
+ */
 //Pobieranie informacji o uzytkowniku
 const getUser = async (req, res) => {
   try {
@@ -494,6 +549,12 @@ const getUser = async (req, res) => {
   }
 };
 
+/**
+ * Pobiera informacje o użytkownikach w firmie (manager/admin).
+ * @function getUsers
+ * @param {object} req - Żądanie.
+ * @param {object} res - Odpowiedź.
+ */
 //Pobieranie informacji o uzytkownikach w zespole
 const getUsers = async (req, res) => {
   try {
@@ -512,6 +573,14 @@ const getUsers = async (req, res) => {
     return res.status(500).json({ error: 'Błąd serwera' });
   }
 };
+
+
+/**
+ * Dodaje użytkownika do zespołu (admin).
+ * @function addUserToTeam
+ * @param {object} req - Żądanie zawierające userId i teamName.
+ * @param {object} res - Odpowiedź.
+ */
 
 //Dodawanie nowego pracownika do zespolu
 const addUserToTeam = async (req, res) => {
@@ -624,6 +693,13 @@ const addUserToTeam = async (req, res) => {
   }
 };
 
+
+/**
+ * Edytuje zespół pracownika (admin).
+ * @function editUserTeam
+ * @param {object} req - Żądanie zawierające userId, newTeamName.
+ * @param {object} res - Odpowiedź.
+ */
 //Edycja zespolu pracownika
 const editUserTeam = async (req, res) => {
   try {

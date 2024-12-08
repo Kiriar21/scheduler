@@ -1,5 +1,16 @@
+/**
+ * Middleware do uwierzytelniania żądań za pomocą tokenów JWT.
+ * @module middleware/authMiddleware
+ */
+
 const jwt = require('jsonwebtoken');
 const User = require('../db/models/User');
+/**
+ * Middleware sprawdzający poprawność tokenu JWT i rolę użytkownika.
+ * @function authenticateToken
+ * @param {string[]} [allowedRoles=[]] - Tablica ról, które mają dostęp do endpointu.
+ * @returns {Function} Funkcja middleware.
+ */
 
 //Sprawdzanie i uwierzytelnienie danego użytkownika
 const authenticateToken = (allowedRoles = []) => {

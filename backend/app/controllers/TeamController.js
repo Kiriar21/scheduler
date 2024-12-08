@@ -1,9 +1,20 @@
+/**
+ * Kontroler obsługujący operacje na zespołach (Team).
+ * @module controllers/TeamController
+ */
 const Team = require('../db/models/Team');
 const Company = require('../db/models/Company');
 const Scheduler = require('../db/models/Scheduler');
 const { defaultShift } = require('./ShiftController');
 const { validateNameTeam } = require('../utils/validation');
 
+/**
+ * Dodaje nowy zespół do firmy.
+ * @async
+ * @function teamAdd
+ * @param {object} req - Obiekt żądania.
+ * @param {object} res - Obiekt odpowiedzi.
+ */
 //Dodawanie nowego teamu 
 const teamAdd = async (req, res) => {
   try {
@@ -44,6 +55,12 @@ const teamAdd = async (req, res) => {
   }
 };
 
+/**
+ * Pobiera informacje o wybranym zespole.
+ * @function getTeam
+ * @param {object} req - Żądanie z parametrem teamId.
+ * @param {object} res - Odpowiedź.
+ */
 //Pobieranie informacji o wybranym zespole
 const getTeam = async (req, res) => {
   try {
@@ -62,6 +79,12 @@ const getTeam = async (req, res) => {
   }
 };
 
+/**
+ * Pobiera wszystkie zespoły w firmie użytkownika.
+ * @function getTeams
+ * @param {object} req - Żądanie.
+ * @param {object} res - Odpowiedź.
+ */
 //Pobieranie wszystkich zespolow
 const getTeams = async (req, res) => {
   try {
@@ -77,6 +100,12 @@ const getTeams = async (req, res) => {
   }
 };
 
+/**
+ * Edytuje zespół (admin).
+ * @function editTeam
+ * @param {object} req - Żądanie z parametrem teamId i nową nazwą.
+ * @param {object} res - Odpowiedź.
+ */
 //Edycja danego zespolu 
 const editTeam = async (req, res) => {
   try {
@@ -100,6 +129,12 @@ const editTeam = async (req, res) => {
   }
 };
 
+/**
+ * Usuwa zespół (admin).
+ * @function deleteTeam
+ * @param {object} req - Żądanie z parametrem teamId.
+ * @param {object} res - Odpowiedź.
+ */
 //Usuwanie danego zespolu 
 const deleteTeam = async (req, res) => {
   try {
@@ -143,6 +178,12 @@ const deleteTeam = async (req, res) => {
   }
 };
 
+/**
+ * Pobiera wszystkie nazwy zespołów (admin).
+ * @function getAllTeamNames
+ * @param {object} req - Żądanie.
+ * @param {object} res - Odpowiedź.
+ */
 //Pobieranie wszystkich nazw zespołów
 const getAllTeamNames = async (req, res) => {
   try {
@@ -159,6 +200,12 @@ const getAllTeamNames = async (req, res) => {
   }
 };
 
+/**
+ * Pobiera użytkowników zespołu (manager).
+ * @function getTeamUsers
+ * @param {object} req - Żądanie.
+ * @param {object} res - Odpowiedź.
+ */
 //Pobieranie wszystkich pracownikow i managerow danego teamu
 const getTeamUsers = async (req, res) => {
   try {

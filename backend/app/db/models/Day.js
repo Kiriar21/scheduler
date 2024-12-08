@@ -1,5 +1,13 @@
-const mongoose = require('mongoose');
+/**
+ * Model Mongoose reprezentujący pojedynczy dzień pracy użytkownika.
+ * @module db/models/Day
+ */
 
+const mongoose = require('mongoose');
+/**
+ * Schemat Mongoose dla kolekcji Dni.
+ * @type {object}
+ */
 //Schemat Dnia - jeden dzien - jeden uzytkownik 
 const DaySchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

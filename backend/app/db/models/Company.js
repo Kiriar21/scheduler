@@ -1,5 +1,15 @@
+/**
+ * Model Mongoose reprezentujący firmę.
+ * @module db/models/Company
+ */
+
 const mongoose = require('mongoose');
 const Counter = require('./Counter');
+
+/**
+ * Schemat Mongoose dla kolekcji firm.
+ * @type {object}
+ */
 
 //Schemat firmy
 const CompanySchema = new mongoose.Schema({

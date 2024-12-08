@@ -1,6 +1,14 @@
+/**
+ * Model Mongoose reprezentujący grafik (scheduler).
+ * @module db/models/Scheduler
+ */
 const mongoose = require('mongoose');
 const DayInfoSchema = require('./DayInfo').schema;
 
+/**
+ * Schemat Mongoose dla kolekcji grafików.
+ * @type {object}
+ */
 //Schemat grafiku
 const SchedulerSchema = new mongoose.Schema({
   company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },

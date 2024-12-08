@@ -1,3 +1,8 @@
+/**
+ * Inicjuje aplikację Express, ustawia middleware, trasy oraz uruchamia serwer.
+ * @file
+ */
+
 //Główny kod serwera backendu
 const express = require('express');
 const cors = require('cors');
@@ -12,8 +17,17 @@ const dotenv = require('dotenv');
 const { PORT, FRONTEND_URL, SESSION_KEY_SECRET } = require('./config'); // Pobieranie zmiennych z configu
 const morgan = require('morgan');
 
+/**
+ * Aplikacja Express obsługująca backend systemu.
+ * @type {object}
+ */
 
 const app = express();
+
+/**
+ * Opcje CORS dla połączenia z frontendem.
+ * @type {object}
+ */
 
 const corsOptions = {
   origin: FRONTEND_URL,
@@ -61,6 +75,12 @@ app.use(compression());
 
 //Wywołanie endpointów
 app.use(apiRoutes);
+
+
+/**
+ * Uruchamia serwer i nasłuchuje na określonym porcie.
+ * @param {number} PORT - Port, na którym serwer będzie nasłuchiwał.
+ */
 
 //Uruchomienie serwera
 app.listen(PORT, () => {

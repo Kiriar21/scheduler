@@ -1,3 +1,9 @@
+/**
+ * Połączenie z bazą MongoDB.
+ * @module db/mongoose_connection
+ * @async
+ */
+
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 dotenv.config();
@@ -18,5 +24,11 @@ async function connection() {
         console.log("Błąd: ", e);
     }
 }
+/**
+ * Nawiązuje połączenie z bazą danych MongoDB.
+ * @async
+ * @function connection
+ * @returns {Promise<void>}
+ */
 
 connection();

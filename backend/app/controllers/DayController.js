@@ -1,5 +1,16 @@
+/**
+ * Kontroler obsługujący operacje na pojedynczych dniach (Day).
+ * @module controllers/DayController
+ */
 const Day = require('../db/models/Day');
 
+/**
+ * Tworzy nowy obiekt Day dla danego użytkownika.
+ * @async
+ * @function createDay
+ * @param {string} userId - ID użytkownika, dla którego tworzony jest dzień.
+ * @returns {Promise<object>} Zwraca utworzony obiekt dnia.
+ */
 //Tworzenie nowego dnia danego użytkownika w grafiku
 const createDay = async (userId) => {
   try {

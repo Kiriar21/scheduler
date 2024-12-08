@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: controllers/CompanyController.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: controllers/CompanyController.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Kontroler obsługujący funkcje związane z firmą.
+ * @module controllers/CompanyController
+ */
+const Company = require('../db/models/Company');
+const {
+  validateNIP,
+  validateName,
+} = require('../utils/validation');
+
+/**
+ * Rejestruje nową firmę.
+ * @async
+ * @function registerCompany
+ * @param {object} companyData - Dane firmy (nip, name, admin).
+ * @returns {Promise&lt;object>} Zwraca obiekt nowo utworzonej firmy.
+ */
+//Rejestracja firmy
+const registerCompany = async (companyData) => {
+  try {
+    let { nip, name, admin } = companyData;
+
+    if (!validateNIP(nip)) {
+      throw new Error('Nieprawidłowy format NIP');
+    }
+
+    if (!validateName(name)) {
+      throw new Error('Nazwa firmy musi mieć co najmniej 3 znaki');
+    }
+
+    const existingCompany = await Company.findOne({ nip });
+    if (existingCompany) {
+      throw new Error('Firma z tym NIP już istnieje');
+    }
+
+    const newCompany = new Company({
+      nip,
+      name,
+      admin,
+      users: [admin],
+    });
+
+    const savedCompany = await newCompany.save();
+
+    return savedCompany;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Pobiera informacje o firmie aktualnie zalogowanego użytkownika.
+ * @async
+ * @function getInfoCompany
+ * @param {object} req - Obiekt żądania.
+ * @param {object} res - Obiekt odpowiedzi.
+ * @returns {Promise&lt;void>}
+ */
+//Pobieranie danych firmy
+const getInfoCompany = async (req, res) => {
+  try {
+    console.log(req.user)
+    const company = await Company.findById(req.user.company).select('nip name');
+
+    return res.status(200).json({ company });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Błąd serwera' });
+  }
+};
+
+/**
+ * Edytuje informacje o firmie użytkownika (dostęp tylko dla admina).
+ * @async
+ * @function editInfoCompany
+ * @param {object} req - Obiekt żądania.
+ * @param {object} res - Obiekt odpowiedzi.
+ * @returns {Promise&lt;void>}
+ */
+//Edycja danych firmy
+const editInfoCompany = async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ error: 'Brak dostępu' });
+    }
+
+    let { nip, name } = req.body;
+
+    if (!validateNIP(nip)) {
+      return res.status(400).json({ error: 'Nieprawidłowy format NIP' });
+    }
+
+    if (!validateName(name)) {
+      return res.status(400).json({ error: 'Nazwa firmy musi mieć co najmniej 3 znaki' });
+    }
+
+    const updatedCompany = await Company.findByIdAndUpdate(
+      req.user.company,
+      { nip, name },
+      { new: true }
+    );
+
+    return res.status(200).json({ message: 'Informacje o firmie zostały zaktualizowane', company: updatedCompany });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Błąd serwera' });
+  }
+};
+
+module.exports = {
+  registerCompany,
+  getInfoCompany,
+  editInfoCompany,
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-config.html">config</a></li><li><a href="module-controllers_CompanyController.html">controllers/CompanyController</a></li><li><a href="module-controllers_DayController.html">controllers/DayController</a></li><li><a href="module-controllers_DayInfoController.html">controllers/DayInfoController</a></li><li><a href="module-controllers_SchedulerController.html">controllers/SchedulerController</a></li><li><a href="module-controllers_TeamController.html">controllers/TeamController</a></li><li><a href="module-controllers_UserController.html">controllers/UserController</a></li><li><a href="module-db_models_Company.html">db/models/Company</a></li><li><a href="module-db_models_Counter.html">db/models/Counter</a></li><li><a href="module-db_models_Day.html">db/models/Day</a></li><li><a href="module-db_models_DayInfo.html">db/models/DayInfo</a></li><li><a href="module-db_models_Scheduler.html">db/models/Scheduler</a></li><li><a href="module-db_models_Team.html">db/models/Team</a></li><li><a href="module-db_models_User.html">db/models/User</a></li><li><a href="module-db_mongoose_connection.html">db/mongoose_connection</a></li><li><a href="module-middleware_authMiddleware.html">middleware/authMiddleware</a></li><li><a href="module-routes_api.html">routes/api</a></li><li><a href="module-validation.html">validation</a></li></ul><h3>Global</h3><ul><li><a href="global.html#app">app</a></li><li><a href="global.html#comparePasswords">comparePasswords</a></li><li><a href="global.html#corsOptions">corsOptions</a></li><li><a href="global.html#hashPassword">hashPassword</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 16:11:52 GMT+0100 (czas środkowoeuropejski standardowy)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

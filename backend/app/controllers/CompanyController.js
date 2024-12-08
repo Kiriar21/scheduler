@@ -1,9 +1,20 @@
+/**
+ * Kontroler obsługujący funkcje związane z firmą.
+ * @module controllers/CompanyController
+ */
 const Company = require('../db/models/Company');
 const {
   validateNIP,
   validateName,
 } = require('../utils/validation');
 
+/**
+ * Rejestruje nową firmę.
+ * @async
+ * @function registerCompany
+ * @param {object} companyData - Dane firmy (nip, name, admin).
+ * @returns {Promise<object>} Zwraca obiekt nowo utworzonej firmy.
+ */
 //Rejestracja firmy
 const registerCompany = async (companyData) => {
   try {
@@ -37,6 +48,14 @@ const registerCompany = async (companyData) => {
   }
 };
 
+/**
+ * Pobiera informacje o firmie aktualnie zalogowanego użytkownika.
+ * @async
+ * @function getInfoCompany
+ * @param {object} req - Obiekt żądania.
+ * @param {object} res - Obiekt odpowiedzi.
+ * @returns {Promise<void>}
+ */
 //Pobieranie danych firmy
 const getInfoCompany = async (req, res) => {
   try {
@@ -50,6 +69,14 @@ const getInfoCompany = async (req, res) => {
   }
 };
 
+/**
+ * Edytuje informacje o firmie użytkownika (dostęp tylko dla admina).
+ * @async
+ * @function editInfoCompany
+ * @param {object} req - Obiekt żądania.
+ * @param {object} res - Obiekt odpowiedzi.
+ * @returns {Promise<void>}
+ */
 //Edycja danych firmy
 const editInfoCompany = async (req, res) => {
   try {

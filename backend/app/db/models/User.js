@@ -1,6 +1,13 @@
+/**
+ * Model Mongoose reprezentujący użytkownika systemu.
+ * @module db/models/User
+ */
 const mongoose = require('mongoose');
 const Counter = require('./Counter');
-
+/**
+ * Schemat Mongoose dla kolekcji użytkowników.
+ * @type {object}
+ */
 //Schemat użytkownika
 const UserSchema = new mongoose.Schema({
   id_user: { type: Number, unique: true },
