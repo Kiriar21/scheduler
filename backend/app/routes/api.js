@@ -42,12 +42,10 @@ router.put('/shift/edit/:shiftId', authenticateToken(['user', 'manager', 'admin'
 
 // Trasy schedulerów
 router.post('/scheduler/create', authenticateToken(['manager', 'admin']), SchedulerController.createScheduler); //Tworzenie nowego grafiku
+
 router.get('/scheduler/userMonthlyReport', authenticateToken(['manager', 'admin']), SchedulerController.getUserMonthlyReport); //Pobieranie miesięcznego raportu z grafiku 
 router.get('/scheduler/downloadUserMonthlyReport', authenticateToken(['manager', 'admin']), SchedulerController.downloadUserMonthlyReport); //Pobieranie pliku raportu z miesięcznego grafiku
-router.get('/scheduler/userMonthlySummary', authenticateToken(['manager', 'admin']), SchedulerController.getUserMonthlySummary); //Pobieranie informacji o danym pracowniku w danym miesiacu
-router.get('/scheduler/downloadUserMonthlySummary', authenticateToken(['manager', 'admin']), SchedulerController.downloadUserMonthlySummary); //Pobieranie pliku o danym pracowniku w danym miesiącu
-
-router.get('/scheduler/monthlySummary', authenticateToken(['manager', 'admin']), SchedulerController.getMonthlySummaryForAllUsers); //Pobieranie informacji podsumowania miesiaca 
+router.get('/scheduler/monthlySummary', authenticateToken(['manager', 'admin']), SchedulerController.getMonthlySummaryForAllUsers); //Pobieranie informacji podsumowania miesiaca     
 router.get('/scheduler/downloadMonthlySummary', authenticateToken(['manager', 'admin']), SchedulerController.downloadMonthlySummaryForAllUsers); //Pobieranie pliku z podsumowaniem miesiąca 
 
 router.get('/schedulers/:teamId/dates', authenticateToken(['user', 'manager', 'admin']), SchedulerController.getTeamSchedulerDates); //Pobieranie informacji jakie grafiki są stworzone dla danego zespołu

@@ -13,6 +13,7 @@ const {
   validateObjectId,
 } = require('../utils/validation');
 
+
 //Tworzenie nowego grafiku
 const createScheduler = async (req, res) => {
   try {
@@ -857,213 +858,28 @@ const downloadUserMonthlyReport = async (req, res) => {
     worksheet.addRow({});
     worksheet.addRow({ dayOfMonth: 'Łącznie przepracowanych godzin:', hoursWorked: totalHours });
 
-    // Set response headers
-    res.setHeader(
-      'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    );
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename=Raport_${user.name}_${user.surname}_${month}_${year}.xlsx`
-    );
-
-    // Write workbook to response
-    await workbook.xlsx.write(res);
-
-    // No need to call res.end()
+    try {
+      const sanitizedFileName = sanitizeFileName(`Raport_${user.name}_${user.surname}_${month}_${year}.xlsx`);
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${sanitizedFileName}"`
+      );
+    
+      // Zapis pliku do odpowiedzi
+      await workbook.xlsx.write(res);
+      res.end();
+    } catch (error) {
+      console.error('Błąd podczas generowania pliku Excel:', error);
+      res.status(500).json({ error: 'Błąd serwera' });
+    }
+    
   } catch (error) {
     console.error('Error in downloadUserMonthlyReport:', error);
     res.status(500).json({ error: 'Błąd serwera' });
-  }
-};
-
-//Pobieranie informacji o danym pracowniku w danym miesiacu
-const getUserMonthlySummary = async (req, res) => {
-  try {
-    const manager = req.user;
-
-    if (manager.role !== 'manager') {
-      return res.status(403).json({ error: 'Brak dostępu' });
-    }
-
-    let { userId, month, year } = req.query;
-
-    userId = xss(userId);
-    month = xss(month);
-    year = xss(year);
-
-    if (!validateObjectId(userId)) {
-      return res.status(400).json({ error: 'Niepoprawny identyfikator użytkownika' });
-    }
-
-    if (!validateMonthName(month)) {
-      return res.status(400).json({ error: 'Niepoprawna nazwa miesiąca' });
-    }
-
-    if (!validateYear(year)) {
-      return res.status(400).json({ error: 'Niepoprawny rok' });
-    }
-
-    // Check if the user is in the manager's team
-    const user = await User.findOne({
-      _id: userId,
-      team: manager.team,
-      company: manager.company,
-    }).select('name surname');
-
-    if (!user) {
-      return res.status(404).json({ error: 'Użytkownik nie został znaleziony w twoim zespole' });
-    }
-
-    const scheduler = await Scheduler.findOne({
-      company: manager.company,
-      team: manager.team,
-      month,
-      year,
-    })
-      .populate({
-        path: 'map_month',
-        populate: {
-          path: 'employersHours',
-          match: { user: userId },
-        },
-      })
-      .lean();
-
-    if (!scheduler) {
-      return res.status(404).json({ error: 'Grafik nie został znaleziony' });
-    }
-
-    // Calculate total hours worked
-    let totalHoursWorked = 0;
-
-    scheduler.map_month.forEach((dayInfo) => {
-      if (dayInfo.employersHours.length > 0) {
-        const day = dayInfo.employersHours[0];
-        const hoursWorked = day.end_hour - day.start_hour;
-        totalHoursWorked += hoursWorked;
-      }
-    });
-
-    return res.status(200).json({
-      user: { name: user.name, surname: user.surname },
-      totalHoursWorked,
-      month,
-      year,
-    });
-  } catch (error) {
-    console.error('Error in getUserMonthlySummary:', error);
-    return res.status(500).json({ error: 'Błąd serwera' });
-  }
-};
-
-//Pobieranie pliku o danym pracowniku w danym miesiącu
-const downloadUserMonthlySummary = async (req, res) => {
-  try {
-    const manager = req.user;
-
-    if (manager.role !== 'manager') {
-      return res.status(403).json({ error: 'Brak dostępu' });
-    }
-
-    let { userId, month, year } = req.query;
-
-    userId = xss(userId);
-    month = xss(month);
-    year = xss(year);
-
-    if (!validateObjectId(userId)) {
-      return res.status(400).json({ error: 'Niepoprawny identyfikator użytkownika' });
-    }
-
-    if (!validateMonthName(month)) {
-      return res.status(400).json({ error: 'Niepoprawna nazwa miesiąca' });
-    }
-
-    if (!validateYear(year)) {
-      return res.status(400).json({ error: 'Niepoprawny rok' });
-    }
-
-    // Check if the user is in the manager's team
-    const user = await User.findOne({
-      _id: userId,
-      team: manager.team,
-      company: manager.company,
-    }).select('name surname');
-
-    if (!user) {
-      return res.status(404).json({ error: 'Użytkownik nie został znaleziony w twoim zespole' });
-    }
-
-    const scheduler = await Scheduler.findOne({
-      company: manager.company,
-      team: manager.team,
-      month,
-      year,
-    })
-      .populate({
-        path: 'map_month',
-        populate: {
-          path: 'employersHours',
-          match: { user: userId },
-        },
-      })
-      .lean();
-
-    if (!scheduler) {
-      return res.status(404).json({ error: 'Grafik nie został znaleziony' });
-    }
-
-    // Calculate total hours worked
-    let totalHoursWorked = 0;
-
-    scheduler.map_month.forEach((dayInfo) => {
-      if (dayInfo.employersHours.length > 0) {
-        const day = dayInfo.employersHours[0];
-        const hoursWorked = day.end_hour - day.start_hour;
-        totalHoursWorked += hoursWorked;
-      }
-    });
-
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Podsumowanie');
-
-    // Add headers
-    worksheet.columns = [
-      { header: 'Imię', key: 'name', width: 20 },
-      { header: 'Nazwisko', key: 'surname', width: 20 },
-      { header: 'Ilość godzin', key: 'totalHoursWorked', width: 15 },
-      { header: 'Miesiąc', key: 'month', width: 15 },
-      { header: 'Rok', key: 'year', width: 10 },
-    ];
-
-    // Add data
-    worksheet.addRow({
-      name: user.name,
-      surname: user.surname,
-      totalHoursWorked,
-      month,
-      year,
-    });
-
-    // Set response headers
-    res.setHeader(
-      'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    );
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename=Podsumowanie_${user.name}_${user.surname}_${month}_${year}.xlsx`
-    );
-
-    // Write file to response
-    await workbook.xlsx.write(res);
-
-    // End response
-    res.end();
-  } catch (error) {
-    console.error('Error in downloadUserMonthlySummary:', error);
-    return res.status(500).json({ error: 'Błąd serwera' });
   }
 };
 
@@ -1146,6 +962,8 @@ const getMonthlySummaryForAllUsers = async (req, res) => {
   }
 };
 
+
+
 //Pobieranie pliku z podsumowaniem miesiąca 
 const downloadMonthlySummaryForAllUsers = async (req, res) => {
   try {
@@ -1227,25 +1045,37 @@ const downloadMonthlySummaryForAllUsers = async (req, res) => {
       worksheet.addRow(data);
     });
 
-    // Set response headers
-    res.setHeader(
-      'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    );
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename=Podsumowanie_${month}_${year}.xlsx`
-    );
-
-    // Write file to response
-    await workbook.xlsx.write(res);
-
-    // No need to call res.end()
+    try {
+      const sanitizedFileName = sanitizeFileName(`Podsumowanie_${month}_${year}.xlsx`);
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${sanitizedFileName}"`
+      );
+    
+      // Zapis pliku do odpowiedzi
+      await workbook.xlsx.write(res);
+      res.end();
+    } catch (error) {
+      console.error('Błąd podczas generowania pliku Excel:', error);
+      res.status(500).json({ error: 'Błąd serwera' });
+    }
+    
 
   } catch (error) {
     console.error('Error in downloadMonthlySummaryForAllUsers:', error);
     return res.status(500).json({ error: 'Błąd serwera' });
   }
+};
+
+const sanitizeFileName = (fileName) => {
+  return fileName
+    .normalize('NFD') // Normalizacja Unicode
+    .replace(/[\u0300-\u036f]/g, '') // Usuń znaki diakrytyczne
+    .replace(/[^a-zA-Z0-9-_]/g, '_'); // Zamień inne znaki na '_'
 };
 
 module.exports = {
@@ -1260,8 +1090,6 @@ module.exports = {
   updateAvailability,
   getUserMonthlyReport,
   downloadUserMonthlyReport,
-  getUserMonthlySummary,
-  downloadUserMonthlySummary,
   getMonthlySummaryForAllUsers,
   downloadMonthlySummaryForAllUsers,
 };
