@@ -26,6 +26,8 @@ const Submissions = () => {
   const [totalHours, setTotalHours] = useState(0);
   // Łączna liczba godzin zespołu
   const [totalTeamHours, setTotalTeamHours] = useState(0);
+  // Łączna liczba nadgodzin zespołu
+  const [totalTeamOverTimeHours, settotalTeamOverTimeHours] = useState(0);
 
   // Pobieranie listy użytkowników przy załadowaniu komponentu
   useEffect(() => {
@@ -113,7 +115,14 @@ const Submissions = () => {
         (sum, userData) => sum + userData.totalHoursWorked,
         0
       );
+
+      const totalOverTimeHours = response.data.summaryData.reduce(
+        (sum, userData) => sum + userData.overtimeHours,
+        0
+      );
+
       setTotalTeamHours(totalHours);
+      settotalTeamOverTimeHours(totalOverTimeHours);
     } catch (error) {
       console.error('Błąd podczas pobierania danych podsumowania:', error);
       setSummaryData([]);
@@ -291,6 +300,7 @@ const Submissions = () => {
                 <th>Imię</th>
                 <th>Nazwisko</th>
                 <th>Ilość godzin</th>
+                <th>Nadgodziny</th>
               </tr>
             </thead>
             <tbody>
@@ -299,13 +309,15 @@ const Submissions = () => {
                   <td>{data.user.name}</td>
                   <td>{data.user.surname}</td>
                   <td>{data.totalHoursWorked}</td>
+                  <td>{data.overtimeHours || 0}</td>
                 </tr>
               ))}
             </tbody>
             <tfoot>
               <tr>
                 <td colSpan="2">Łącznie:</td>
-                <td>{totalTeamHours}</td>
+                <td>{totalTeamHours }</td>
+                <td>{totalTeamOverTimeHours || 0}</td>
               </tr>
             </tfoot>
           </table>

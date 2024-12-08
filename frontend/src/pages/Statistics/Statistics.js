@@ -97,7 +97,7 @@ const StatisticsPage = () => {
               <tr>
                 <th>Imię</th>
                 <th>Nazwisko</th>
-                <th></th>
+                <th>Suma godzin</th>
               </tr>
             </thead>
             <tbody>
@@ -108,7 +108,7 @@ const StatisticsPage = () => {
                 >
                   <td>{stat.name}</td>
                   <td>{stat.surname}</td>
-                  <td>Suma godzin: <span>{stat.totalHours}</span></td>
+                  <td><span>{stat.totalHours}</span></td>
                 </tr>
               ))}
             </tbody>

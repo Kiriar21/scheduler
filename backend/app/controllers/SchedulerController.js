@@ -834,6 +834,9 @@ const downloadUserMonthlyReport = async (req, res) => {
       }
     });
 
+    const regularHours = totalHours > 160 ? 160 : totalHours;
+    const overtimeHours = totalHours > 160 ? totalHours - 160 : 0;
+
     // Prepare Excel workbook
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Raport');
@@ -856,7 +859,8 @@ const downloadUserMonthlyReport = async (req, res) => {
 
     // Add total hours at the end
     worksheet.addRow({});
-    worksheet.addRow({ dayOfMonth: 'Łącznie przepracowanych godzin:', hoursWorked: totalHours });
+    worksheet.addRow({ dayOfMonth: 'Regularne godziny:', hoursWorked: regularHours });
+    worksheet.addRow({ dayOfMonth: 'Nadgodziny:', hoursWorked: overtimeHours });
 
     try {
       const sanitizedFileName = sanitizeFileName(`Raport_${user.name}_${user.surname}_${month}_${year}.xlsx`);
@@ -943,11 +947,22 @@ const getMonthlySummaryForAllUsers = async (req, res) => {
               surname: day.user.surname,
             },
             totalHoursWorked: 0,
+            overtimeHours: 0,
           };
         }
         userHoursMap[userId].totalHoursWorked += hoursWorked;
       });
     });
+
+    Object.values(userHoursMap).forEach((data) => {
+      if (data.totalHoursWorked > 160) {
+        data.overtimeHours = data.totalHoursWorked - 160;
+        data.totalHoursWorked = 160; 
+      }
+    });
+
+    console.log("Kaszanka")
+    console.log(userHoursMap)
 
     const summaryData = Object.values(userHoursMap);
 
@@ -1021,10 +1036,18 @@ const downloadMonthlySummaryForAllUsers = async (req, res) => {
             name: day.user.name,
             surname: day.user.surname,
             totalHoursWorked: 0,
+            overtimeHours: 0,
           };
         }
         userHoursMap[userId].totalHoursWorked += hoursWorked;
       });
+    });
+
+    Object.values(userHoursMap).forEach((data) => {
+      if (data.totalHoursWorked > 160) {
+        data.overtimeHours = data.totalHoursWorked - 160;
+        data.totalHoursWorked = 160;
+      }
     });
 
     const summaryData = Object.values(userHoursMap);
@@ -1038,6 +1061,7 @@ const downloadMonthlySummaryForAllUsers = async (req, res) => {
       { header: 'Imię', key: 'name', width: 20 },
       { header: 'Nazwisko', key: 'surname', width: 20 },
       { header: 'Ilość godzin', key: 'totalHoursWorked', width: 15 },
+      { header: 'Nadgodziny', key: 'overtimeHours', width: 15 },
     ];
 
     // Add data
