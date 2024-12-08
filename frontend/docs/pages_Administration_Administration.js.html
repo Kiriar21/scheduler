@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/Administration/Administration.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/Administration/Administration.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Strona administracji: zarządzanie zespołami, pracownikami, firmą i grafikami.
+ * @component
+ */
+import React, { createContext, useState, useEffect } from 'react';
+import styles from './Administration.module.scss';
+import AddEmployee from '../../components/Administration/AddEmployee/AddEmployee';
+import AddTeam from '../../components/Administration/AddTeam/AddTeam';
+import EditEmployee from '../../components/Administration/EditEmployee/EditEmployee';
+import DeleteScheduler from '../../components/Administration/DeleteScheduler/DeleteScheduler';
+import TeamList from '../../components/Administration/TeamList/TeamList';
+import axiosInstance from '../../api/axiosInstance';
+import ManageTeam from '../../components/Administration/ManageTeam/ManageTeam';
+import AddScheduler from '../../components/Administration/AddScheduler/AddScheduler';
+import EditCompany from '../../components/Administration/EditCompany/EditCompany';
+
+export const AdminContext = createContext();
+
+const AdministrationPage = () => {
+  const [employees, setEmployees] = useState([]);
+  const [teams, setTeams] = useState([]);
+
+  /**
+   * Pobiera listę pracowników.
+   * @async
+   * @function fetchEmployees
+   * @returns {Promise&lt;void>}
+   */
+  //Pobieranie wszystkich pracowników
+  const fetchEmployees = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axiosInstance.get('/users', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setEmployees(response.data.users);
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+    }
+  };
+  
+  /**
+ * Pobiera listę zespołów.
+ * @async
+ * @function fetchTeams
+ * @returns {Promise&lt;void>}
+ */
+//Pobieranie wszystkich zespołów
+  const fetchTeams = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axiosInstance.get('/teams', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setTeams(response.data.teams);
+    } catch (error) {
+      console.error('Error fetching team data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchEmployees();
+    fetchTeams();
+  }, []);
+
+  return (
+    &lt;AdminContext.Provider
+      value={{
+        employees,
+        teams,
+        fetchEmployees,
+        fetchTeams,
+      }}
+    >
+      &lt;div className={styles.content}>
+        &lt;div className={styles.list}>
+          &lt;h2>Lista zespołów i pracowników&lt;/h2>
+          &lt;TeamList />
+        &lt;/div>
+        &lt;div className={styles.tools}>
+          &lt;div className={styles.employee}>
+            &lt;AddTeam />
+            &lt;ManageTeam />
+          &lt;/div>
+          &lt;div className={styles.other}>
+            &lt;AddEmployee />
+            &lt;EditEmployee />
+            &lt;AddScheduler />
+            &lt;DeleteScheduler />
+            &lt;EditCompany />
+          &lt;/div>
+        &lt;/div>
+      &lt;/div>
+    &lt;/AdminContext.Provider>
+  );
+};
+
+export default AdministrationPage;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SchedulerContext.html">SchedulerContext</a></li><li><a href="module-axiosInstance.html">axiosInstance</a></li></ul><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#RegisterValidation">RegisterValidation</a></li><li><a href="global.html#canEdit">canEdit</a></li><li><a href="global.html#checkTokenExpiration">checkTokenExpiration</a></li><li><a href="global.html#fetchCompanyData">fetchCompanyData</a></li><li><a href="global.html#fetchEmployees">fetchEmployees</a></li><li><a href="global.html#fetchReportData">fetchReportData</a></li><li><a href="global.html#fetchSchedulers">fetchSchedulers</a></li><li><a href="global.html#fetchStatistics">fetchStatistics</a></li><li><a href="global.html#fetchSummaryData">fetchSummaryData</a></li><li><a href="global.html#fetchTeamDates">fetchTeamDates</a></li><li><a href="global.html#fetchTeams">fetchTeams</a></li><li><a href="global.html#fetchUsers">fetchUsers</a></li><li><a href="global.html#generateCalendar">generateCalendar</a></li><li><a href="global.html#getInitials">getInitials</a></li><li><a href="global.html#getRole">getRole</a></li><li><a href="global.html#handleActionChange">handleActionChange</a></li><li><a href="global.html#handleApply">handleApply</a></li><li><a href="global.html#handleAutoFill">handleAutoFill</a></li><li><a href="global.html#handleCellClick">handleCellClick</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleConfirm">handleConfirm</a></li><li><a href="global.html#handleCreateScheduler">handleCreateScheduler</a></li><li><a href="global.html#handleDayChange">handleDayChange</a></li><li><a href="global.html#handleDaySelection">handleDaySelection</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#handleDownload">handleDownload</a></li><li><a href="global.html#handleDownloadSummary">handleDownloadSummary</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleEditSubmit">handleEditSubmit</a></li><li><a href="global.html#handleEmployeeSelect">handleEmployeeSelect</a></li><li><a href="global.html#handleInputChange">handleInputChange</a></li><li><a href="global.html#handleLogout">handleLogout</a></li><li><a href="global.html#handleModalClose">handleModalClose</a></li><li><a href="global.html#handleModalSave">handleModalSave</a></li><li><a href="global.html#handleNavigation">handleNavigation</a></li><li><a href="global.html#handleNext">handleNext</a></li><li><a href="global.html#handlePasswordSubmit">handlePasswordSubmit</a></li><li><a href="global.html#handlePrev">handlePrev</a></li><li><a href="global.html#handleSave">handleSave</a></li><li><a href="global.html#handleScheduleChange">handleScheduleChange</a></li><li><a href="global.html#handleSelect">handleSelect</a></li><li><a href="global.html#handleSelectChange">handleSelectChange</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#handleTeamSelect">handleTeamSelect</a></li><li><a href="global.html#handleUpdate">handleUpdate</a></li><li><a href="global.html#handleUserChange">handleUserChange</a></li><li><a href="global.html#handleViewChange">handleViewChange</a></li><li><a href="global.html#handleWeekChange">handleWeekChange</a></li><li><a href="global.html#toggleTeam">toggleTeam</a></li><li><a href="global.html#validateLogin">validateLogin</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 19:53:44 GMT+0100 (czas środkowoeuropejski standardowy)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,3 +1,7 @@
+/**
+ * Strona administracji: zarządzanie zespołami, pracownikami, firmą i grafikami.
+ * @component
+ */
 import React, { createContext, useState, useEffect } from 'react';
 import styles from './Administration.module.scss';
 import AddEmployee from '../../components/Administration/AddEmployee/AddEmployee';
@@ -16,6 +20,12 @@ const AdministrationPage = () => {
   const [employees, setEmployees] = useState([]);
   const [teams, setTeams] = useState([]);
 
+  /**
+   * Pobiera listę pracowników.
+   * @async
+   * @function fetchEmployees
+   * @returns {Promise<void>}
+   */
   //Pobieranie wszystkich pracowników
   const fetchEmployees = async () => {
     try {
@@ -29,7 +39,13 @@ const AdministrationPage = () => {
     }
   };
   
-  //Pobieranie wszystkich zespołów
+  /**
+ * Pobiera listę zespołów.
+ * @async
+ * @function fetchTeams
+ * @returns {Promise<void>}
+ */
+//Pobieranie wszystkich zespołów
   const fetchTeams = async () => {
     try {
       const token = localStorage.getItem('token');

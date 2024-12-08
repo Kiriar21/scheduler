@@ -1,3 +1,7 @@
+/**
+ * Komponent formularza do edycji danych firmy.
+ * @component
+ */
 import React, { useState, useEffect } from 'react';
 import styles from '../Form.module.scss';
 import axiosInstance from '../../../api/axiosInstance';
@@ -8,7 +12,13 @@ const EditCompany = () => {
   const [message, setMessage] = useState({ text: '', type: '' });
   const [isLoading, setIsLoading] = useState(false);
 
-  //Pobieranie danych o firmie
+  /**
+ * Pobiera aktualne dane firmy z API.
+ * @async
+ * @function fetchCompanyData
+ * @returns {Promise<void>}
+ */
+//Pobieranie danych o firmie
   useEffect(() => {
     const fetchCompanyData = async () => {
       try {
@@ -24,12 +34,24 @@ const EditCompany = () => {
     fetchCompanyData();
   }, []);
 
-  //Obsługa zmiany danych firmy
+  /**
+ * Obsługuje zmianę wartości pól formularza danych firmy.
+ * @function handleChange
+ * @param {object} e - Obiekt zdarzenia
+ */
+//Obsługa zmiany danych firmy
   const handleChange = (e) => {
     setCompanyData({ ...companyData, [e.target.name]: e.target.value });
   };
 
-  //Obsługa przesłania zmiany danych firmy
+  /**
+ * Obsługuje przesłanie formularza edycji danych firmy.
+ * @async
+ * @function handleSubmit
+ * @param {object} e - Obiekt zdarzenia
+ * @returns {Promise<void>}
+ */
+//Obsługa przesłania zmiany danych firmy
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);

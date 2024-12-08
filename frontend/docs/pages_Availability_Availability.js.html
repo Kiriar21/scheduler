@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/Availability/Availability.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/Availability/Availability.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Strona ustawiania dyspozycyjności użytkownika/zespołu.
+ * Pozwala użytkownikom ustawiać preferowane godziny i dostępność w aktualnym grafiku.
+ * @component
+ */
+import React, { useContext, useState, useEffect } from 'react';
+import { SchedulerContext } from '../../contexts/SchedulerContext/SchedulerContext';
+import axiosInstance from '../../api/axiosInstance';
+import styles from './Availability.module.scss';
+import AutoFillAvailability from '../../components/Availibility/AutoAvailibility/AutoAvailibility';
+
+const AvailabilityPage = () => {
+  const {
+    currentScheduler,
+    changeScheduler,
+    availableSchedulers,
+    selectedDate,
+  } = useContext(SchedulerContext);
+  const [selectedSchedule, setSelectedSchedule] = useState('');
+  const [userId, setUserId] = useState('');
+  const [userRole, setUserRole] = useState('');
+  const [userDays, setUserDays] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [userSubmitStatus, setUserSubmitStatus] = useState(false);
+  const [managerSubmitStatus, setManagerSubmitStatus] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Pobierz dane użytkownika
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axiosInstance.get('/user', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUserId(response.data.user._id);
+        setUserRole(response.data.user.role);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+    fetchUserData();
+  }, []);
+
+  const canEdit = () => {
+    if (userRole === 'user') return true;
+    if (userRole === 'manager' &amp;&amp; selectedUserId === userId) return true;
+    return false;
+  };
+
+  // Ustawienie domyślnego grafiku
+  useEffect(() => {
+    if (availableSchedulers.length > 0 &amp;&amp; !selectedSchedule) {
+      const defaultScheduler =
+        availableSchedulers.find(
+          (schedule) =>
+            schedule.month === selectedDate.month &amp;&amp;
+            schedule.year === selectedDate.year
+        ) || availableSchedulers[0];
+
+      setSelectedSchedule(`${defaultScheduler.month} ${defaultScheduler.year}`);
+      changeScheduler(defaultScheduler.month, defaultScheduler.year);
+    }
+  }, [availableSchedulers, selectedSchedule, selectedDate, changeScheduler]);
+
+  // Ustawienie `selectedUserId` na `userId` dla menedżera
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  useEffect(() => {
+    if (userId &amp;&amp; selectedUserId === null) {
+      setSelectedUserId(userId);
+    }
+  }, [userId, selectedUserId]);
+
+  // Pobierz użytkowników zespołu dla menedżera
+  const [teamUsers, setTeamUsers] = useState([]);
+  useEffect(() => {
+    const fetchTeamUsers = async () => {
+      if (userRole === 'manager') {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axiosInstance.get('/team/users', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setTeamUsers(response.data.users);
+        } catch (error) {
+          console.error('Error fetching team users:', error);
+        }
+      }
+    };
+    fetchTeamUsers();
+  }, [userRole]);
+
+  // Pobierz dane dostępności po zmianie `currentScheduler` lub `selectedUserId`
+  useEffect(() => {
+    if (currentScheduler &amp;&amp; selectedUserId) {
+      const userDaysData = currentScheduler.map_month.map((dayInfo) => {
+        const userDay = dayInfo.employersHours.find(
+          (eh) => eh.user &amp;&amp; eh.user._id === selectedUserId
+        );
+        return {
+          dayOfMonth: dayInfo.dayOfMonth,
+          nameDayOfWeek: dayInfo.nameDayOfWeek,
+          prefferedHours: userDay ? userDay.prefferedHours : '',
+          availability: userDay ? userDay.availability : '',
+          userSubmit: userDay ? userDay.userSubmit : false,
+          managerSubmit: userDay ? userDay.managerSubmit : false,
+          _id: userDay ? userDay._id : null,
+        };
+      });
+      setUserDays(userDaysData);
+
+      // Sprawdź status zatwierdzenia
+      const allUserSubmit = userDaysData.every((day) => day.userSubmit);
+      const allManagerSubmit = userDaysData.every((day) => day.managerSubmit);
+      setUserSubmitStatus(allUserSubmit);
+      setManagerSubmitStatus(allManagerSubmit);
+
+      setIsLoading(false);
+    }
+  }, [currentScheduler, selectedUserId]);
+
+  /**
+ * Obsługa zmiany wybranego grafiku (miesiąc/rok).
+ * @function handleSelectChange
+ * @param {object} e - Obiekt zdarzenia
+ */
+// Funkcje obsługi zmian
+  const handleSelectChange = (e) => {
+    const selectedValue = e.target.value;
+    setSelectedSchedule(selectedValue);
+    const [month, year] = selectedValue.split(' ');
+    changeScheduler(month, year);
+  };
+
+  /**
+ * Obsługuje zmiany dostępności i preferowanych godzin dla danego dnia.
+ * @function handleInputChange
+ * @param {number} index - Indeks dnia
+ * @param {string} field - Nazwa pola (prefferedHours lub availability)
+ * @param {string} value - Nowa wartość
+ */
+const handleInputChange = (index, field, value) => {
+    const updatedUserDays = [...userDays];
+    updatedUserDays[index][field] = value;
+
+    // Jeśli użytkownik dokonuje zmiany, resetujemy `managerSubmit`
+    if (userRole === 'user' || selectedUserId === userId) {
+      updatedUserDays[index].managerSubmit = false;
+      setManagerSubmitStatus(false);
+    }
+    updatedUserDays[index].userSubmit = false;
+    setUserSubmitStatus(false);
+
+    setUserDays(updatedUserDays);
+  };
+
+  /**
+ * Zapisuje zmienioną dostępność użytkownika.
+ * @async
+ * @function handleSave
+ * @returns {Promise&lt;void>}
+ */
+const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const token = localStorage.getItem('token');
+      const { month, year } = currentScheduler;
+      const updates = userDays.map((day) => ({
+        dayOfMonth: day.dayOfMonth,
+        prefferedHours: day.prefferedHours,
+        availability: day.availability,
+      }));
+
+      await axiosInstance.put(
+        '/scheduler/updateAvailability',
+        {
+          month,
+          year,
+          updates,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // Odświeżenie danych w kontekście
+      changeScheduler(month, year);
+
+      // Ustaw `userSubmit` na `true` dla wszystkich dni
+      setUserDays((prevDays) =>
+        prevDays.map((day) => ({
+          ...day,
+          userSubmit: true,
+          managerSubmit: userRole === 'manager' ? true : day.managerSubmit,
+        }))
+      );
+      setUserSubmitStatus(true);
+      if (userRole === 'manager') {
+        setManagerSubmitStatus(true);
+      }
+
+      alert('Dostępność została zapisana.');
+    } catch (error) {
+      console.error('Error saving availability:', error);
+      alert('Wystąpił błąd podczas zapisywania dostępności.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  /**
+ * Potwierdza dostępność użytkownika przez menedżera.
+ * @async
+ * @function handleConfirm
+ * @returns {Promise&lt;void>}
+ */
+// Funkcja do potwierdzania dostępności przez menedżera
+  const handleConfirm = async () => {
+    setIsSaving(true);
+    try {
+      const token = localStorage.getItem('token');
+      const { month, year } = currentScheduler;
+
+      await axiosInstance.post(
+        '/scheduler/confirmAvailability',
+        {
+          month,
+          year,
+          targetUserId: selectedUserId,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // Odświeżenie danych w kontekście
+      changeScheduler(month, year);
+
+      // Ustaw `managerSubmit` na `true` dla wszystkich dni
+      setUserDays((prevDays) =>
+        prevDays.map((day) => ({ ...day, managerSubmit: true }))
+      );
+      setManagerSubmitStatus(true);
+
+      alert('Dostępność użytkownika została zatwierdzona.');
+    } catch (error) {
+      console.error('Error confirming availability:', error);
+      alert('Wystąpił błąd podczas zatwierdzania dostępności.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  /**
+ * Autouzupełnia dostępność i preferowane godziny dla wybranych dni.
+ * @function handleAutoFill
+ * @param {string[]} selectedDays - Wybrane dni
+ * @param {string} prefferedHours - Preferowane godziny
+ * @param {string} availability - Dostępność
+ */
+// Funkcja auto-uzupełniania
+  const handleAutoFill = (selectedDays, prefferedHours, availability) => {
+    const updatedUserDays = userDays.map((day) => {
+      const dayNameLower = day.nameDayOfWeek.toLowerCase();
+      if (
+        selectedDays.includes(dayNameLower) ||
+        selectedDays.includes('all') ||
+        (selectedDays.includes('weekend') &amp;&amp;
+          (dayNameLower === 'sobota' || dayNameLower === 'niedziela')) ||
+        (selectedDays.includes('weekday') &amp;&amp;
+          [
+            'poniedziałek',
+            'wtorek',
+            'środa',
+            'czwartek',
+            'piątek',
+          ].includes(dayNameLower))
+      ) {
+        return {
+          ...day,
+          prefferedHours: prefferedHours !== '' ? prefferedHours : day.prefferedHours,
+          availability: availability !== '' ? availability : day.availability,
+          userSubmit: false,
+          managerSubmit: false,
+        };
+      }
+      return day;
+    });
+    setUserDays(updatedUserDays);
+    setUserSubmitStatus(false);
+    setManagerSubmitStatus(false);
+  };
+
+  // Wyświetl komunikat, gdy brak grafików
+  if (!availableSchedulers.length) {
+    return (
+      &lt;div className={styles.noSchedulers}>
+        &lt;p>Nie ma dostępnych grafików do wyświetlenia.&lt;/p>
+      &lt;/div>
+    );
+  }
+
+  if (isLoading || !currentScheduler) {
+    return &lt;p>Ładowanie danych...&lt;/p>;
+  }
+
+  return (
+    &lt;div className={styles.content}>
+      &lt;div className={styles.left}>
+        &lt;h2>Dyspozycyjność&lt;/h2>
+
+        {/* Wybór grafiku */}
+        &lt;div className={styles.selects}>
+          &lt;div className={styles.selector}>
+            &lt;label>Grafik:&lt;/label>
+            &lt;select value={selectedSchedule} onChange={handleSelectChange}>
+              {availableSchedulers.map((schedule, index) => (
+                &lt;option key={index} value={`${schedule.month} ${schedule.year}`}>
+                  {schedule.month} {schedule.year}
+                &lt;/option>
+              ))}
+            &lt;/select>
+          &lt;/div>
+        &lt;/div>
+
+        {/* Wybór użytkownika dla menedżera */}
+        {userRole === 'manager' &amp;&amp; (
+          &lt;div className={styles.selectsRow}>
+            &lt;div className={styles.selector}>
+              &lt;label>Wybierz użytkownika:&lt;/label>
+              &lt;select
+                value={selectedUserId}
+                onChange={(e) => setSelectedUserId(e.target.value)}
+              >
+                {teamUsers.map((user) => (
+                  &lt;option key={user._id} value={user._id}>
+                    {user.name} {user.surname}
+                  &lt;/option>
+                ))}
+              &lt;/select>
+            &lt;/div>
+          &lt;/div>
+        )}
+
+
+        {/* Informacje o statusie zatwierdzenia */}
+        &lt;div className={styles.submitStatus}>
+          &lt;p>
+            Status pracownika:{' '}
+            &lt;span
+              className={
+                userSubmitStatus ? styles.approved : styles.notApproved
+              }
+            >
+              {userSubmitStatus ? 'Zatwierdzony' : 'Niezatwierdzony'}
+            &lt;/span>
+          &lt;/p>
+          &lt;p>
+            Status menedżera:{' '}
+            &lt;span
+              className={
+                managerSubmitStatus ? styles.approved : styles.notApproved
+              }
+            >
+              {managerSubmitStatus ? 'Zatwierdzony' : 'Niezatwierdzony'}
+            &lt;/span>
+          &lt;/p>
+
+           {/* Przycisk zapisz i zatwierdź */}
+        &lt;div className={styles.buttonContainer}>
+          {canEdit() &amp;&amp; (
+            &lt;button
+              className={styles.saveButton}
+              onClick={handleSave}
+              disabled={isSaving}
+            >
+              {isSaving ? 'Zapisywanie...' : 'Zatwierdź dostępność'}
+            &lt;/button>
+          )}
+          {userRole === 'manager' &amp;&amp; selectedUserId !== userId &amp;&amp; (
+            &lt;button
+              className={styles.confirmButton}
+              onClick={handleConfirm}
+              disabled={isSaving}
+            >
+              {isSaving ? 'Zapisywanie...' : 'Zatwierdź dostępność'}
+            &lt;/button>
+          )}
+        &lt;/div>
+
+       
+        &lt;/div>
+        &lt;div className={styles.autofill}>
+                {/* Komponent auto-uzupełniania */}
+                {canEdit() &amp;&amp; &lt;AutoFillAvailability onAutoFill={handleAutoFill} />}
+        &lt;/div>
+      &lt;/div>
+
+      {/* Formularz dostępności */}
+      &lt;div className={styles.availabilityForm}>
+
+        &lt;table className={styles.table}>
+          &lt;thead>
+            &lt;tr>
+              &lt;th>Dzień&lt;/th>
+              &lt;th>Preferowane&lt;/th>
+              &lt;th>Dostępność&lt;/th>
+            &lt;/tr>
+          &lt;/thead>
+          &lt;tbody>
+            {userDays.map((day, index) => (
+              &lt;tr key={index}>
+                &lt;td>
+                  {day.dayOfMonth} ({day.nameDayOfWeek})
+                &lt;/td>
+                &lt;td>
+                  &lt;input
+                    type="text"
+                    value={day.prefferedHours}
+                    onChange={(e) =>
+                      handleInputChange(index, 'prefferedHours', e.target.value)
+                    }
+                    disabled={!canEdit()}
+                  />
+                &lt;/td>
+                &lt;td>
+                  &lt;input
+                    type="text"
+                    value={day.availability}
+                    onChange={(e) =>
+                      handleInputChange(index, 'availability', e.target.value)
+                    }
+                    disabled={!canEdit()}
+                  />
+                &lt;/td>
+              &lt;/tr>
+            ))}
+          &lt;/tbody>
+        &lt;/table>
+      &lt;/div>
+    &lt;/div>
+  );
+};
+
+export default AvailabilityPage;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SchedulerContext.html">SchedulerContext</a></li><li><a href="module-axiosInstance.html">axiosInstance</a></li></ul><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#RegisterValidation">RegisterValidation</a></li><li><a href="global.html#canEdit">canEdit</a></li><li><a href="global.html#checkTokenExpiration">checkTokenExpiration</a></li><li><a href="global.html#fetchCompanyData">fetchCompanyData</a></li><li><a href="global.html#fetchEmployees">fetchEmployees</a></li><li><a href="global.html#fetchReportData">fetchReportData</a></li><li><a href="global.html#fetchSchedulers">fetchSchedulers</a></li><li><a href="global.html#fetchStatistics">fetchStatistics</a></li><li><a href="global.html#fetchSummaryData">fetchSummaryData</a></li><li><a href="global.html#fetchTeamDates">fetchTeamDates</a></li><li><a href="global.html#fetchTeams">fetchTeams</a></li><li><a href="global.html#fetchUsers">fetchUsers</a></li><li><a href="global.html#generateCalendar">generateCalendar</a></li><li><a href="global.html#getInitials">getInitials</a></li><li><a href="global.html#getRole">getRole</a></li><li><a href="global.html#handleActionChange">handleActionChange</a></li><li><a href="global.html#handleApply">handleApply</a></li><li><a href="global.html#handleAutoFill">handleAutoFill</a></li><li><a href="global.html#handleCellClick">handleCellClick</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleConfirm">handleConfirm</a></li><li><a href="global.html#handleCreateScheduler">handleCreateScheduler</a></li><li><a href="global.html#handleDayChange">handleDayChange</a></li><li><a href="global.html#handleDaySelection">handleDaySelection</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#handleDownload">handleDownload</a></li><li><a href="global.html#handleDownloadSummary">handleDownloadSummary</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleEditSubmit">handleEditSubmit</a></li><li><a href="global.html#handleEmployeeSelect">handleEmployeeSelect</a></li><li><a href="global.html#handleInputChange">handleInputChange</a></li><li><a href="global.html#handleLogout">handleLogout</a></li><li><a href="global.html#handleModalClose">handleModalClose</a></li><li><a href="global.html#handleModalSave">handleModalSave</a></li><li><a href="global.html#handleNavigation">handleNavigation</a></li><li><a href="global.html#handleNext">handleNext</a></li><li><a href="global.html#handlePasswordSubmit">handlePasswordSubmit</a></li><li><a href="global.html#handlePrev">handlePrev</a></li><li><a href="global.html#handleSave">handleSave</a></li><li><a href="global.html#handleScheduleChange">handleScheduleChange</a></li><li><a href="global.html#handleSelect">handleSelect</a></li><li><a href="global.html#handleSelectChange">handleSelectChange</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#handleTeamSelect">handleTeamSelect</a></li><li><a href="global.html#handleUpdate">handleUpdate</a></li><li><a href="global.html#handleUserChange">handleUserChange</a></li><li><a href="global.html#handleViewChange">handleViewChange</a></li><li><a href="global.html#handleWeekChange">handleWeekChange</a></li><li><a href="global.html#toggleTeam">toggleTeam</a></li><li><a href="global.html#validateLogin">validateLogin</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 19:53:44 GMT+0100 (czas środkowoeuropejski standardowy)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

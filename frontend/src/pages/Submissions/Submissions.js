@@ -1,10 +1,13 @@
+/**
+ * Strona raportów i podsumowań.
+ * Pozwala menedżerowi pobierać raporty użytkowników oraz miesięczne podsumowania.
+ * @component
+ */
 import React, { useState, useEffect } from 'react';
 import styles from './Submissions.module.scss';
 import axiosInstance from '../../api/axiosInstance';
 
-/**
- * Komponent odpowiedzialny za wyświetlanie raportów użytkowników oraz podsumowań miesięcznych.
- */
+
 const Submissions = () => {
   // Stan przechowujący listę użytkowników
   const [users, setUsers] = useState([]);
@@ -31,6 +34,12 @@ const Submissions = () => {
 
   // Pobieranie listy użytkowników przy załadowaniu komponentu
   useEffect(() => {
+      /**
+   * Pobiera listę użytkowników zespołu menedżera.
+   * @async
+   * @function fetchUsers
+   * @returns {Promise<void>}
+   */
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem('token'); // Pobierz token z localStorage
@@ -47,6 +56,12 @@ const Submissions = () => {
 
   // Pobieranie dostępnych grafików
   useEffect(() => {
+    /**
+ * Pobiera dostępne grafiki.
+ * @async
+ * @function fetchSchedulers
+ * @returns {Promise<void>}
+ */
     const fetchSchedulers = async () => {
       try {
         const token = localStorage.getItem('token'); // Pobierz token z localStorage
@@ -96,10 +111,14 @@ const Submissions = () => {
     }
   }, [selectedSchedule]);
 
+
   /**
-   * Pobierz dane podsumowania dla wybranego grafiku.
-   */
-  const fetchSummaryData = async () => {
+ * Pobiera dane podsumowania dla wybranego grafiku.
+ * @async
+ * @function fetchSummaryData
+ * @returns {Promise<void>}
+ */
+const fetchSummaryData = async () => {
     setIsLoading(true);
     try {
       const [month, year] = selectedSchedule.split(' '); // Rozdziel miesiąc i rok
@@ -142,10 +161,14 @@ const Submissions = () => {
     }
   }, [selectedUserId, selectedSchedule]);
 
+
   /**
-   * Pobierz dane szczegółowego raportu dla wybranego użytkownika i grafiku.
-   */
-  const fetchReportData = async () => {
+ * Pobiera dane szczegółowego raportu dla wybranego użytkownika i grafiku.
+ * @async
+ * @function fetchReportData
+ * @returns {Promise<void>}
+ */
+const fetchReportData = async () => {
     setIsLoading(true);
     try {
       const [month, year] = selectedSchedule.split(' '); // Rozdziel miesiąc i rok
@@ -165,6 +188,11 @@ const Submissions = () => {
     }
   };
 
+  /**
+ * Obsługa zmiany wybranego użytkownika w raportach.
+ * @function handleUserChange
+ * @param {object} e - Obiekt zdarzenia
+ */
   // Obsługa zmiany wybranego użytkownika
   const handleUserChange = (e) => {
     const userId = e.target.value;
@@ -173,14 +201,23 @@ const Submissions = () => {
     setSelectedUser(user || null);
   };
 
-  // Obsługa zmiany wybranego grafiku
+  /**
+ * Obsługa zmiany wybranego grafiku w raportach.
+ * @function handleScheduleChange
+ * @param {object} e - Obiekt zdarzenia
+ */
+// Obsługa zmiany wybranego grafiku
   const handleScheduleChange = (e) => {
     setSelectedSchedule(e.target.value);
   };
 
-  /**
-   * Pobierz raport użytkownika w formacie XLSX.
-   */
+/**
+ * Pobiera raport wybranego użytkownika w formacie XLSX.
+ * @async
+ * @function handleDownload
+ * @returns {Promise<void>}
+ */
+
   const handleDownload = async () => {
     if (!selectedUserId || !selectedSchedule) {
       alert('Wybierz użytkownika i grafik.');
@@ -215,8 +252,12 @@ const Submissions = () => {
     }
   };
 
+
   /**
-   * Pobierz podsumowanie zespołu w formacie XLSX.
+   * Pobiera miesięczne podsumowanie zespołu w formacie XLSX.
+   * @async
+   * @function handleDownloadSummary
+   * @returns {Promise<void>}
    */
   const handleDownloadSummary = async () => {
     if (!selectedSchedule) {

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/Administration/EditEmployee/EditEmployee.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/Administration/EditEmployee/EditEmployee.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Komponent formularza do edycji danych pracownika oraz usuwania pracownika.
+ * @component
+ */
+
+import React, { useContext, useState } from 'react';
+import styles from '../Form.module.scss';
+import { AdminContext } from '../../../pages/Administration/Administration';
+import axiosInstance from '../../../api/axiosInstance';
+
+//Edycja pracownika - komponent
+const EditEmployee = () => {
+  const { employees, teams, fetchEmployees, fetchTeams } = useContext(AdminContext);
+  const [selectedEmployee, setSelectedEmployee] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    surname: '',
+    email: '',
+    role: 'user',
+    teamId: '',
+  });
+
+  /**
+ * Obsługa wyboru pracownika z listy.
+ * @function handleEmployeeSelect
+ * @param {object} e - Obiekt zdarzenia
+ */
+//Obsługa wybrania pracownika
+  const handleEmployeeSelect = (e) => {
+    const employeeId = e.target.value;
+    setSelectedEmployee(employeeId);
+
+    if (!employeeId) {
+      // Jeśli nie wybrano pracownika, ustaw pola jako puste
+      setFormData({
+        name: '',
+        surname: '',
+        email: '',
+        role: 'user',
+        teamId: '',
+      });
+      return;
+    }
+
+    const employee = employees.find((emp) => emp._id === employeeId);
+    if (employee) {
+      setFormData({
+        name: employee.name,
+        surname: employee.surname,
+        email: employee.email,
+        role: employee.role,
+        teamId: employee.team || '',
+      });
+    }
+  };
+
+  /**
+ * Obsługa zmian w polach formularza.
+ * @function handleChange
+ * @param {object} e - Obiekt zdarzenia
+ */
+//Obsługa zmian inputów
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  /**
+ * Obsługuje aktualizację danych wybranego pracownika.
+ * @async
+ * @function handleUpdate
+ * @param {object} e - Obiekt zdarzenia
+ * @returns {Promise&lt;void>}
+ */
+//Obsługa edycji pracownika
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    if (!selectedEmployee) return;
+
+    try {
+      const token = localStorage.getItem('token');
+
+      await axiosInstance.put(
+        '/user/edit',
+        {
+          userId: selectedEmployee,
+          name: formData.name,
+          surname: formData.surname,
+          email: formData.email,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      await axiosInstance.put(
+          '/user/modify',
+          {
+            userId: selectedEmployee,
+            role: formData.role,
+            teamId: formData.teamId,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+      fetchEmployees();
+      fetchTeams();
+    } catch (error) {
+      console.error('Error updating employee:', error);
+    }
+  };
+
+  /**
+ * Obsługuje usunięcie wybranego pracownika.
+ * @async
+ * @function handleDelete
+ * @returns {Promise&lt;void>}
+ */
+//Obsługa usunięcia pracownika
+  const handleDelete = async () => {
+    if (!selectedEmployee) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      await axiosInstance.delete(`/user/delete/${selectedEmployee}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchEmployees();
+      fetchTeams();
+      setSelectedEmployee('');
+      setFormData({
+        name: '',
+        surname: '',
+        email: '',
+        role: 'user',
+        teamId: '',
+      });
+    } catch (error) {
+      console.error('Error deleting employee:', error);
+    }
+  };
+
+  return (
+    &lt;div className={styles.container}>
+      &lt;form onSubmit={handleUpdate}>
+        &lt;h3>Modyfikuj pracownika&lt;/h3>
+        &lt;div className={styles.input}>
+          &lt;label>Pracownik:&lt;/label>
+          &lt;select value={selectedEmployee} onChange={handleEmployeeSelect} required>
+            &lt;option value="">Wybierz pracownika&lt;/option>
+            {employees.map((emp) => (
+              &lt;option key={emp._id} value={emp._id}>
+                {emp.name} {emp.surname}
+              &lt;/option>
+            ))}
+          &lt;/select>
+        &lt;/div>
+
+        &lt;div className={styles.input}>
+          &lt;label>Imię:&lt;/label>
+          &lt;input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+        &lt;/div>
+
+        &lt;div className={styles.input}>
+          &lt;label>Nazwisko:&lt;/label>
+          &lt;input
+            type="text"
+            name="surname"
+            value={formData.surname}
+            onChange={handleChange}
+            required
+          />
+        &lt;/div>
+
+        &lt;div className={styles.input}>
+          &lt;label>Rola:&lt;/label>
+          &lt;select name="role" value={formData.role} onChange={handleChange}>
+            &lt;option value="user">Pracownik&lt;/option>
+            &lt;option value="manager">Menedżer&lt;/option>
+          &lt;/select>
+        &lt;/div>
+
+        &lt;div className={styles.input}>
+          &lt;label>Zespół:&lt;/label>
+          &lt;select name="teamId" value={formData.teamId} onChange={handleChange} required>
+            &lt;option value="">Wybierz zespół&lt;/option>
+            {teams.map((team) => (
+              &lt;option key={team._id} value={team._id}>
+                {team.name}
+              &lt;/option>
+            ))}
+          &lt;/select>
+        &lt;/div>
+
+        &lt;button type="submit" className={styles.button}>Zapisz&lt;/button>
+        &lt;button type="button" onClick={handleDelete} className={styles.deleteButton}>
+          Usuń
+        &lt;/button>
+      &lt;/form>
+    &lt;/div>
+  );
+};
+
+export default EditEmployee;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SchedulerContext.html">SchedulerContext</a></li><li><a href="module-axiosInstance.html">axiosInstance</a></li></ul><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#RegisterValidation">RegisterValidation</a></li><li><a href="global.html#canEdit">canEdit</a></li><li><a href="global.html#checkTokenExpiration">checkTokenExpiration</a></li><li><a href="global.html#fetchCompanyData">fetchCompanyData</a></li><li><a href="global.html#fetchEmployees">fetchEmployees</a></li><li><a href="global.html#fetchReportData">fetchReportData</a></li><li><a href="global.html#fetchSchedulers">fetchSchedulers</a></li><li><a href="global.html#fetchStatistics">fetchStatistics</a></li><li><a href="global.html#fetchSummaryData">fetchSummaryData</a></li><li><a href="global.html#fetchTeamDates">fetchTeamDates</a></li><li><a href="global.html#fetchTeams">fetchTeams</a></li><li><a href="global.html#fetchUsers">fetchUsers</a></li><li><a href="global.html#generateCalendar">generateCalendar</a></li><li><a href="global.html#getInitials">getInitials</a></li><li><a href="global.html#getRole">getRole</a></li><li><a href="global.html#handleActionChange">handleActionChange</a></li><li><a href="global.html#handleApply">handleApply</a></li><li><a href="global.html#handleAutoFill">handleAutoFill</a></li><li><a href="global.html#handleCellClick">handleCellClick</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleConfirm">handleConfirm</a></li><li><a href="global.html#handleCreateScheduler">handleCreateScheduler</a></li><li><a href="global.html#handleDayChange">handleDayChange</a></li><li><a href="global.html#handleDaySelection">handleDaySelection</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#handleDownload">handleDownload</a></li><li><a href="global.html#handleDownloadSummary">handleDownloadSummary</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleEditSubmit">handleEditSubmit</a></li><li><a href="global.html#handleEmployeeSelect">handleEmployeeSelect</a></li><li><a href="global.html#handleInputChange">handleInputChange</a></li><li><a href="global.html#handleLogout">handleLogout</a></li><li><a href="global.html#handleModalClose">handleModalClose</a></li><li><a href="global.html#handleModalSave">handleModalSave</a></li><li><a href="global.html#handleNavigation">handleNavigation</a></li><li><a href="global.html#handleNext">handleNext</a></li><li><a href="global.html#handlePasswordSubmit">handlePasswordSubmit</a></li><li><a href="global.html#handlePrev">handlePrev</a></li><li><a href="global.html#handleSave">handleSave</a></li><li><a href="global.html#handleScheduleChange">handleScheduleChange</a></li><li><a href="global.html#handleSelect">handleSelect</a></li><li><a href="global.html#handleSelectChange">handleSelectChange</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#handleTeamSelect">handleTeamSelect</a></li><li><a href="global.html#handleUpdate">handleUpdate</a></li><li><a href="global.html#handleUserChange">handleUserChange</a></li><li><a href="global.html#handleViewChange">handleViewChange</a></li><li><a href="global.html#handleWeekChange">handleWeekChange</a></li><li><a href="global.html#toggleTeam">toggleTeam</a></li><li><a href="global.html#validateLogin">validateLogin</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 19:53:44 GMT+0100 (czas środkowoeuropejski standardowy)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

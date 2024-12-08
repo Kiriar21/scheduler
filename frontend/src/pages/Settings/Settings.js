@@ -1,3 +1,8 @@
+/**
+ * Strona ustawień grafiku dla menedżera.
+ * Pozwala tworzyć nowe grafiki na przyszłe miesiące.
+ * @component
+ */
 import React, { useState, useEffect, useContext } from 'react';
 import styles from './Settings.module.scss';
 import axiosInstance from '../../api/axiosInstance';
@@ -15,7 +20,7 @@ const SettingsPage = () => {
   const [message, setMessage] = useState({ text: '', type: '' });
   const [isLoading, setIsLoading] = useState(false);
   
-  const navigate = useNavigate(); // Inicjalizacja useNavigate
+  const navigate = useNavigate(); // Inicjalizacja useNavigat
 
   // Tablica miesięcy
   const months = [
@@ -63,7 +68,14 @@ const SettingsPage = () => {
     fetchUserData();
   }, [navigate]);
 
-  // Obsługa tworzenia schedulera
+  /**
+ * Obsługuje tworzenie nowego grafiku w SettingsPage.
+ * @async
+ * @function handleCreateScheduler
+ * @param {object} e - Obiekt zdarzenia
+ * @returns {Promise<void>}
+ */
+// Obsługa tworzenia schedulera
   const handleCreateScheduler = async (e) => {
     e.preventDefault();
     setMessage({ text: '', type: '' });

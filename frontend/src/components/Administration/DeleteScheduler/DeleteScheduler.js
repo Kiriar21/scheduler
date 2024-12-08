@@ -1,3 +1,7 @@
+/**
+ * Komponent formularza do usuwania istniejącego grafiku.
+ * @component
+ */
 import React, { useContext, useState } from 'react';
 import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
@@ -11,7 +15,14 @@ const DeleteScheduler = () => {
   const [selectedDate, setSelectedDate] = useState({ year: '', month: '' });
   const [error, setError] = useState(''); // Obsługa błędów
 
-  // Pobierz daty grafików dla wybranego zespołu
+  /**
+ * Pobiera dostępne daty grafików dla wybranego zespołu.
+ * @async
+ * @function fetchTeamDates
+ * @param {string} teamId - Identyfikator zespołu
+ * @returns {Promise<void>}
+ */
+// Pobierz daty grafików dla wybranego zespołu
   const fetchTeamDates = async (teamId) => {
     try {
       setError('');
@@ -27,7 +38,14 @@ const DeleteScheduler = () => {
     }
   };
 
-  // Obsługa usuwania grafiku
+  /**
+ * Obsługuje usunięcie wybranego grafiku na podstawie zespołu, roku i miesiąca.
+ * @async
+ * @function handleDelete
+ * @param {object} e - Obiekt zdarzenia
+ * @returns {Promise<void>}
+ */
+// Obsługa usuwania grafiku
   const handleDelete = async (e) => {
     e.preventDefault();
     const { year, month } = selectedDate;

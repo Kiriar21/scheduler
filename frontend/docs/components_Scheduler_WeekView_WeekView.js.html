@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/Scheduler/WeekView/WeekView.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/Scheduler/WeekView/WeekView.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Komponent widoku tygodniowego grafiku.
+ * Umożliwia edycję godzin pracy w wybranym tygodniu.
+ * @component
+ * @param {object} scheduler - Obiekt grafiku
+ * @param {string} userRole - Rola użytkownika
+ * @param {string} userId - ID użytkownika
+ */
+
+import React, { useState, useContext } from 'react';
+import styles from './WeekView.module.scss';
+import TimeEditModal from '../TimeEditModal/TimeEditModal';
+import axiosInstance from '../../../api/axiosInstance';
+import { SchedulerContext } from '../../../contexts/SchedulerContext/SchedulerContext';
+
+//Obsługa widoku tygodnia - komponent
+const WeekView = ({ scheduler, userRole, userId }) => {
+  const weeksInMonth = [
+    ...new Set(scheduler.map_month.map((day) => day.numberOfWeek)),
+  ];
+  const [selectedWeek, setSelectedWeek] = useState(weeksInMonth[0]);
+  const { changeScheduler } = useContext(SchedulerContext);
+  const [modalData, setModalData] = useState({
+    isOpen: false,
+    dayInfo: null,
+    employersHour: null,
+  });
+
+  /**
+ * Obsługuje zmianę wybranego tygodnia.
+ * @function handleWeekChange
+ * @param {object} e - Obiekt zdarzenia
+ */
+  const handleWeekChange = (e) => {
+    setSelectedWeek(parseInt(e.target.value));
+  };
+
+  const daysInWeek = scheduler.map_month.filter(
+    (day) => day.numberOfWeek === selectedWeek
+  );
+
+  if (daysInWeek.length === 0) {
+    return &lt;p>Tydzień nie znaleziony.&lt;/p>;
+  }
+
+  // Zbieranie unikalnych użytkowników
+  const users = {};
+  daysInWeek.forEach((day) => {
+    day.employersHours.forEach((eh) => {
+      if (eh.user) {
+        users[eh.user._id] = eh.user;
+      }
+    });
+  });
+
+  const canEdit = (targetUserId) => {
+    return userRole === 'manager' || userId === targetUserId;
+  };
+
+  /**
+ * Otwiera modal do edycji godzin (widok tygodniowy).
+ * @function handleCellClick
+ * @param {object} eh - Dane godzinowe pracownika
+ * @param {object} day - Informacje o dniu
+ */
+  const handleCellClick = (eh, day) => {
+    if (canEdit(eh.user._id)) {
+      setModalData({
+        isOpen: true,
+        dayInfo: day,
+        employersHour: eh,
+      });
+    }
+  };
+
+    /**
+   * Zamyka modal edycji godzin (widok tygodniowy).
+   * @function handleModalClose
+   */
+  const handleModalClose = () => {
+    setModalData({
+      isOpen: false,
+      dayInfo: null,
+      employersHour: null,
+    });
+  };
+
+  /**
+   * Zapisuje zmienione godziny w widoku tygodniowym.
+   * @async
+   * @function handleModalSave
+   * @param {object} updatedData - Zaktualizowane dane godzin
+   * @returns {Promise&lt;void>}
+   */
+  //Obsługa zapisu godzin pracy w grafiku
+  const handleModalSave = async (updatedData) => {
+    const { employersHour, dayInfo } = modalData;
+    try {
+      const token = localStorage.getItem('token');
+      const { month, year } = scheduler;
+      const updates = {
+        start_hour: updatedData.start_hour,
+        end_hour: updatedData.end_hour,
+      };
+
+      await axiosInstance.put(
+        '/scheduler/editDay',
+        {
+          month,
+          year,
+          dayOfMonth: dayInfo.dayOfMonth,
+          targetUserId: employersHour.user._id,
+          updates,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // Odświeżenie danych w kontekście
+      changeScheduler(month, year);
+      alert('Zmiany zostały zapisane.');
+    } catch (error) {
+      console.error('Error updating day:', error);
+      alert('Wystąpił błąd podczas zapisywania zmian.');
+    } finally {
+      handleModalClose();
+    }
+  };
+
+  const dayNameToNumber = {
+    'poniedziałek': 0,
+    'wtorek': 1,
+    'środa': 2,
+    'czwartek': 3,
+    'piątek': 4,
+    'sobota': 5,
+    'niedziela': 6,
+  };
+
+  // Przypisanie dayOfWeek dla każdego dnia z normalizacją
+  daysInWeek.forEach((day) => {
+    const normalizedDayName = day.nameDayOfWeek.trim().toLowerCase();
+    day.dayOfWeek = dayNameToNumber[normalizedDayName];
+    if (day.dayOfWeek === undefined) {
+      console.warn(`Nieznany dzień tygodnia: "${day.nameDayOfWeek}"`);
+    }
+  });
+
+  // Poprawiona funkcja fillWeekDays
+  const fillWeekDays = (daysInWeek) => {
+    const filledDays = new Array(7).fill(null);
+
+    daysInWeek.forEach((day) => {
+      const index = day.dayOfWeek;
+      if (index !== undefined) {
+        filledDays[index] = day;
+      }
+    });
+
+    return filledDays;
+  };
+
+  return (
+    &lt;div className={styles.weekView}>
+      &lt;div className={styles.weekViewTop}>
+        &lt;h3>Wybierz tydzień: &lt;/h3>
+        &lt;select value={selectedWeek} onChange={handleWeekChange}>
+          {weeksInMonth.map((week) => (
+            &lt;option key={week} value={week}>
+              Tydzień {week}
+            &lt;/option>
+          ))}
+        &lt;/select>
+      &lt;/div>
+      &lt;table className={styles.table}>
+        &lt;thead>
+          &lt;tr>
+            &lt;th>Pracownik&lt;/th>
+            {fillWeekDays(daysInWeek).map((day, index) => (
+              &lt;th key={index}>
+                {day ? `${day.dayOfMonth} (${day.nameDayOfWeek})` : ''}
+              &lt;/th>
+            ))}
+          &lt;/tr>
+        &lt;/thead>
+        &lt;tbody>
+  {Object.values(users).map((user) => {
+    const isCurrentUser = user._id === userId;
+    
+    return (
+      &lt;tr
+        key={user._id}
+        className={isCurrentUser ? `${styles.editableRow}` : ''}
+      >
+        &lt;td className={styles.namecell}>
+        &lt;div className={styles.names}>
+          {user.name} {user.surname}
+          &lt;/div>
+        &lt;/td>
+        {fillWeekDays(daysInWeek).map((day, index) => {
+          if (!day) {
+            return &lt;td key={index} className={styles.emptyCell}>&lt;/td>;
+          }
+          const eh = day.employersHours.find(
+            (eh) => eh.user &amp;&amp; eh.user._id === user._id
+          );
+          return (
+            &lt;td
+              key={index}
+              onClick={() => eh &amp;&amp; handleCellClick(eh, day)}
+              className={
+                eh &amp;&amp; canEdit(eh.user._id) ? styles.editableCell : ''
+              }
+            >
+              &lt;div className={styles.hours}>
+                {eh ? `${eh.start_hour} - ${eh.end_hour}` : 'Brak'}
+              &lt;/div>
+            &lt;/td>
+          );
+        })}
+      &lt;/tr>
+    );
+  })}
+&lt;/tbody>
+      &lt;/table>
+
+      {/* TimeEditModal */}
+      &lt;TimeEditModal
+        isOpen={modalData.isOpen}
+        onClose={handleModalClose}
+        onSave={handleModalSave}
+        initialData={modalData.employersHour || {}}
+        dayInfo={modalData.dayInfo}
+      />
+    &lt;/div>
+  );
+};
+
+export default WeekView;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SchedulerContext.html">SchedulerContext</a></li><li><a href="module-axiosInstance.html">axiosInstance</a></li></ul><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#RegisterValidation">RegisterValidation</a></li><li><a href="global.html#canEdit">canEdit</a></li><li><a href="global.html#checkTokenExpiration">checkTokenExpiration</a></li><li><a href="global.html#fetchCompanyData">fetchCompanyData</a></li><li><a href="global.html#fetchEmployees">fetchEmployees</a></li><li><a href="global.html#fetchReportData">fetchReportData</a></li><li><a href="global.html#fetchSchedulers">fetchSchedulers</a></li><li><a href="global.html#fetchStatistics">fetchStatistics</a></li><li><a href="global.html#fetchSummaryData">fetchSummaryData</a></li><li><a href="global.html#fetchTeamDates">fetchTeamDates</a></li><li><a href="global.html#fetchTeams">fetchTeams</a></li><li><a href="global.html#fetchUsers">fetchUsers</a></li><li><a href="global.html#generateCalendar">generateCalendar</a></li><li><a href="global.html#getInitials">getInitials</a></li><li><a href="global.html#getRole">getRole</a></li><li><a href="global.html#handleActionChange">handleActionChange</a></li><li><a href="global.html#handleApply">handleApply</a></li><li><a href="global.html#handleAutoFill">handleAutoFill</a></li><li><a href="global.html#handleCellClick">handleCellClick</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleConfirm">handleConfirm</a></li><li><a href="global.html#handleCreateScheduler">handleCreateScheduler</a></li><li><a href="global.html#handleDayChange">handleDayChange</a></li><li><a href="global.html#handleDaySelection">handleDaySelection</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#handleDownload">handleDownload</a></li><li><a href="global.html#handleDownloadSummary">handleDownloadSummary</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleEditSubmit">handleEditSubmit</a></li><li><a href="global.html#handleEmployeeSelect">handleEmployeeSelect</a></li><li><a href="global.html#handleInputChange">handleInputChange</a></li><li><a href="global.html#handleLogout">handleLogout</a></li><li><a href="global.html#handleModalClose">handleModalClose</a></li><li><a href="global.html#handleModalSave">handleModalSave</a></li><li><a href="global.html#handleNavigation">handleNavigation</a></li><li><a href="global.html#handleNext">handleNext</a></li><li><a href="global.html#handlePasswordSubmit">handlePasswordSubmit</a></li><li><a href="global.html#handlePrev">handlePrev</a></li><li><a href="global.html#handleSave">handleSave</a></li><li><a href="global.html#handleScheduleChange">handleScheduleChange</a></li><li><a href="global.html#handleSelect">handleSelect</a></li><li><a href="global.html#handleSelectChange">handleSelectChange</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#handleTeamSelect">handleTeamSelect</a></li><li><a href="global.html#handleUpdate">handleUpdate</a></li><li><a href="global.html#handleUserChange">handleUserChange</a></li><li><a href="global.html#handleViewChange">handleViewChange</a></li><li><a href="global.html#handleWeekChange">handleWeekChange</a></li><li><a href="global.html#toggleTeam">toggleTeam</a></li><li><a href="global.html#validateLogin">validateLogin</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 19:53:44 GMT+0100 (czas środkowoeuropejski standardowy)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

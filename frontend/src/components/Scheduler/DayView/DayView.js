@@ -1,3 +1,11 @@
+/**
+ * Komponent widoku dziennego grafiku.
+ * Pozwala edytować godziny pracy pracowników dla wybranego dnia.
+ * @component
+ * @param {object} scheduler - Obiekt z danymi grafiku
+ * @param {string} userRole - Rola aktualnie zalogowanego użytkownika
+ * @param {string} userId - ID aktualnie zalogowanego użytkownika
+ */
 import React, { useState, useContext } from 'react';
 import styles from './DayView.module.scss';
 import axiosInstance from '../../../api/axiosInstance';
@@ -21,14 +29,30 @@ const DayView = ({ scheduler, userRole, userId }) => {
   );
 
 
-  const handleDayChange = (e) => {
-    setSelectedDay(parseInt(e.target.value));
-  };
+  /**
+   * Obsługa zmiany wybranego dnia w grafiku.
+   * @function handleDayChange
+   * @param {object} e - Obiekt zdarzenia
+   */
+    const handleDayChange = (e) => {
+      setSelectedDay(parseInt(e.target.value));
+    };
 
+  /**
+   * Sprawdza czy użytkownik może edytować dane godziny.
+   * @function canEdit
+   * @param {string} targetUserId - ID użytkownika, którego godziny sprawdzamy
+   * @returns {boolean}
+   */
   const canEdit = (targetUserId) => {
     return userRole === 'manager' || userId === targetUserId;
   };
 
+/**
+ * Otwiera modal do edycji godzin wybranego pracownika w danym dniu.
+ * @function handleCellClick
+ * @param {object} employersHour - Dane godzin pracownika
+ */
 
   const handleCellClick = (employersHour) => {
     if (canEdit(employersHour.user._id)) {
@@ -40,6 +64,10 @@ const DayView = ({ scheduler, userRole, userId }) => {
       });
     }
   };
+/**
+ * Zamyka modal edycji godzin.
+ * @function handleModalClose
+ */
 
   const handleModalClose = () => {
     setModalData({
@@ -48,6 +76,13 @@ const DayView = ({ scheduler, userRole, userId }) => {
       employersHour: null,
     });
   };
+/**
+ * Obsługuje zapis zmian godzin pracy.
+ * @async
+ * @function handleModalSave
+ * @param {object} updatedData - Zaktualizowane godziny
+ * @returns {Promise<void>}
+ */
 
   //Obsługa zapisu godzin pracy w grafiku
   const handleModalSave = async (updatedData) => {

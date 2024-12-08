@@ -1,3 +1,8 @@
+/**
+ * Sprawdza czy token JWT przechowywany w localStorage jest ważny.
+ * @function checkTokenExpiration
+ * @returns {boolean} True, jeśli token jest ważny, w przeciwnym razie false
+ */
 export const checkTokenExpiration = () => {
     const token = localStorage.getItem('token');
     if (!token) return false;

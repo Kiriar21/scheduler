@@ -1,3 +1,12 @@
+/**
+ * Komponent widoku tygodniowego grafiku.
+ * Umożliwia edycję godzin pracy w wybranym tygodniu.
+ * @component
+ * @param {object} scheduler - Obiekt grafiku
+ * @param {string} userRole - Rola użytkownika
+ * @param {string} userId - ID użytkownika
+ */
+
 import React, { useState, useContext } from 'react';
 import styles from './WeekView.module.scss';
 import TimeEditModal from '../TimeEditModal/TimeEditModal';
@@ -17,6 +26,11 @@ const WeekView = ({ scheduler, userRole, userId }) => {
     employersHour: null,
   });
 
+  /**
+ * Obsługuje zmianę wybranego tygodnia.
+ * @function handleWeekChange
+ * @param {object} e - Obiekt zdarzenia
+ */
   const handleWeekChange = (e) => {
     setSelectedWeek(parseInt(e.target.value));
   };
@@ -43,6 +57,12 @@ const WeekView = ({ scheduler, userRole, userId }) => {
     return userRole === 'manager' || userId === targetUserId;
   };
 
+  /**
+ * Otwiera modal do edycji godzin (widok tygodniowy).
+ * @function handleCellClick
+ * @param {object} eh - Dane godzinowe pracownika
+ * @param {object} day - Informacje o dniu
+ */
   const handleCellClick = (eh, day) => {
     if (canEdit(eh.user._id)) {
       setModalData({
@@ -53,6 +73,10 @@ const WeekView = ({ scheduler, userRole, userId }) => {
     }
   };
 
+    /**
+   * Zamyka modal edycji godzin (widok tygodniowy).
+   * @function handleModalClose
+   */
   const handleModalClose = () => {
     setModalData({
       isOpen: false,
@@ -61,6 +85,13 @@ const WeekView = ({ scheduler, userRole, userId }) => {
     });
   };
 
+  /**
+   * Zapisuje zmienione godziny w widoku tygodniowym.
+   * @async
+   * @function handleModalSave
+   * @param {object} updatedData - Zaktualizowane dane godzin
+   * @returns {Promise<void>}
+   */
   //Obsługa zapisu godzin pracy w grafiku
   const handleModalSave = async (updatedData) => {
     const { employersHour, dayInfo } = modalData;

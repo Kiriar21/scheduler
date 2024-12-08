@@ -1,3 +1,7 @@
+/**
+ * Komponent formularza do edycji nazwy wybranego zespołu.
+ * @component
+ */
 import React, { useContext, useState } from 'react';
 import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
@@ -9,7 +13,12 @@ const EditTeam = () => {
   const [selectedTeam, setSelectedTeam] = useState('');
   const [newTeamName, setNewTeamName] = useState('');
 
-  //Obsługa wybrania zespołu do zmiany
+  /**
+ * Obsługuje wybór zespołu do edycji.
+ * @function handleTeamSelect
+ * @param {object} e - Obiekt zdarzenia
+ */
+//Obsługa wybrania zespołu do zmiany
   const handleTeamSelect = (e) => {
     const teamId = e.target.value;
     setSelectedTeam(teamId);
@@ -17,7 +26,14 @@ const EditTeam = () => {
     setNewTeamName(team ? team.name : '');
   };
 
-  //Obsługa edycji zespołu
+  /**
+ * Obsługuje zapisanie zmian nazwy zespołu.
+ * @async
+ * @function handleEdit
+ * @param {object} e - Obiekt zdarzenia
+ * @returns {Promise<void>}
+ */
+//Obsługa edycji zespołu
   const handleEdit = async (e) => {
     e.preventDefault();
     if (!selectedTeam || !newTeamName) {

@@ -1,3 +1,15 @@
+/**
+ * Hook walidujący dane rejestracyjne przed wysłaniem do API.
+ * @function RegisterValidation
+ * @param {string} firstName
+ * @param {string} lastName
+ * @param {string} email
+ * @param {string} password
+ * @param {string} confirmPassword
+ * @param {string} companyName
+ * @param {string} nip
+ * @returns {{error: string|null, isValid: boolean, validateRegistration: function}}
+ */
 import { useState } from 'react';
 
 //Walidacja danych rejestracyjnych

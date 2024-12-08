@@ -1,3 +1,8 @@
+/**
+ * Komponent do automatycznego uzupełniania dostępności użytkownika na wybrane dni.
+ * @component
+ * @param {function} onAutoFill - Funkcja wywoływana po zatwierdzeniu autouzupełniania
+ */
 import React, { useState } from 'react';
 import styles from './AutoAvailibility.module.scss';
 
@@ -20,7 +25,12 @@ const AutoFillAvailability = ({ onAutoFill }) => {
     { label: 'Cały miesiąc', value: 'all' },
   ];
 
-  //Obsługa wyboru autouzupełniania
+  /**
+ * Obsługuje wybór dni do autouzupełnienia.
+ * @function handleDaySelection
+ * @param {object} e - Obiekt zdarzenia
+ */
+//Obsługa wyboru autouzupełniania
   const handleDaySelection = (e) => {
     const value = e.target.value;
     let days = [];
@@ -36,7 +46,11 @@ const AutoFillAvailability = ({ onAutoFill }) => {
     setSelectedDays(days);
   };
 
-  //Obsługa zapisu
+  /**
+ * Zatwierdza autouzupełnienie dostępności dla wybranych dni.
+ * @function handleApply
+ */
+//Obsługa zapisu
   const handleApply = () => {
     if (selectedDays.length === 0) {
       alert('Wybierz dni do wypełnienia.');

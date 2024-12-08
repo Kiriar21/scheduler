@@ -1,3 +1,8 @@
+/**
+ * Komponent formularza dodawania nowego pracownika.
+ * Pozwala administratorowi dodać nowego pracownika do firmy i przypisać go do zespołu.
+ * @component
+ */
 import React, { useContext, useState } from 'react';
 import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
@@ -15,11 +20,25 @@ const AddEmployee = () => {
     teamId: '',
   });
 
+/**
+ * Obsługuje zmianę wartości pól formularza.
+ * @function handleChange
+ * @param {object} e - Obiekt zdarzenia
+ */
+
   //Reaguje na zmiane w inpucie
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+  
+/**
+ * Obsługuje przesłanie formularza dodania pracownika.
+ * @async
+ * @function handleSubmit
+ * @param {object} e - Obiekt zdarzenia
+ * @returns {Promise<void>}
+ */
 
   //Obsługa dodawania pracownika 
   const handleSubmit = async (e) => {

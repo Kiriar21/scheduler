@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/Administration/TeamList/TeamList.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/Administration/TeamList/TeamList.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Komponent wyświetlający listę zespołów oraz przypisanych do nich pracowników.
+ * Pozwala rozwinąć szczegóły każdego zespołu.
+ * @component
+ */
+import React, { useState, useContext } from 'react';
+import styles from './TeamList.module.scss';
+import ArrowDown from '@mui/icons-material/KeyboardArrowDown';
+import ArrowUp from '@mui/icons-material/KeyboardArrowUp';
+import { AdminContext } from '../../../pages/Administration/Administration';
+
+//Pobieranie listy zespołów
+const TeamList = () => {
+  const [expandedTeams, setExpandedTeams] = useState({});
+  const { teams } = useContext(AdminContext); // Bezpośredni dostęp do zespołów z kontekstu
+
+  /**
+ * Przełącza rozwinięcie/zwinięcie szczegółów zespołu.
+ * @function toggleTeam
+ * @param {string} teamId - Identyfikator zespołu
+ */
+//Obsługa zmiany teamu
+  const toggleTeam = (teamId) => {
+    setExpandedTeams((prevState) => ({
+      ...prevState,
+      [teamId]: !prevState[teamId],
+    }));
+  };
+
+  return (
+    &lt;div className={styles.ulcontainer}>
+      &lt;ul className={styles.teamList}>
+        {teams.map((team, index) => (
+          &lt;li key={team._id} className={styles.teamItem}>
+            &lt;div className={styles.teamRow} onClick={() => toggleTeam(team._id)}>
+              &lt;span>&lt;strong>{index + 1}.&lt;/strong>&lt;/span>
+              &lt;span>Nazwa: &lt;strong>{team.name}&lt;/strong>&lt;/span>
+              &lt;span>Liczba pracowników: &lt;strong>{team.users ? team.users.length : 0}&lt;/strong>&lt;/span>
+              &lt;span className={styles.arrow}>
+                {expandedTeams[team._id] ? &lt;ArrowUp /> : &lt;ArrowDown />}
+              &lt;/span>
+            &lt;/div>
+            {expandedTeams[team._id] &amp;&amp; (
+              &lt;ul className={styles.userList}>
+                {team.users &amp;&amp; team.users.length > 0 ? (
+                  team.users.map((user) => (
+                    &lt;li key={user._id} className={styles.userItem}>
+                      &lt;span>Pracownik: &lt;strong>{user.name} {user.surname}&lt;/strong>&lt;/span>
+                      &lt;span>E-mail:&lt;strong> {user.email}&lt;/strong>&lt;/span>
+                      &lt;span>Rola: &lt;strong>{user.role}&lt;/strong>&lt;/span>
+                    &lt;/li>
+                  ))
+                ) : (
+                  &lt;li className={styles.noUser}>Brak przypisanych pracowników&lt;/li>
+                )}
+              &lt;/ul>
+            )}
+          &lt;/li>
+        ))}
+      &lt;/ul>
+    &lt;/div>
+  );
+};
+
+export default TeamList;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SchedulerContext.html">SchedulerContext</a></li><li><a href="module-axiosInstance.html">axiosInstance</a></li></ul><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#RegisterValidation">RegisterValidation</a></li><li><a href="global.html#canEdit">canEdit</a></li><li><a href="global.html#checkTokenExpiration">checkTokenExpiration</a></li><li><a href="global.html#fetchCompanyData">fetchCompanyData</a></li><li><a href="global.html#fetchEmployees">fetchEmployees</a></li><li><a href="global.html#fetchReportData">fetchReportData</a></li><li><a href="global.html#fetchSchedulers">fetchSchedulers</a></li><li><a href="global.html#fetchStatistics">fetchStatistics</a></li><li><a href="global.html#fetchSummaryData">fetchSummaryData</a></li><li><a href="global.html#fetchTeamDates">fetchTeamDates</a></li><li><a href="global.html#fetchTeams">fetchTeams</a></li><li><a href="global.html#fetchUsers">fetchUsers</a></li><li><a href="global.html#generateCalendar">generateCalendar</a></li><li><a href="global.html#getInitials">getInitials</a></li><li><a href="global.html#getRole">getRole</a></li><li><a href="global.html#handleActionChange">handleActionChange</a></li><li><a href="global.html#handleApply">handleApply</a></li><li><a href="global.html#handleAutoFill">handleAutoFill</a></li><li><a href="global.html#handleCellClick">handleCellClick</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleConfirm">handleConfirm</a></li><li><a href="global.html#handleCreateScheduler">handleCreateScheduler</a></li><li><a href="global.html#handleDayChange">handleDayChange</a></li><li><a href="global.html#handleDaySelection">handleDaySelection</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#handleDownload">handleDownload</a></li><li><a href="global.html#handleDownloadSummary">handleDownloadSummary</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleEditSubmit">handleEditSubmit</a></li><li><a href="global.html#handleEmployeeSelect">handleEmployeeSelect</a></li><li><a href="global.html#handleInputChange">handleInputChange</a></li><li><a href="global.html#handleLogout">handleLogout</a></li><li><a href="global.html#handleModalClose">handleModalClose</a></li><li><a href="global.html#handleModalSave">handleModalSave</a></li><li><a href="global.html#handleNavigation">handleNavigation</a></li><li><a href="global.html#handleNext">handleNext</a></li><li><a href="global.html#handlePasswordSubmit">handlePasswordSubmit</a></li><li><a href="global.html#handlePrev">handlePrev</a></li><li><a href="global.html#handleSave">handleSave</a></li><li><a href="global.html#handleScheduleChange">handleScheduleChange</a></li><li><a href="global.html#handleSelect">handleSelect</a></li><li><a href="global.html#handleSelectChange">handleSelectChange</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#handleTeamSelect">handleTeamSelect</a></li><li><a href="global.html#handleUpdate">handleUpdate</a></li><li><a href="global.html#handleUserChange">handleUserChange</a></li><li><a href="global.html#handleViewChange">handleViewChange</a></li><li><a href="global.html#handleWeekChange">handleWeekChange</a></li><li><a href="global.html#toggleTeam">toggleTeam</a></li><li><a href="global.html#validateLogin">validateLogin</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 19:53:44 GMT+0100 (czas środkowoeuropejski standardowy)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

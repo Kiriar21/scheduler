@@ -1,3 +1,9 @@
+/**
+ * Komponent sprawdzający uprawnienia użytkownika na podstawie tokenu i ról.
+ * Renderuje Outlet jeśli rola użytkownika jest dozwolona, w przeciwnym wypadku przekierowuje.
+ * @component
+ * @param {string[]} allowedRoles - Tablica ról mających dostęp do danej trasy
+ */
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';

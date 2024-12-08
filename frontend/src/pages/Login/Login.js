@@ -1,3 +1,8 @@
+/**
+ * Strona logowania.
+ * Umożliwia uwierzytelnienie użytkownika i zapisanie tokenu w localStorage.
+ * @component
+ */
 import React, { useState } from 'react';
 import InputField from '../../components/InputField/InputField';
 import SubmitButton from '../../components/SubmitButton/SubmitButton';
@@ -16,7 +21,12 @@ const LoginPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  //Zmiana danych w inpucie logowania
+  /**
+ * Obsługa zmian w polach formularza logowania.
+ * @function handleChange
+ * @param {object} e - Obiekt zdarzenia
+ */
+//Zmiana danych w inpucie logowania
   const handleChange = (e) => {
     const { name, value } = e.target;
     setLoginData({
@@ -25,7 +35,13 @@ const LoginPage = () => {
     });
   };
 
-  //Walidacja logowania
+  /**
+ * Waliduje dane logowania i próbuje zalogować użytkownika.
+ * @async
+ * @function validateLogin
+ * @returns {Promise<boolean>}
+ */
+//Walidacja logowania
   const validateLogin = async () => {
     try {
       const response = await axios.post('/login', {
@@ -62,7 +78,14 @@ const LoginPage = () => {
     }
   };
 
-  //Obsługa logowania
+  /**
+ * Obsługa przesłania formularza logowania.
+ * @async
+ * @function handleSubmit
+ * @param {object} e - Obiekt zdarzenia
+ * @returns {Promise<void>}
+ */
+//Obsługa logowania
   const handleSubmit = async (e) => {
     e.preventDefault();
 

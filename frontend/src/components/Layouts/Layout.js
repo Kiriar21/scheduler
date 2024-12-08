@@ -1,3 +1,7 @@
+/**
+ * Komponent układu aplikacji z nagłówkiem i stopką oraz zagnieżdżonym Outlet.
+ * @component
+ */
 import React from 'react';
 import { Outlet } from 'react-router-dom'; 
 import NavigationPanel from '../NavPanel/NavPanel';

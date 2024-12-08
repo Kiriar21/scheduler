@@ -1,3 +1,7 @@
+/**
+ * Komponent pozwalający na edycję lub usunięcie zespołu (zarządzanie zespołem).
+ * @component
+ */
 import React, { useContext, useState } from 'react';
 import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
@@ -10,7 +14,12 @@ const ManageTeam = () => {
   const [newTeamName, setNewTeamName] = useState('');
   const [action, setAction] = useState('edit'); // 'edit' lub 'delete'
 
-  //Obsługa wyboru zespolu
+  /**
+ * Obsługa wyboru zespołu do edycji/usunięcia.
+ * @function handleTeamSelect
+ * @param {object} e - Obiekt zdarzenia
+ */
+//Obsługa wyboru zespolu
   const handleTeamSelect = (e) => {
     const teamId = e.target.value;
     setSelectedTeam(teamId);
@@ -18,14 +27,26 @@ const ManageTeam = () => {
     setNewTeamName(team ? team.name : '');
   };
 
-  //Obsługa wyboru zespolu
+  /**
+ * Obsługa zmiany akcji (edycja lub usunięcie).
+ * @function handleActionChange
+ * @param {object} e - Obiekt zdarzenia
+ */
+//Obsługa wyboru zespolu
   const handleActionChange = (e) => {
     setAction(e.target.value);
     setSelectedTeam('');
     setNewTeamName('');
   };
 
-  //Obsługa edycji zespolu
+  /**
+ * Obsługa zatwierdzenia akcji (edycja lub usunięcie zespołu).
+ * @async
+ * @function handleSubmit
+ * @param {object} e - Obiekt zdarzenia
+ * @returns {Promise<void>}
+ */
+//Obsługa edycji zespolu
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedTeam) {

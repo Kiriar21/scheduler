@@ -1,3 +1,12 @@
+/**
+ * Komponent modalnego okna do edycji godzin pracy w danym dniu.
+ * @component
+ * @param {boolean} isOpen - Czy modal jest otwarty
+ * @param {function} onClose - Funkcja zamykająca modal
+ * @param {function} onSave - Funkcja zapisująca zmiany
+ * @param {object} initialData - Początkowe dane godzin
+ * @param {object} dayInfo - Informacje o wybranym dniu
+ */
 import React, { useState, useEffect } from 'react';
 import styles from './TimeEditModal.module.scss';
 
@@ -17,7 +26,11 @@ const TimeEditModal = ({ isOpen, onClose, onSave, initialData, dayInfo }) => {
     }
   }, [isOpen, initialData]);
 
-  const handleSave = () => {
+  /**
+ * Obsługuje zapis zmian godzin w modalnym oknie.
+ * @function handleSave
+ */
+const handleSave = () => {
     onSave({
       start_hour: parseInt(startHour),
       end_hour: parseInt(endHour),

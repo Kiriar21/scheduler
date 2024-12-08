@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/Scheduler/MonthView/MonthView.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/Scheduler/MonthView/MonthView.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Komponent widoku miesięcznego grafiku.
+ * Pozwala wyświetlać i edytować godziny dla dni i pracowników w ujęciu miesięcznym.
+ * @component
+ * @param {object} scheduler - Obiekt grafiku
+ * @param {string} userRole - Rola użytkownika
+ * @param {string} userId - ID użytkownika
+ */
+import React, { useState, useContext, useMemo } from 'react';
+import styles from './MonthView.module.scss';
+import TimeEditModal from '../TimeEditModal/TimeEditModal';
+import axiosInstance from '../../../api/axiosInstance';
+import { SchedulerContext } from '../../../contexts/SchedulerContext/SchedulerContext';
+
+//Obsługa widoku miesiaca - komponent
+const MonthView = ({ scheduler, userRole, userId }) => {
+  const { changeScheduler } = useContext(SchedulerContext);
+  const [modalData, setModalData] = useState({
+    isOpen: false,
+    dayInfo: null,
+    employersHour: null,
+  });
+
+  // Stan dla wybranego pracownika
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
+
+  // Wyciąganie listy unikalnych pracowników
+  const employees = [];
+  scheduler.map_month.forEach((day) => {
+    day.employersHours.forEach((eh) => {
+      if (!employees.find((e) => e._id === eh.user._id)) {
+        employees.push(eh.user);
+      }
+    });
+  });
+
+  const canEdit = (targetUserId) => {
+    return userRole === 'manager' || userId === targetUserId;
+  };
+
+  /**
+   * Otwiera modal do edycji godzin w widoku miesięcznym.
+   * @function handleCellClick
+   * @param {object} eh - Dane godzinowe pracownika
+   * @param {object} day - Dane dnia
+   */
+  const handleCellClick = (eh, day) => {
+    if (canEdit(eh.user._id)) {
+      setModalData({
+        isOpen: true,
+        dayInfo: day,
+        employersHour: eh,
+      });
+    }
+  };
+/**
+ * Zamyka modal edycji godzin (widok miesięczny).
+ * @function handleModalClose
+ */
+
+  const handleModalClose = () => {
+    setModalData({
+      isOpen: false,
+      dayInfo: null,
+      employersHour: null,
+    });
+  };
+
+  /**
+   * Zapisuje zmienione godziny w widoku miesięcznym.
+   * @async
+   * @function handleModalSave
+   * @param {object} updatedData - Zaktualizowane dane godzin
+   * @returns {Promise&lt;void>}
+   */
+  //Obsługa zapisu godzin pracy w grafiku
+  const handleModalSave = async (updatedData) => {
+    const { employersHour, dayInfo } = modalData;
+    try {
+      const token = localStorage.getItem('token');
+      const { month, year } = scheduler;
+      const updates = {
+        start_hour: updatedData.start_hour,
+        end_hour: updatedData.end_hour,
+      };
+
+      await axiosInstance.put(
+        '/scheduler/editDay',
+        {
+          month,
+          year,
+          dayOfMonth: dayInfo.dayOfMonth,
+          targetUserId: employersHour.user._id,
+          updates,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // Odświeżenie danych w kontekście
+      changeScheduler(month, year);
+      alert('Zmiany zostały zapisane.');
+    } catch (error) {
+      console.error('Error updating day:', error);
+      alert('Wystąpił błąd podczas zapisywania zmian.');
+    } finally {
+      handleModalClose();
+    }
+  };
+  /**
+   * Generuje tygodnie z odpowiednim rozmieszczeniem dni
+   * @function generateCalendar
+   */
+
+  const generateCalendar = () => {
+    const weeks = [];
+    let currentWeek = [];
+
+    if (!scheduler || !scheduler.map_month) {
+      return weeks;
+    }
+
+    const daysInMonth = scheduler.map_month;
+    let dayIndex = 0;
+
+    while (dayIndex &lt; daysInMonth.length) {
+      const day = daysInMonth[dayIndex];
+
+      // Dostosowanie numeracji dayOfWeek
+      const dayOfWeek = ((day.dayOfWeek) % 7) + 1; // 1 (poniedziałek) - 7 (niedziela)
+
+      // Jeśli to początek miesiąca, dodaj puste komórki
+      if (currentWeek.length === 0) {
+        for (let i = 1; i &lt; dayOfWeek; i++) {
+          currentWeek.push(null);
+        }
+      }
+
+      currentWeek.push(day);
+      dayIndex++;
+
+      // Jeśli tydzień jest pełny lub to ostatni dzień miesiąca
+      if (currentWeek.length === 7 || dayIndex === daysInMonth.length) {
+        // Jeśli tydzień nie jest pełny, uzupełnij puste komórki
+        while (currentWeek.length &lt; 7) {
+          currentWeek.push(null);
+        }
+        weeks.push(currentWeek);
+        currentWeek = [];
+      }
+    }
+
+    return weeks;
+  };
+
+  // Użycie useMemo, aby ponownie wygenerować tygodnie przy zmianie scheduler
+  const weeks = useMemo(() => generateCalendar(), [scheduler]);
+
+    /**
+   * Pobiera inicjały pracownika
+   * @function getInitials
+   */
+  const getInitials = (name, surname) => {
+    const firstNameInitial = name.charAt(0).toUpperCase();
+    const lastNameInitial = surname.charAt(0).toUpperCase();
+    return `${firstNameInitial}${lastNameInitial}`;
+  };
+
+  return (
+    &lt;div className={styles.monthView}>
+      {/* Lista rozwijana z pracownikami */}
+      &lt;select
+        value={selectedEmployeeId}
+        onChange={(e) => setSelectedEmployeeId(e.target.value)}
+      >
+        &lt;option value="">Wybierz pracownika&lt;/option>
+        {employees.map((employee) => (
+          &lt;option key={employee._id} value={employee._id}>
+            {employee.name} {employee.surname}
+          &lt;/option>
+        ))}
+      &lt;/select>
+
+      {/* Tabela kalendarza */}
+      &lt;table className={styles.calendarTable}>
+        &lt;thead>
+          &lt;tr>
+            &lt;th>Pon&lt;/th>
+            &lt;th>Wt&lt;/th>
+            &lt;th>Śr&lt;/th>
+            &lt;th>Czw&lt;/th>
+            &lt;th>Pt&lt;/th>
+            &lt;th>Sob&lt;/th>
+            &lt;th>Nd&lt;/th>
+          &lt;/tr>
+        &lt;/thead>
+        &lt;tbody>
+          {weeks.map((week, weekIdx) => (
+            &lt;tr key={weekIdx}>
+              {week.map((day, dayIdx) => (
+                &lt;td key={dayIdx} className={styles.calendarCell}>
+                  {day ? (
+                    &lt;div className={styles.cellContent}>
+                      &lt;div className={styles.dayNumber}>{day.dayOfMonth}&lt;/div>
+                      {/* Filtruj godziny pracy dla wybranego pracownika */}
+                      {day.employersHours
+                        .filter((eh) =>
+                          selectedEmployeeId
+                            ? eh.user._id === selectedEmployeeId
+                            : true
+                        )
+                        .map((eh) => (
+                          &lt;div
+                            key={eh.user._id}
+                            className={styles.hourRange}
+                            onClick={() => handleCellClick(eh, day)}
+                          >
+                            {/* Dodaj inicjały jeśli żaden pracownik nie jest wybrany */}
+                            {!selectedEmployeeId &amp;&amp; (
+                              &lt;span className={styles.initials}>
+                                {getInitials(eh.user.name, eh.user.surname)}:
+                              &lt;/span>
+                            )}
+                            {eh.start_hour} - {eh.end_hour}
+                          &lt;/div>
+                        ))}
+                    &lt;/div>
+                  ) : null}
+                &lt;/td>
+              ))}
+            &lt;/tr>
+          ))}
+        &lt;/tbody>
+      &lt;/table>
+
+      {/* Modal do edycji godzin */}
+      {modalData.isOpen &amp;&amp; (
+        &lt;TimeEditModal
+          isOpen={modalData.isOpen}
+          onClose={handleModalClose}
+          onSave={handleModalSave}
+          initialData={modalData.employersHour}
+        />
+      )}
+    &lt;/div>
+  );
+};
+
+export default MonthView;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SchedulerContext.html">SchedulerContext</a></li><li><a href="module-axiosInstance.html">axiosInstance</a></li></ul><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#RegisterValidation">RegisterValidation</a></li><li><a href="global.html#canEdit">canEdit</a></li><li><a href="global.html#checkTokenExpiration">checkTokenExpiration</a></li><li><a href="global.html#fetchCompanyData">fetchCompanyData</a></li><li><a href="global.html#fetchEmployees">fetchEmployees</a></li><li><a href="global.html#fetchReportData">fetchReportData</a></li><li><a href="global.html#fetchSchedulers">fetchSchedulers</a></li><li><a href="global.html#fetchStatistics">fetchStatistics</a></li><li><a href="global.html#fetchSummaryData">fetchSummaryData</a></li><li><a href="global.html#fetchTeamDates">fetchTeamDates</a></li><li><a href="global.html#fetchTeams">fetchTeams</a></li><li><a href="global.html#fetchUsers">fetchUsers</a></li><li><a href="global.html#generateCalendar">generateCalendar</a></li><li><a href="global.html#getInitials">getInitials</a></li><li><a href="global.html#getRole">getRole</a></li><li><a href="global.html#handleActionChange">handleActionChange</a></li><li><a href="global.html#handleApply">handleApply</a></li><li><a href="global.html#handleAutoFill">handleAutoFill</a></li><li><a href="global.html#handleCellClick">handleCellClick</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleConfirm">handleConfirm</a></li><li><a href="global.html#handleCreateScheduler">handleCreateScheduler</a></li><li><a href="global.html#handleDayChange">handleDayChange</a></li><li><a href="global.html#handleDaySelection">handleDaySelection</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#handleDownload">handleDownload</a></li><li><a href="global.html#handleDownloadSummary">handleDownloadSummary</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleEditSubmit">handleEditSubmit</a></li><li><a href="global.html#handleEmployeeSelect">handleEmployeeSelect</a></li><li><a href="global.html#handleInputChange">handleInputChange</a></li><li><a href="global.html#handleLogout">handleLogout</a></li><li><a href="global.html#handleModalClose">handleModalClose</a></li><li><a href="global.html#handleModalSave">handleModalSave</a></li><li><a href="global.html#handleNavigation">handleNavigation</a></li><li><a href="global.html#handleNext">handleNext</a></li><li><a href="global.html#handlePasswordSubmit">handlePasswordSubmit</a></li><li><a href="global.html#handlePrev">handlePrev</a></li><li><a href="global.html#handleSave">handleSave</a></li><li><a href="global.html#handleScheduleChange">handleScheduleChange</a></li><li><a href="global.html#handleSelect">handleSelect</a></li><li><a href="global.html#handleSelectChange">handleSelectChange</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#handleTeamSelect">handleTeamSelect</a></li><li><a href="global.html#handleUpdate">handleUpdate</a></li><li><a href="global.html#handleUserChange">handleUserChange</a></li><li><a href="global.html#handleViewChange">handleViewChange</a></li><li><a href="global.html#handleWeekChange">handleWeekChange</a></li><li><a href="global.html#toggleTeam">toggleTeam</a></li><li><a href="global.html#validateLogin">validateLogin</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 19:53:44 GMT+0100 (czas środkowoeuropejski standardowy)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

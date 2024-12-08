@@ -1,3 +1,7 @@
+/**
+ * Komponent panelu nawigacyjnego wyświetlający informacje o użytkowniku oraz menu nawigacji.
+ * @component
+ */
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
@@ -58,6 +62,10 @@ const NavigationPanel = () => {
         fetchUserData();
     }, [navigate]);
 
+    /**
+     * Wylogowuje użytkownika i przekierowuje do strony logowania.
+     * @function handleLogout
+     */
     const handleLogout = () => {
         localStorage.removeItem('token');
         navigate('/login');
@@ -67,9 +75,14 @@ const NavigationPanel = () => {
         return <p>Ładowanie danych użytkownika...</p>;
     }
 
+    /**
+     * Obsługuje nawigację do wskazanej ścieżki.
+     * @function handleNavigation
+     * @param {string} path - Ścieżka do której następuje nawigacja
+     */
     const handleNavigation = (path) => {
-        navigate(path);
-    };
+            navigate(path);
+        };
 
     const role = user.role;
 

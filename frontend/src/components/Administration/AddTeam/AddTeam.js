@@ -1,3 +1,7 @@
+/**
+ * Komponent formularza do dodawania nowego zespołu.
+ * @component
+ */
 import React, { useContext, useState } from 'react';
 import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
@@ -8,12 +12,24 @@ const AddTeam = () => {
   const { fetchTeams } = useContext(AdminContext);
   const [teamName, setTeamName] = useState('');
 
-  //Reaguje na zmiane w inpucie
+  /**
+ * Obsługuje zmianę wartości pola nazwy zespołu.
+ * @function handleChange
+ * @param {object} e - Obiekt zdarzenia
+ */
+//Reaguje na zmiane w inpucie
   const handleChange = (e) => {
     setTeamName(e.target.value);
   };
 
-  //Obsługa dodawania zespołu
+  /**
+ * Obsługa przesłania formularza dodawania zespołu.
+ * @async
+ * @function handleSubmit
+ * @param {object} e - Obiekt zdarzenia
+ * @returns {Promise<void>}
+ */
+//Obsługa dodawania zespołu
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

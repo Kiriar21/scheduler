@@ -1,3 +1,7 @@
+/**
+ * Kontekst stanu grafiku, zawiera aktualny grafik, dostępne grafiki i funkcje do zmiany.
+ * @module SchedulerContext
+ */
 import React, { createContext, useState, useEffect } from 'react';
 import axiosInstance from '../../api/axiosInstance';
 
@@ -12,7 +16,15 @@ const SchedulerProvider = ({ children }) => {
   });
   const [token, setToken] = useState(localStorage.getItem('token'));
 
-  // Pobieranie obecnego grafiku
+  /**
+   * Pobiera bieżący grafik z serwera.
+   * @async
+   * @function fetchScheduler
+   * @param {string} month - Nazwa miesiąca
+   * @param {number} year - Rok
+   * @returns {Promise<void>}
+   */
+  // Pobieranie obecnego grafiku  
   const fetchScheduler = async (month, year) => {
     try {
       const token = localStorage.getItem('token');
@@ -26,7 +38,13 @@ const SchedulerProvider = ({ children }) => {
       setCurrentScheduler(null); // Brak grafiku
     }
   };
-
+  
+  /**
+   * Pobiera dostępne grafiki z serwera.
+   * @async
+   * @function fetchAvailableSchedulers
+   * @returns {Promise<void>}
+   */
   // Pobieranie dostępnych grafików
   const fetchAvailableSchedulers = async () => {
     try {
@@ -49,6 +67,12 @@ const SchedulerProvider = ({ children }) => {
     }
   }, [token, selectedDate.month, selectedDate.year]);
 
+    /**
+   * Zmienia aktualny grafik na podany miesiąc i rok.
+   * @function changeScheduler
+   * @param {string} month - Nazwa miesiąca
+   * @param {number} year - Rok
+   */
   // Zmiana grafiku
   const changeScheduler = (month, year) => {
     setSelectedDate({ month, year });

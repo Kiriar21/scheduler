@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/Register/Register.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/Register/Register.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Strona rejestracji administratora i firmy.
+ * @component
+ */
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import InputField from '../../components/InputField/InputField';
+import SubmitButton from '../../components/SubmitButton/SubmitButton';
+import styles from './Register.module.scss';
+
+const RegisterPage = () => {
+  const navigate = useNavigate();
+  const [registerData, setRegisterData] = useState({
+    name: '',
+    surname: '',
+    email: '',
+    pwd: '',
+    confirmPwd: '',
+    companyName: '',
+    nip: ''
+  });
+
+  const [errorMessage, setErrorMessage] = useState('');
+
+  /**
+ * Obsługa zmian w polach formularza rejestracji.
+ * @function handleChange
+ * @param {object} e - Obiekt zdarzenia
+ */
+//Zmiana danych w inpucie rejestracji
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setRegisterData({
+      ...registerData,
+      [name]: value,
+    });
+  };
+
+ /**
+ * Obsługa przesłania formularza rejestracji.
+ * @async
+ * @function handleSubmit
+ * @param {object} e - Obiekt zdarzenia
+ * @returns {Promise&lt;void>}
+ */
+ //Obsługa rejestracji
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const { pwd, confirmPwd } = registerData;
+
+    // Sprawdzenie zgodności haseł
+    if (pwd !== confirmPwd) {
+      setErrorMessage('Hasła nie są zgodne.');
+      return;
+    }
+
+    try {
+      const response = await axios.post('/register/admin', {
+        email: registerData.email,
+        pwd: registerData.pwd,
+        name: registerData.name,
+        surname: registerData.surname,
+        nip: registerData.nip,
+        companyName: registerData.companyName,
+        confirmPwd: registerData.confirmPwd,
+      });
+      if (response.data.success || response.status === 201) {
+        setErrorMessage('');
+        navigate('/login');
+      } else {
+        setErrorMessage(response.data.message || 'Wystąpił problem z rejestracją');
+      }
+    } catch (error) {
+      setErrorMessage('Wystąpił problem z serwerem lub nie można utworzyć więcej kont.');
+    }
+  };
+
+  return (
+    &lt;div className={styles.container}>
+            {errorMessage &amp;&amp; (
+      &lt;p className={`${styles.error} ${errorMessage ? styles.show : ''}`}>
+        {errorMessage}
+      &lt;/p>
+    )}
+      &lt;div className={styles.containerBox}>
+        &lt;h2 className={styles.heading}>Rejestracja&lt;/h2>
+        
+        &lt;form onSubmit={handleSubmit}>
+          &lt;div className={styles.inputs}>
+            &lt;div className={styles.leftBox}>
+              &lt;h3>Dane administratora&lt;/h3>
+              &lt;InputField
+                label="Imię"
+                type="text"
+                name="name"
+                value={registerData.name}
+                onChange={handleChange}
+                required
+              />
+              &lt;InputField
+                label="Nazwisko"
+                type="text"
+                name="surname"
+                value={registerData.surname}
+                onChange={handleChange}
+                required
+              />
+              &lt;InputField
+                label="Adres email"
+                type="email"
+                name="email"
+                value={registerData.email}
+                onChange={handleChange}
+                required
+              />
+              &lt;InputField
+                label="Hasło"
+                type="password"
+                name="pwd"
+                value={registerData.pwd}
+                onChange={handleChange}
+                required
+              />
+              &lt;InputField
+                label="Powtórz hasło"
+                type="password"
+                name="confirmPwd"
+                value={registerData.confirmPwd}
+                onChange={handleChange}
+                required
+              />
+            &lt;/div>
+            &lt;div className={styles.rightBox}>
+              &lt;h3>Dane firmy&lt;/h3>
+              &lt;InputField
+                label="Nazwa firmy"
+                type="text"
+                name="companyName"
+                value={registerData.companyName}
+                onChange={handleChange}
+                required
+              />
+              &lt;InputField
+                label="NIP"
+                type="text"
+                name="nip"
+                value={registerData.nip}
+                onChange={handleChange}
+                required
+              />
+            &lt;/div>
+          &lt;/div>
+          &lt;SubmitButton label="Zarejestruj się" />
+          
+        &lt;/form>
+        &lt;p 
+            className={styles.registerPrompt} 
+            onClick={() => navigate('/login')}
+          >
+            Masz konto? &lt;span>Zaloguj się.&lt;/span>
+          &lt;/p>
+      &lt;/div>
+    &lt;/div>
+  );
+};
+
+export default RegisterPage;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SchedulerContext.html">SchedulerContext</a></li><li><a href="module-axiosInstance.html">axiosInstance</a></li></ul><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#RegisterValidation">RegisterValidation</a></li><li><a href="global.html#canEdit">canEdit</a></li><li><a href="global.html#checkTokenExpiration">checkTokenExpiration</a></li><li><a href="global.html#fetchCompanyData">fetchCompanyData</a></li><li><a href="global.html#fetchEmployees">fetchEmployees</a></li><li><a href="global.html#fetchReportData">fetchReportData</a></li><li><a href="global.html#fetchSchedulers">fetchSchedulers</a></li><li><a href="global.html#fetchStatistics">fetchStatistics</a></li><li><a href="global.html#fetchSummaryData">fetchSummaryData</a></li><li><a href="global.html#fetchTeamDates">fetchTeamDates</a></li><li><a href="global.html#fetchTeams">fetchTeams</a></li><li><a href="global.html#fetchUsers">fetchUsers</a></li><li><a href="global.html#generateCalendar">generateCalendar</a></li><li><a href="global.html#getInitials">getInitials</a></li><li><a href="global.html#getRole">getRole</a></li><li><a href="global.html#handleActionChange">handleActionChange</a></li><li><a href="global.html#handleApply">handleApply</a></li><li><a href="global.html#handleAutoFill">handleAutoFill</a></li><li><a href="global.html#handleCellClick">handleCellClick</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleConfirm">handleConfirm</a></li><li><a href="global.html#handleCreateScheduler">handleCreateScheduler</a></li><li><a href="global.html#handleDayChange">handleDayChange</a></li><li><a href="global.html#handleDaySelection">handleDaySelection</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#handleDownload">handleDownload</a></li><li><a href="global.html#handleDownloadSummary">handleDownloadSummary</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleEditSubmit">handleEditSubmit</a></li><li><a href="global.html#handleEmployeeSelect">handleEmployeeSelect</a></li><li><a href="global.html#handleInputChange">handleInputChange</a></li><li><a href="global.html#handleLogout">handleLogout</a></li><li><a href="global.html#handleModalClose">handleModalClose</a></li><li><a href="global.html#handleModalSave">handleModalSave</a></li><li><a href="global.html#handleNavigation">handleNavigation</a></li><li><a href="global.html#handleNext">handleNext</a></li><li><a href="global.html#handlePasswordSubmit">handlePasswordSubmit</a></li><li><a href="global.html#handlePrev">handlePrev</a></li><li><a href="global.html#handleSave">handleSave</a></li><li><a href="global.html#handleScheduleChange">handleScheduleChange</a></li><li><a href="global.html#handleSelect">handleSelect</a></li><li><a href="global.html#handleSelectChange">handleSelectChange</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#handleTeamSelect">handleTeamSelect</a></li><li><a href="global.html#handleUpdate">handleUpdate</a></li><li><a href="global.html#handleUserChange">handleUserChange</a></li><li><a href="global.html#handleViewChange">handleViewChange</a></li><li><a href="global.html#handleWeekChange">handleWeekChange</a></li><li><a href="global.html#toggleTeam">toggleTeam</a></li><li><a href="global.html#validateLogin">validateLogin</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 19:53:44 GMT+0100 (czas środkowoeuropejski standardowy)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

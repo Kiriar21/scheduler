@@ -1,3 +1,8 @@
+/**
+ * Komponent formularza do tworzenia nowego grafiku dla zespołu.
+ * @component
+ */
+
 import React, { useContext, useState } from 'react';
 import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
@@ -30,7 +35,14 @@ const AddScheduler = () => {
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth();
 
-  //Obsługa dodawania grafiku
+  /**
+ * Obsługuje wysłanie formularza tworzenia grafiku.
+ * @async
+ * @function handleCreateScheduler
+ * @param {object} e - Obiekt zdarzenia
+ * @returns {Promise<void>}
+ */
+//Obsługa dodawania grafiku
   const handleCreateScheduler = async (e) => {
     e.preventDefault();
     setMessage({ text: '', type: '' }); // Resetuj komunikaty

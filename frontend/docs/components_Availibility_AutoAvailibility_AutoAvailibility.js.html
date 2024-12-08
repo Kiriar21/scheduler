@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/Availibility/AutoAvailibility/AutoAvailibility.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/Availibility/AutoAvailibility/AutoAvailibility.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Komponent do automatycznego uzupełniania dostępności użytkownika na wybrane dni.
+ * @component
+ * @param {function} onAutoFill - Funkcja wywoływana po zatwierdzeniu autouzupełniania
+ */
+import React, { useState } from 'react';
+import styles from './AutoAvailibility.module.scss';
+
+//Obsługa uzupełniania dostępności na stronie
+const AutoFillAvailability = ({ onAutoFill }) => {
+  const [prefferedHours, setPrefferedHours] = useState('');
+  const [availability, setAvailability] = useState('');
+  const [selectedDays, setSelectedDays] = useState([]);
+
+  const daysOptions = [
+    { label: 'Poniedziałek', value: 'poniedziałek' },
+    { label: 'Wtorek', value: 'wtorek' },
+    { label: 'Środa', value: 'środa' },
+    { label: 'Czwartek', value: 'czwartek' },
+    { label: 'Piątek', value: 'piątek' },
+    { label: 'Sobota', value: 'sobota' },
+    { label: 'Niedziela', value: 'niedziela' },
+    { label: 'Cały weekend', value: 'weekend' },
+    { label: 'Cały tydzień (Pon-Pt)', value: 'weekday' },
+    { label: 'Cały miesiąc', value: 'all' },
+  ];
+
+  /**
+ * Obsługuje wybór dni do autouzupełnienia.
+ * @function handleDaySelection
+ * @param {object} e - Obiekt zdarzenia
+ */
+//Obsługa wyboru autouzupełniania
+  const handleDaySelection = (e) => {
+    const value = e.target.value;
+    let days = [];
+    if (value === 'weekend') {
+      days = ['sobota', 'niedziela'];
+    } else if (value === 'weekday') {
+      days = ['poniedziałek', 'wtorek', 'środa', 'czwartek', 'piątek'];
+    } else if (value === 'all') {
+      days = ['all'];
+    } else {
+      days = [value];
+    }
+    setSelectedDays(days);
+  };
+
+  /**
+ * Zatwierdza autouzupełnienie dostępności dla wybranych dni.
+ * @function handleApply
+ */
+//Obsługa zapisu
+  const handleApply = () => {
+    if (selectedDays.length === 0) {
+      alert('Wybierz dni do wypełnienia.');
+      return;
+    }
+    onAutoFill(selectedDays, prefferedHours, availability);
+    // Resetuj pola
+    setPrefferedHours('');
+    setAvailability('');
+    setSelectedDays([]);
+  };
+
+  return (
+    &lt;div className={styles.autoFill}>
+      &lt;h3>Autouzupełnianie&lt;/h3>
+      &lt;div className={styles.form}>
+        &lt;label>Preferowane:&lt;/label>
+        &lt;input
+          type="text"
+          value={prefferedHours}
+          onChange={(e) => setPrefferedHours(e.target.value)}
+        />
+      &lt;/div>
+      &lt;div className={styles.form}>
+        &lt;label>Dostępność:&lt;/label>
+        &lt;input
+          type="text"
+          value={availability}
+          onChange={(e) => setAvailability(e.target.value)}
+        />
+      &lt;/div>
+      &lt;div className={styles.form}>
+        &lt;label>Wybierz dni:&lt;/label>
+        &lt;select onChange={handleDaySelection}>
+          &lt;option value="">--Wybierz--&lt;/option>
+          {daysOptions.map((option) => (
+            &lt;option key={option.value} value={option.value}>
+              {option.label}
+            &lt;/option>
+          ))}
+        &lt;/select>
+      &lt;/div>
+      &lt;button onClick={handleApply}>Zastosuj&lt;/button>
+    &lt;/div>
+  );
+};
+
+export default AutoFillAvailability;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SchedulerContext.html">SchedulerContext</a></li><li><a href="module-axiosInstance.html">axiosInstance</a></li></ul><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#RegisterValidation">RegisterValidation</a></li><li><a href="global.html#canEdit">canEdit</a></li><li><a href="global.html#checkTokenExpiration">checkTokenExpiration</a></li><li><a href="global.html#fetchCompanyData">fetchCompanyData</a></li><li><a href="global.html#fetchEmployees">fetchEmployees</a></li><li><a href="global.html#fetchReportData">fetchReportData</a></li><li><a href="global.html#fetchSchedulers">fetchSchedulers</a></li><li><a href="global.html#fetchStatistics">fetchStatistics</a></li><li><a href="global.html#fetchSummaryData">fetchSummaryData</a></li><li><a href="global.html#fetchTeamDates">fetchTeamDates</a></li><li><a href="global.html#fetchTeams">fetchTeams</a></li><li><a href="global.html#fetchUsers">fetchUsers</a></li><li><a href="global.html#generateCalendar">generateCalendar</a></li><li><a href="global.html#getInitials">getInitials</a></li><li><a href="global.html#getRole">getRole</a></li><li><a href="global.html#handleActionChange">handleActionChange</a></li><li><a href="global.html#handleApply">handleApply</a></li><li><a href="global.html#handleAutoFill">handleAutoFill</a></li><li><a href="global.html#handleCellClick">handleCellClick</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleConfirm">handleConfirm</a></li><li><a href="global.html#handleCreateScheduler">handleCreateScheduler</a></li><li><a href="global.html#handleDayChange">handleDayChange</a></li><li><a href="global.html#handleDaySelection">handleDaySelection</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#handleDownload">handleDownload</a></li><li><a href="global.html#handleDownloadSummary">handleDownloadSummary</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleEditSubmit">handleEditSubmit</a></li><li><a href="global.html#handleEmployeeSelect">handleEmployeeSelect</a></li><li><a href="global.html#handleInputChange">handleInputChange</a></li><li><a href="global.html#handleLogout">handleLogout</a></li><li><a href="global.html#handleModalClose">handleModalClose</a></li><li><a href="global.html#handleModalSave">handleModalSave</a></li><li><a href="global.html#handleNavigation">handleNavigation</a></li><li><a href="global.html#handleNext">handleNext</a></li><li><a href="global.html#handlePasswordSubmit">handlePasswordSubmit</a></li><li><a href="global.html#handlePrev">handlePrev</a></li><li><a href="global.html#handleSave">handleSave</a></li><li><a href="global.html#handleScheduleChange">handleScheduleChange</a></li><li><a href="global.html#handleSelect">handleSelect</a></li><li><a href="global.html#handleSelectChange">handleSelectChange</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#handleTeamSelect">handleTeamSelect</a></li><li><a href="global.html#handleUpdate">handleUpdate</a></li><li><a href="global.html#handleUserChange">handleUserChange</a></li><li><a href="global.html#handleViewChange">handleViewChange</a></li><li><a href="global.html#handleWeekChange">handleWeekChange</a></li><li><a href="global.html#toggleTeam">toggleTeam</a></li><li><a href="global.html#validateLogin">validateLogin</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 19:53:44 GMT+0100 (czas środkowoeuropejski standardowy)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

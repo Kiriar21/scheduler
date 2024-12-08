@@ -1,11 +1,13 @@
+/**
+ * Strona wyświetlająca statystyki miesięczne grafiku.
+ * @component
+ */
 import React, { useContext, useState, useEffect } from 'react';
 import styles from './Statistics.module.scss';
 import { SchedulerContext } from '../../contexts/SchedulerContext/SchedulerContext';
 import axiosInstance from '../../api/axiosInstance';
 
-/**
- * Komponent odpowiedzialny za wyświetlanie miesięcznych statystyk grafiku.
- */
+
 const StatisticsPage = () => {
   // Pobranie danych z kontekstu grafiku
   const { availableSchedulers, selectedDate, changeScheduler } = useContext(SchedulerContext);
@@ -21,11 +23,15 @@ const StatisticsPage = () => {
   // Flaga ładowania
   const [isLoading, setIsLoading] = useState(false);
 
-  /**
-   * Funkcja pobierająca statystyki dla danego miesiąca i roku.
-   * @param {string} month - Nazwa miesiąca
-   * @param {number} year - Rok
-   */
+/**
+ * Pobiera statystyki dla wybranego miesiąca i roku.
+ * @async
+ * @function fetchStatistics
+ * @param {string} month - Nazwa miesiąca
+ * @param {number} year - Rok
+ * @returns {Promise<void>}
+ */
+
   const fetchStatistics = async (month, year) => {
     setIsLoading(true); // Ustawia stan ładowania na true
     try {
@@ -48,18 +54,18 @@ const StatisticsPage = () => {
     }
   };
 
-  /**
-   * Efekt pobierający statystyki po zmianie wybranego grafiku.
-   */
+
   useEffect(() => {
     const [month, year] = selectedSchedule.split(' '); // Rozdzielenie miesiąca i roku
     fetchStatistics(month, year); // Pobranie statystyk
   }, [selectedSchedule]); // Wywoływany przy zmianie `selectedSchedule`
 
-  /**
-   * Obsługa zmiany wybranego grafiku z dropdowna.
-   * @param {Object} e - Event zmiany wartości w <select>
-   */
+/**
+ * Obsługuje zmianę wybranego grafiku w statystykach.
+ * @function handleSelectChange
+ * @param {object} e - Obiekt zdarzenia
+ */
+
   const handleSelectChange = (e) => {
     const selectedValue = e.target.value; // Pobranie wybranej wartości
     setSelectedSchedule(selectedValue); // Ustawienie stanu z wybraną wartością
@@ -115,7 +121,6 @@ const StatisticsPage = () => {
           </table>
         </>
       ) : (
-        // Wiadomość, gdy brak danych
         <p>Brak statystyk do wyświetlenia.</p>
       )}
     </div>

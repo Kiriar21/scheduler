@@ -1,3 +1,9 @@
+/**
+ * Strona ustawień konta użytkownika.
+ * Pozwala edytować dane osobowe oraz zmieniać hasło.
+ * @component
+ */
+
 import React, { useState, useEffect } from 'react';
 import styles from './Account.module.scss';
 import axiosInstance from '../../api/axiosInstance';
@@ -36,7 +42,14 @@ const AccountPage = () => {
     setPasswordData((prev) => ({ ...prev, [name]: value }));
   };
 
-  //obsluga zmiany danych uzytkownika
+  /**
+ * Obsługa przesłania formularza edycji danych osobowych.
+ * @async
+ * @function handleEditSubmit
+ * @param {object} e - Obiekt zdarzenia
+ * @returns {Promise<void>}
+ */
+//obsluga zmiany danych uzytkownika
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -59,6 +72,13 @@ const AccountPage = () => {
     }
   };
 
+    /**
+   * Obsługa przesłania formularza zmiany hasła.
+   * @async
+   * @function handlePasswordSubmit
+   * @param {object} e - Obiekt zdarzenia
+   * @returns {Promise<void>}
+   */
   //obsluga zmiany hasla
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();

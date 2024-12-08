@@ -1,3 +1,7 @@
+/**
+ * Komponent umożliwiający usunięcie wybranego zespołu.
+ * @component
+ */
 import React, { useContext, useState } from 'react';
 import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
@@ -8,7 +12,14 @@ const DeleteTeam = () => {
   const { teams, fetchTeams } = useContext(AdminContext);
   const [selectedTeam, setSelectedTeam] = useState('');
 
-  //Obsługa usuwania zespołu
+  /**
+ * Obsługa usuwania zespołu.
+ * @async
+ * @function handleDelete
+ * @param {object} e - Obiekt zdarzenia
+ * @returns {Promise<void>}
+ */
+//Obsługa usuwania zespołu
   const handleDelete = async (e) => {
     e.preventDefault();
     if (!selectedTeam) {

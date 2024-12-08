@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/Submissions/Submissions.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/Submissions/Submissions.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Strona raportów i podsumowań.
+ * Pozwala menedżerowi pobierać raporty użytkowników oraz miesięczne podsumowania.
+ * @component
+ */
+import React, { useState, useEffect } from 'react';
+import styles from './Submissions.module.scss';
+import axiosInstance from '../../api/axiosInstance';
+
+
+const Submissions = () => {
+  // Stan przechowujący listę użytkowników
+  const [users, setUsers] = useState([]);
+  // Stan wybranego ID użytkownika
+  const [selectedUserId, setSelectedUserId] = useState('');
+  // Szczegółowe dane wybranego użytkownika
+  const [selectedUser, setSelectedUser] = useState(null);
+  // Lista dostępnych grafików
+  const [availableSchedulers, setAvailableSchedulers] = useState([]);
+  // Wybrany grafik (miesiąc i rok)
+  const [selectedSchedule, setSelectedSchedule] = useState('');
+  // Dane szczegółowego raportu użytkownika
+  const [reportData, setReportData] = useState([]);
+  // Dane podsumowania miesięcznego
+  const [summaryData, setSummaryData] = useState([]);
+  // Flaga ładowania danych
+  const [isLoading, setIsLoading] = useState(false);
+  // Łączna liczba godzin użytkownika
+  const [totalHours, setTotalHours] = useState(0);
+  // Łączna liczba godzin zespołu
+  const [totalTeamHours, setTotalTeamHours] = useState(0);
+  // Łączna liczba nadgodzin zespołu
+  const [totalTeamOverTimeHours, settotalTeamOverTimeHours] = useState(0);
+
+  // Pobieranie listy użytkowników przy załadowaniu komponentu
+  useEffect(() => {
+      /**
+   * Pobiera listę użytkowników zespołu menedżera.
+   * @async
+   * @function fetchUsers
+   * @returns {Promise&lt;void>}
+   */
+    const fetchUsers = async () => {
+      try {
+        const token = localStorage.getItem('token'); // Pobierz token z localStorage
+        const response = await axiosInstance.get('/team/users', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUsers(response.data.users); // Ustaw listę użytkowników w stanie
+      } catch (error) {
+        console.error('Błąd podczas pobierania użytkowników:', error);
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  // Pobieranie dostępnych grafików
+  useEffect(() => {
+    /**
+ * Pobiera dostępne grafiki.
+ * @async
+ * @function fetchSchedulers
+ * @returns {Promise&lt;void>}
+ */
+    const fetchSchedulers = async () => {
+      try {
+        const token = localStorage.getItem('token'); // Pobierz token z localStorage
+        const response = await axiosInstance.get('/schedulers', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const schedulers = response.data.schedulers;
+        setAvailableSchedulers(schedulers); // Ustaw listę grafików w stanie
+
+        // Automatyczny wybór grafiku
+        if (schedulers.length > 0) {
+          const currentDate = new Date();
+          const currentMonthIndex = currentDate.getMonth(); // Obecny miesiąc (0-11)
+          const currentYear = currentDate.getFullYear();
+
+          const months = [
+            'styczeń', 'luty', 'marzec', 'kwiecień', 'maj', 'czerwiec',
+            'lipiec', 'sierpień', 'wrzesień', 'październik', 'listopad', 'grudzień',
+          ];
+          const currentMonthName = months[currentMonthIndex];
+
+          // Znajdź grafik dla obecnego miesiąca i roku
+          const currentScheduler = schedulers.find(
+            (schedule) => schedule.month === currentMonthName &amp;&amp; schedule.year === currentYear
+          );
+
+          if (currentScheduler) {
+            setSelectedSchedule(`${currentScheduler.month} ${currentScheduler.year}`);
+          } else {
+            // Ustaw ostatni grafik, jeśli brak odpowiedniego
+            const lastScheduler = schedulers[schedulers.length - 1];
+            setSelectedSchedule(`${lastScheduler.month} ${lastScheduler.year}`);
+          }
+        }
+      } catch (error) {
+        console.error('Błąd podczas pobierania grafików:', error);
+      }
+    };
+    fetchSchedulers();
+  }, []);
+
+  // Pobieranie danych podsumowania po zmianie wybranego grafiku
+  useEffect(() => {
+    if (selectedSchedule) {
+      fetchSummaryData();
+    }
+  }, [selectedSchedule]);
+
+
+  /**
+ * Pobiera dane podsumowania dla wybranego grafiku.
+ * @async
+ * @function fetchSummaryData
+ * @returns {Promise&lt;void>}
+ */
+const fetchSummaryData = async () => {
+    setIsLoading(true);
+    try {
+      const [month, year] = selectedSchedule.split(' '); // Rozdziel miesiąc i rok
+      const token = localStorage.getItem('token');
+      const response = await axiosInstance.get('/scheduler/monthlySummary', {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { month, year },
+      });
+      setSummaryData(response.data.summaryData);
+
+      // Oblicz łączną liczbę godzin zespołu
+      const totalHours = response.data.summaryData.reduce(
+        (sum, userData) => sum + userData.totalHoursWorked,
+        0
+      );
+
+      const totalOverTimeHours = response.data.summaryData.reduce(
+        (sum, userData) => sum + userData.overtimeHours,
+        0
+      );
+
+      setTotalTeamHours(totalHours);
+      settotalTeamOverTimeHours(totalOverTimeHours);
+    } catch (error) {
+      console.error('Błąd podczas pobierania danych podsumowania:', error);
+      setSummaryData([]);
+      setTotalTeamHours(0);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Pobieranie danych użytkownika po zmianie użytkownika lub grafiku
+  useEffect(() => {
+    if (selectedUserId &amp;&amp; selectedSchedule) {
+      fetchReportData();
+    } else {
+      setReportData([]);
+      setTotalHours(0);
+    }
+  }, [selectedUserId, selectedSchedule]);
+
+
+  /**
+ * Pobiera dane szczegółowego raportu dla wybranego użytkownika i grafiku.
+ * @async
+ * @function fetchReportData
+ * @returns {Promise&lt;void>}
+ */
+const fetchReportData = async () => {
+    setIsLoading(true);
+    try {
+      const [month, year] = selectedSchedule.split(' '); // Rozdziel miesiąc i rok
+      const token = localStorage.getItem('token');
+      const response = await axiosInstance.get('/scheduler/userMonthlyReport', {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { userId: selectedUserId, month, year },
+      });
+      setReportData(response.data.reportData);
+      setTotalHours(response.data.totalHours); // Ustaw łączną liczbę godzin
+    } catch (error) {
+      console.error('Błąd podczas pobierania danych raportu:', error);
+      setReportData([]);
+      setTotalHours(0);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /**
+ * Obsługa zmiany wybranego użytkownika w raportach.
+ * @function handleUserChange
+ * @param {object} e - Obiekt zdarzenia
+ */
+  // Obsługa zmiany wybranego użytkownika
+  const handleUserChange = (e) => {
+    const userId = e.target.value;
+    setSelectedUserId(userId);
+    const user = users.find((u) => u._id === userId);
+    setSelectedUser(user || null);
+  };
+
+  /**
+ * Obsługa zmiany wybranego grafiku w raportach.
+ * @function handleScheduleChange
+ * @param {object} e - Obiekt zdarzenia
+ */
+// Obsługa zmiany wybranego grafiku
+  const handleScheduleChange = (e) => {
+    setSelectedSchedule(e.target.value);
+  };
+
+/**
+ * Pobiera raport wybranego użytkownika w formacie XLSX.
+ * @async
+ * @function handleDownload
+ * @returns {Promise&lt;void>}
+ */
+
+  const handleDownload = async () => {
+    if (!selectedUserId || !selectedSchedule) {
+      alert('Wybierz użytkownika i grafik.');
+      return;
+    }
+    try {
+      const [month, year] = selectedSchedule.split(' ');
+      const token = localStorage.getItem('token');
+      const response = await axiosInstance.get('/scheduler/downloadUserMonthlyReport', {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { userId: selectedUserId, month, year },
+        responseType: 'blob',
+      });
+
+      // Logika pobierania pliku
+      if (response.status === 200) {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute(
+          'download',
+          `Raport_${selectedUser.name}_${selectedUser.surname}_${month}_${year}.xlsx`
+        );
+        document.body.appendChild(link);
+        link.click();
+      } else {
+        alert('Wystąpił błąd podczas pobierania raportu.');
+      }
+    } catch (error) {
+      console.error('Błąd podczas pobierania raportu:', error);
+      alert('Wystąpił błąd podczas pobierania raportu.');
+    }
+  };
+
+
+  /**
+   * Pobiera miesięczne podsumowanie zespołu w formacie XLSX.
+   * @async
+   * @function handleDownloadSummary
+   * @returns {Promise&lt;void>}
+   */
+  const handleDownloadSummary = async () => {
+    if (!selectedSchedule) {
+      alert('Wybierz grafik.');
+      return;
+    }
+    try {
+      const [month, year] = selectedSchedule.split(' ');
+      const token = localStorage.getItem('token');
+      const response = await axiosInstance.get('/scheduler/downloadMonthlySummary', {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { month, year },
+        responseType: 'blob',
+      });
+
+      // Logika pobierania pliku
+      if (response.status === 200) {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `Podsumowanie_${month}_${year}.xlsx`);
+        document.body.appendChild(link);
+        link.click();
+      } else {
+        alert('Wystąpił błąd podczas pobierania podsumowania.');
+      }
+    } catch (error) {
+      console.error('Błąd podczas pobierania podsumowania:', error);
+      alert('Wystąpił błąd podczas pobierania podsumowania.');
+    }
+  };
+
+  return (
+    &lt;div className={styles.content}>
+      &lt;h2>Raport Użytkownika&lt;/h2>
+      {/* Formularz wyboru */}
+      &lt;div className={styles.form}>
+        {/* Wybór użytkownika */}
+        &lt;div className={styles.input}>
+          &lt;label>Użytkownik:&lt;/label>
+          &lt;select value={selectedUserId} onChange={handleUserChange}>
+            &lt;option value="">-- Wybierz użytkownika --&lt;/option>
+            {users.map((user) => (
+              &lt;option key={user._id} value={user._id}>
+                {user.name} {user.surname}
+              &lt;/option>
+            ))}
+          &lt;/select>
+        &lt;/div>
+
+        {/* Wybór grafiku */}
+        &lt;div className={styles.input}>
+          &lt;label>Miesiąc i rok:&lt;/label>
+          &lt;select value={selectedSchedule} onChange={handleScheduleChange}>
+            {availableSchedulers.map((schedule, index) => (
+              &lt;option key={index} value={`${schedule.month} ${schedule.year}`}>
+                {schedule.month} {schedule.year}
+              &lt;/option>
+            ))}
+          &lt;/select>
+        &lt;/div>
+
+        {/* Przyciski pobierania */}
+        &lt;button className={styles.button} onClick={handleDownload}>
+          Pobierz raport pracownika (XLSX)
+        &lt;/button>
+        &lt;button className={styles.button} onClick={handleDownloadSummary}>
+          Pobierz podsumowanie zespołu (XLSX)
+        &lt;/button>
+      &lt;/div>
+
+      {/* Wyświetlanie podsumowania */}
+      {isLoading ? (
+        &lt;p>Ładowanie danych...&lt;/p>
+      ) : summaryData.length > 0 ? (
+        &lt;div className={styles.summary}>
+          &lt;h4>Podsumowanie miesiąca&lt;/h4>
+          &lt;table className={styles.table}>
+            &lt;thead>
+              &lt;tr>
+                &lt;th>Imię&lt;/th>
+                &lt;th>Nazwisko&lt;/th>
+                &lt;th>Ilość godzin&lt;/th>
+                &lt;th>Nadgodziny&lt;/th>
+              &lt;/tr>
+            &lt;/thead>
+            &lt;tbody>
+              {summaryData.map((data) => (
+                &lt;tr key={data.user._id}>
+                  &lt;td>{data.user.name}&lt;/td>
+                  &lt;td>{data.user.surname}&lt;/td>
+                  &lt;td>{data.totalHoursWorked}&lt;/td>
+                  &lt;td>{data.overtimeHours || 0}&lt;/td>
+                &lt;/tr>
+              ))}
+            &lt;/tbody>
+            &lt;tfoot>
+              &lt;tr>
+                &lt;td colSpan="2">Łącznie:&lt;/td>
+                &lt;td>{totalTeamHours }&lt;/td>
+                &lt;td>{totalTeamOverTimeHours || 0}&lt;/td>
+              &lt;/tr>
+            &lt;/tfoot>
+          &lt;/table>
+        &lt;/div>
+      ) : (
+        &lt;p>Brak danych do wyświetlenia.&lt;/p>
+      )}
+
+      {/* Wyświetlanie szczegółowego raportu */}
+      {selectedUserId &amp;&amp; reportData.length > 0 &amp;&amp; (
+        &lt;div>
+          &lt;h4>Szczegółowy raport dla {selectedUser.name} {selectedUser.surname}&lt;/h4>
+          &lt;table className={styles.table}>
+            &lt;thead>
+              &lt;tr>
+                &lt;th>Dzień&lt;/th>
+                &lt;th>Dzień tygodnia&lt;/th>
+                &lt;th>Godzina rozpoczęcia&lt;/th>
+                &lt;th>Godzina zakończenia&lt;/th>
+                &lt;th>Przepracowane godziny&lt;/th>
+                &lt;th>Preferowane godziny&lt;/th>
+                &lt;th>Dostępność&lt;/th>
+              &lt;/tr>
+            &lt;/thead>
+            &lt;tbody>
+              {reportData.map((data) => (
+                &lt;tr key={data.dayOfMonth}>
+                  &lt;td>{data.dayOfMonth}&lt;/td>
+                  &lt;td>{data.nameDayOfWeek}&lt;/td>
+                  &lt;td>{data.start_hour}&lt;/td>
+                  &lt;td>{data.end_hour}&lt;/td>
+                  &lt;td>{data.hoursWorked}&lt;/td>
+                  &lt;td>{data.prefferedHours}&lt;/td>
+                  &lt;td>{data.availability}&lt;/td>
+                &lt;/tr>
+              ))}
+            &lt;/tbody>
+            &lt;tfoot>
+              &lt;tr>
+                &lt;td colSpan="4">Łącznie przepracowanych godzin:&lt;/td>
+                &lt;td>{totalHours}&lt;/td>
+                &lt;td colSpan="2">&lt;/td>
+              &lt;/tr>
+            &lt;/tfoot>
+          &lt;/table>
+        &lt;/div>
+      )}
+    &lt;/div>
+  );
+};
+
+export default Submissions;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SchedulerContext.html">SchedulerContext</a></li><li><a href="module-axiosInstance.html">axiosInstance</a></li></ul><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#RegisterValidation">RegisterValidation</a></li><li><a href="global.html#canEdit">canEdit</a></li><li><a href="global.html#checkTokenExpiration">checkTokenExpiration</a></li><li><a href="global.html#fetchCompanyData">fetchCompanyData</a></li><li><a href="global.html#fetchEmployees">fetchEmployees</a></li><li><a href="global.html#fetchReportData">fetchReportData</a></li><li><a href="global.html#fetchSchedulers">fetchSchedulers</a></li><li><a href="global.html#fetchStatistics">fetchStatistics</a></li><li><a href="global.html#fetchSummaryData">fetchSummaryData</a></li><li><a href="global.html#fetchTeamDates">fetchTeamDates</a></li><li><a href="global.html#fetchTeams">fetchTeams</a></li><li><a href="global.html#fetchUsers">fetchUsers</a></li><li><a href="global.html#generateCalendar">generateCalendar</a></li><li><a href="global.html#getInitials">getInitials</a></li><li><a href="global.html#getRole">getRole</a></li><li><a href="global.html#handleActionChange">handleActionChange</a></li><li><a href="global.html#handleApply">handleApply</a></li><li><a href="global.html#handleAutoFill">handleAutoFill</a></li><li><a href="global.html#handleCellClick">handleCellClick</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleConfirm">handleConfirm</a></li><li><a href="global.html#handleCreateScheduler">handleCreateScheduler</a></li><li><a href="global.html#handleDayChange">handleDayChange</a></li><li><a href="global.html#handleDaySelection">handleDaySelection</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#handleDownload">handleDownload</a></li><li><a href="global.html#handleDownloadSummary">handleDownloadSummary</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleEditSubmit">handleEditSubmit</a></li><li><a href="global.html#handleEmployeeSelect">handleEmployeeSelect</a></li><li><a href="global.html#handleInputChange">handleInputChange</a></li><li><a href="global.html#handleLogout">handleLogout</a></li><li><a href="global.html#handleModalClose">handleModalClose</a></li><li><a href="global.html#handleModalSave">handleModalSave</a></li><li><a href="global.html#handleNavigation">handleNavigation</a></li><li><a href="global.html#handleNext">handleNext</a></li><li><a href="global.html#handlePasswordSubmit">handlePasswordSubmit</a></li><li><a href="global.html#handlePrev">handlePrev</a></li><li><a href="global.html#handleSave">handleSave</a></li><li><a href="global.html#handleScheduleChange">handleScheduleChange</a></li><li><a href="global.html#handleSelect">handleSelect</a></li><li><a href="global.html#handleSelectChange">handleSelectChange</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#handleTeamSelect">handleTeamSelect</a></li><li><a href="global.html#handleUpdate">handleUpdate</a></li><li><a href="global.html#handleUserChange">handleUserChange</a></li><li><a href="global.html#handleViewChange">handleViewChange</a></li><li><a href="global.html#handleWeekChange">handleWeekChange</a></li><li><a href="global.html#toggleTeam">toggleTeam</a></li><li><a href="global.html#validateLogin">validateLogin</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 19:53:44 GMT+0100 (czas środkowoeuropejski standardowy)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,3 +1,11 @@
+/**
+ * Komponent widoku miesięcznego grafiku.
+ * Pozwala wyświetlać i edytować godziny dla dni i pracowników w ujęciu miesięcznym.
+ * @component
+ * @param {object} scheduler - Obiekt grafiku
+ * @param {string} userRole - Rola użytkownika
+ * @param {string} userId - ID użytkownika
+ */
 import React, { useState, useContext, useMemo } from 'react';
 import styles from './MonthView.module.scss';
 import TimeEditModal from '../TimeEditModal/TimeEditModal';
@@ -30,6 +38,12 @@ const MonthView = ({ scheduler, userRole, userId }) => {
     return userRole === 'manager' || userId === targetUserId;
   };
 
+  /**
+   * Otwiera modal do edycji godzin w widoku miesięcznym.
+   * @function handleCellClick
+   * @param {object} eh - Dane godzinowe pracownika
+   * @param {object} day - Dane dnia
+   */
   const handleCellClick = (eh, day) => {
     if (canEdit(eh.user._id)) {
       setModalData({
@@ -39,6 +53,10 @@ const MonthView = ({ scheduler, userRole, userId }) => {
       });
     }
   };
+/**
+ * Zamyka modal edycji godzin (widok miesięczny).
+ * @function handleModalClose
+ */
 
   const handleModalClose = () => {
     setModalData({
@@ -48,6 +66,13 @@ const MonthView = ({ scheduler, userRole, userId }) => {
     });
   };
 
+  /**
+   * Zapisuje zmienione godziny w widoku miesięcznym.
+   * @async
+   * @function handleModalSave
+   * @param {object} updatedData - Zaktualizowane dane godzin
+   * @returns {Promise<void>}
+   */
   //Obsługa zapisu godzin pracy w grafiku
   const handleModalSave = async (updatedData) => {
     const { employersHour, dayInfo } = modalData;
@@ -83,8 +108,11 @@ const MonthView = ({ scheduler, userRole, userId }) => {
       handleModalClose();
     }
   };
+  /**
+   * Generuje tygodnie z odpowiednim rozmieszczeniem dni
+   * @function generateCalendar
+   */
 
-  // Funkcja do generowania tygodni z odpowiednim rozmieszczeniem dni
   const generateCalendar = () => {
     const weeks = [];
     let currentWeek = [];
@@ -129,7 +157,10 @@ const MonthView = ({ scheduler, userRole, userId }) => {
   // Użycie useMemo, aby ponownie wygenerować tygodnie przy zmianie scheduler
   const weeks = useMemo(() => generateCalendar(), [scheduler]);
 
-  // Funkcja do pobierania inicjałów pracownika
+    /**
+   * Pobiera inicjały pracownika
+   * @function getInitials
+   */
   const getInitials = (name, surname) => {
     const firstNameInitial = name.charAt(0).toUpperCase();
     const lastNameInitial = surname.charAt(0).toUpperCase();

@@ -1,3 +1,7 @@
+/**
+ * Tworzy instancję Axios z ustawionym adresem bazowym i interceptorami do obsługi tokenów.
+ * @module axiosInstance
+ */
 import axios from 'axios';
 import { checkTokenExpiration } from '../utils/checkTokenExpiration';
 

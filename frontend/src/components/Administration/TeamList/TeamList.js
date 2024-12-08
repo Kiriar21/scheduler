@@ -1,3 +1,8 @@
+/**
+ * Komponent wyświetlający listę zespołów oraz przypisanych do nich pracowników.
+ * Pozwala rozwinąć szczegóły każdego zespołu.
+ * @component
+ */
 import React, { useState, useContext } from 'react';
 import styles from './TeamList.module.scss';
 import ArrowDown from '@mui/icons-material/KeyboardArrowDown';
@@ -9,7 +14,12 @@ const TeamList = () => {
   const [expandedTeams, setExpandedTeams] = useState({});
   const { teams } = useContext(AdminContext); // Bezpośredni dostęp do zespołów z kontekstu
 
-  //Obsługa zmiany teamu
+  /**
+ * Przełącza rozwinięcie/zwinięcie szczegółów zespołu.
+ * @function toggleTeam
+ * @param {string} teamId - Identyfikator zespołu
+ */
+//Obsługa zmiany teamu
   const toggleTeam = (teamId) => {
     setExpandedTeams((prevState) => ({
       ...prevState,

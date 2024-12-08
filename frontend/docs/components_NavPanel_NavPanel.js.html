@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/NavPanel/NavPanel.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/NavPanel/NavPanel.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Komponent panelu nawigacyjnego wyświetlający informacje o użytkowniku oraz menu nawigacji.
+ * @component
+ */
+import React, { useEffect, useState } from 'react';
+import axiosInstance from '../../api/axiosInstance';
+import { useNavigate } from 'react-router-dom';
+import styles from './NavPanel.module.scss';
+import { Typography } from '@mui/material';
+import CalendarMonth from '@mui/icons-material/CalendarMonth';
+import EventAvailable from '@mui/icons-material/EventAvailable';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import SettingsIcon from '@mui/icons-material/Settings';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import '../../styles/global.scss'; 
+import { checkTokenExpiration } from '../../utils/checkTokenExpiration';
+
+const theme = createTheme({
+    typography: {
+        fontFamily: "'Manrope', sans-serif",
+    },
+});
+
+//Tworzenie menu nawigacyjnego
+const NavigationPanel = () => {
+    const [user, setUser] = useState(null);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const isTokenValid = checkTokenExpiration();
+        if (!isTokenValid) {
+            navigate('/login');
+        }
+    }, [navigate]);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const isTokenValid = checkTokenExpiration();
+                if (!isTokenValid) {
+                    navigate('/login');
+                    return;
+                }
+
+                const token = localStorage.getItem('token');
+                const response = await axiosInstance.get('/user', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                setUser(response.data.user);
+            } catch (error) {
+                console.error('Błąd podczas pobierania danych użytkownika:', error);
+            }
+        };
+
+        fetchUserData();
+    }, [navigate]);
+
+    /**
+     * Wylogowuje użytkownika i przekierowuje do strony logowania.
+     * @function handleLogout
+     */
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        navigate('/login');
+    };
+
+    if (!user) {
+        return &lt;p>Ładowanie danych użytkownika...&lt;/p>;
+    }
+
+    /**
+     * Obsługuje nawigację do wskazanej ścieżki.
+     * @function handleNavigation
+     * @param {string} path - Ścieżka do której następuje nawigacja
+     */
+    const handleNavigation = (path) => {
+            navigate(path);
+        };
+
+    const role = user.role;
+
+    // Konfiguracja menu
+    const menuConfig = [
+        {
+            label: 'Grafik',
+            path: '/schedule',
+            icon: &lt;CalendarMonth className={styles.icon} />,
+            roles: ['user', 'manager'],
+        },
+        {
+            label: 'Dyspozycyjność',
+            path: '/availability',
+            icon: &lt;EventAvailable className={styles.icon} />,
+            roles: ['user', 'manager'],
+        },
+        {
+            label: 'Statystyki',
+            path: '/statistics',
+            icon: &lt;BarChartIcon className={styles.icon} />,
+            roles: ['user', 'manager'],
+        },
+        {
+            label: 'Ustawienia grafiku',
+            path: '/schedule-settings',
+            icon: &lt;SettingsIcon className={styles.icon} />,
+            roles: ['manager'],
+            highlightClass: 'menu-item--highlight-blue',
+        },
+        {
+            label: 'Raporty',
+            path: '/submissions',
+            icon: &lt;AssignmentIcon className={styles.icon} />,
+            roles: ['manager'],
+            highlightClass: 'menu-item--highlight-blue',
+        },
+        {
+            label: 'Administrator',
+            path: '/administration',
+            icon: &lt;AdminPanelSettingsIcon className={styles.icon} />,
+            roles: ['admin'],
+            highlightClass: 'menu-item--highlight-red',
+        },
+    ];
+
+    // Filtrowanie menu na podstawie ról
+    const filteredMenu = menuConfig.filter((menuItem) => menuItem.roles.includes(role));
+
+    return (
+        &lt;ThemeProvider theme={theme}>
+            &lt;div className={styles.panel}>
+                {/* User Info Section */}
+                &lt;div className={styles['user-info']}>
+                    &lt;div className={styles.userTop}>
+                        &lt;div className={styles.usericon}>
+                            &lt;AccountCircle className={styles.accountcircle} />
+                        &lt;/div>
+                        &lt;div className={styles.username}>
+                            &lt;Typography className={styles.name}>
+                                {user.name} {user.surname}
+                            &lt;/Typography>
+                        &lt;/div>
+                    &lt;/div>
+                    &lt;div className={styles.userBottom}>
+                        &lt;Typography className={styles.role}>
+                            rola: &lt;span>{user.role}&lt;/span>
+                        &lt;/Typography>
+                        &lt;Typography className={styles.team}>
+                            zespół: &lt;span>{user.team ? user.team.name : 'Brak zespołu '}&lt;/span>
+                        &lt;/Typography>
+                    &lt;/div>
+                &lt;/div>
+
+                {/* Dynamiczne menu */}
+                &lt;ul className={styles.menu}>
+                    {filteredMenu.map((item, index) => (
+                        &lt;li
+                            key={index}
+                            className={`${styles['menu-item']} ${
+                                item.highlightClass ? styles[item.highlightClass] : ''
+                            }`}
+                            onClick={() => handleNavigation(item.path)}
+                        >
+                            {item.icon}
+                            &lt;span>{item.label}&lt;/span>
+                        &lt;/li>
+                    ))}
+                &lt;/ul>
+
+                {/* "Ustawienia konta" - dostępne dla wszystkich */}
+                &lt;div className={styles.footer}>
+                    &lt;li className={styles['menu-item']} onClick={() => handleNavigation('/account-settings')}>
+                        &lt;SettingsIcon className={styles.icon} />
+                        &lt;span>Ustawienia konta&lt;/span>
+                    &lt;/li>
+                    &lt;hr style={{ margin: '30px auto ', width: '80%', border: '1px solid #4B5A60' }} />
+                    &lt;li className={`${styles['menu-item']} ${styles['menu-item--highlight-red']}`} onClick={handleLogout}>
+                        &lt;ExitToAppIcon className={styles.icon} />
+                        &lt;span>Wyloguj&lt;/span>
+                    &lt;/li>
+                &lt;/div>
+            &lt;/div>
+        &lt;/ThemeProvider>
+    );
+};
+
+export default NavigationPanel;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SchedulerContext.html">SchedulerContext</a></li><li><a href="module-axiosInstance.html">axiosInstance</a></li></ul><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#RegisterValidation">RegisterValidation</a></li><li><a href="global.html#canEdit">canEdit</a></li><li><a href="global.html#checkTokenExpiration">checkTokenExpiration</a></li><li><a href="global.html#fetchCompanyData">fetchCompanyData</a></li><li><a href="global.html#fetchEmployees">fetchEmployees</a></li><li><a href="global.html#fetchReportData">fetchReportData</a></li><li><a href="global.html#fetchSchedulers">fetchSchedulers</a></li><li><a href="global.html#fetchStatistics">fetchStatistics</a></li><li><a href="global.html#fetchSummaryData">fetchSummaryData</a></li><li><a href="global.html#fetchTeamDates">fetchTeamDates</a></li><li><a href="global.html#fetchTeams">fetchTeams</a></li><li><a href="global.html#fetchUsers">fetchUsers</a></li><li><a href="global.html#generateCalendar">generateCalendar</a></li><li><a href="global.html#getInitials">getInitials</a></li><li><a href="global.html#getRole">getRole</a></li><li><a href="global.html#handleActionChange">handleActionChange</a></li><li><a href="global.html#handleApply">handleApply</a></li><li><a href="global.html#handleAutoFill">handleAutoFill</a></li><li><a href="global.html#handleCellClick">handleCellClick</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleConfirm">handleConfirm</a></li><li><a href="global.html#handleCreateScheduler">handleCreateScheduler</a></li><li><a href="global.html#handleDayChange">handleDayChange</a></li><li><a href="global.html#handleDaySelection">handleDaySelection</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#handleDownload">handleDownload</a></li><li><a href="global.html#handleDownloadSummary">handleDownloadSummary</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleEditSubmit">handleEditSubmit</a></li><li><a href="global.html#handleEmployeeSelect">handleEmployeeSelect</a></li><li><a href="global.html#handleInputChange">handleInputChange</a></li><li><a href="global.html#handleLogout">handleLogout</a></li><li><a href="global.html#handleModalClose">handleModalClose</a></li><li><a href="global.html#handleModalSave">handleModalSave</a></li><li><a href="global.html#handleNavigation">handleNavigation</a></li><li><a href="global.html#handleNext">handleNext</a></li><li><a href="global.html#handlePasswordSubmit">handlePasswordSubmit</a></li><li><a href="global.html#handlePrev">handlePrev</a></li><li><a href="global.html#handleSave">handleSave</a></li><li><a href="global.html#handleScheduleChange">handleScheduleChange</a></li><li><a href="global.html#handleSelect">handleSelect</a></li><li><a href="global.html#handleSelectChange">handleSelectChange</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#handleTeamSelect">handleTeamSelect</a></li><li><a href="global.html#handleUpdate">handleUpdate</a></li><li><a href="global.html#handleUserChange">handleUserChange</a></li><li><a href="global.html#handleViewChange">handleViewChange</a></li><li><a href="global.html#handleWeekChange">handleWeekChange</a></li><li><a href="global.html#toggleTeam">toggleTeam</a></li><li><a href="global.html#validateLogin">validateLogin</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 19:53:44 GMT+0100 (czas środkowoeuropejski standardowy)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

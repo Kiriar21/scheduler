@@ -1,3 +1,8 @@
+/**
+ * Strona ustawiania dyspozycyjności użytkownika/zespołu.
+ * Pozwala użytkownikom ustawiać preferowane godziny i dostępność w aktualnym grafiku.
+ * @component
+ */
 import React, { useContext, useState, useEffect } from 'react';
 import { SchedulerContext } from '../../contexts/SchedulerContext/SchedulerContext';
 import axiosInstance from '../../api/axiosInstance';
@@ -114,7 +119,12 @@ const AvailabilityPage = () => {
     }
   }, [currentScheduler, selectedUserId]);
 
-  // Funkcje obsługi zmian
+  /**
+ * Obsługa zmiany wybranego grafiku (miesiąc/rok).
+ * @function handleSelectChange
+ * @param {object} e - Obiekt zdarzenia
+ */
+// Funkcje obsługi zmian
   const handleSelectChange = (e) => {
     const selectedValue = e.target.value;
     setSelectedSchedule(selectedValue);
@@ -122,7 +132,14 @@ const AvailabilityPage = () => {
     changeScheduler(month, year);
   };
 
-  const handleInputChange = (index, field, value) => {
+  /**
+ * Obsługuje zmiany dostępności i preferowanych godzin dla danego dnia.
+ * @function handleInputChange
+ * @param {number} index - Indeks dnia
+ * @param {string} field - Nazwa pola (prefferedHours lub availability)
+ * @param {string} value - Nowa wartość
+ */
+const handleInputChange = (index, field, value) => {
     const updatedUserDays = [...userDays];
     updatedUserDays[index][field] = value;
 
@@ -137,7 +154,13 @@ const AvailabilityPage = () => {
     setUserDays(updatedUserDays);
   };
 
-  const handleSave = async () => {
+  /**
+ * Zapisuje zmienioną dostępność użytkownika.
+ * @async
+ * @function handleSave
+ * @returns {Promise<void>}
+ */
+const handleSave = async () => {
     setIsSaving(true);
     try {
       const token = localStorage.getItem('token');
@@ -185,7 +208,13 @@ const AvailabilityPage = () => {
     }
   };
 
-  // Funkcja do potwierdzania dostępności przez menedżera
+  /**
+ * Potwierdza dostępność użytkownika przez menedżera.
+ * @async
+ * @function handleConfirm
+ * @returns {Promise<void>}
+ */
+// Funkcja do potwierdzania dostępności przez menedżera
   const handleConfirm = async () => {
     setIsSaving(true);
     try {
@@ -222,7 +251,14 @@ const AvailabilityPage = () => {
     }
   };
 
-  // Funkcja auto-uzupełniania
+  /**
+ * Autouzupełnia dostępność i preferowane godziny dla wybranych dni.
+ * @function handleAutoFill
+ * @param {string[]} selectedDays - Wybrane dni
+ * @param {string} prefferedHours - Preferowane godziny
+ * @param {string} availability - Dostępność
+ */
+// Funkcja auto-uzupełniania
   const handleAutoFill = (selectedDays, prefferedHours, availability) => {
     const updatedUserDays = userDays.map((day) => {
       const dayNameLower = day.nameDayOfWeek.toLowerCase();

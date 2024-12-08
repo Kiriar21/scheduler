@@ -1,3 +1,9 @@
+/**
+ * Komponent wyświetlający dane użytkownika.
+ * @component
+ * @param {object} user - Obiekt użytkownika
+ * @param {boolean} full - Czy wyświetlać pełne dane czy tylko podstawowe
+ */
 import React from 'react';
 import styles from './UserDisplay.module.scss';
 

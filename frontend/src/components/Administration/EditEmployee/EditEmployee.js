@@ -1,3 +1,8 @@
+/**
+ * Komponent formularza do edycji danych pracownika oraz usuwania pracownika.
+ * @component
+ */
+
 import React, { useContext, useState } from 'react';
 import styles from '../Form.module.scss';
 import { AdminContext } from '../../../pages/Administration/Administration';
@@ -15,7 +20,12 @@ const EditEmployee = () => {
     teamId: '',
   });
 
-  //Obsługa wybrania pracownika
+  /**
+ * Obsługa wyboru pracownika z listy.
+ * @function handleEmployeeSelect
+ * @param {object} e - Obiekt zdarzenia
+ */
+//Obsługa wybrania pracownika
   const handleEmployeeSelect = (e) => {
     const employeeId = e.target.value;
     setSelectedEmployee(employeeId);
@@ -44,13 +54,25 @@ const EditEmployee = () => {
     }
   };
 
-  //Obsługa zmian inputów
+  /**
+ * Obsługa zmian w polach formularza.
+ * @function handleChange
+ * @param {object} e - Obiekt zdarzenia
+ */
+//Obsługa zmian inputów
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  //Obsługa edycji pracownika
+  /**
+ * Obsługuje aktualizację danych wybranego pracownika.
+ * @async
+ * @function handleUpdate
+ * @param {object} e - Obiekt zdarzenia
+ * @returns {Promise<void>}
+ */
+//Obsługa edycji pracownika
   const handleUpdate = async (e) => {
     e.preventDefault();
     if (!selectedEmployee) return;
@@ -90,7 +112,13 @@ const EditEmployee = () => {
     }
   };
 
-  //Obsługa usunięcia pracownika
+  /**
+ * Obsługuje usunięcie wybranego pracownika.
+ * @async
+ * @function handleDelete
+ * @returns {Promise<void>}
+ */
+//Obsługa usunięcia pracownika
   const handleDelete = async () => {
     if (!selectedEmployee) return;
 

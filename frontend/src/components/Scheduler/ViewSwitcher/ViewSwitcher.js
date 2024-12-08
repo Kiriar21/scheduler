@@ -1,3 +1,9 @@
+/**
+ * Komponent przełącznika widoku (dzień, tydzień, miesiąc) dla grafiku.
+ * @component
+ * @param {string} selectedView - Aktualnie wybrany widok
+ * @param {function} onViewChange - Funkcja zmieniająca widok
+ */
 import React from 'react';
 import styles from './ViewSwitcher.module.scss';
 

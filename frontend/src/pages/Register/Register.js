@@ -1,3 +1,7 @@
+/**
+ * Strona rejestracji administratora i firmy.
+ * @component
+ */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -19,7 +23,12 @@ const RegisterPage = () => {
 
   const [errorMessage, setErrorMessage] = useState('');
 
-  //Zmiana danych w inpucie rejestracji
+  /**
+ * Obsługa zmian w polach formularza rejestracji.
+ * @function handleChange
+ * @param {object} e - Obiekt zdarzenia
+ */
+//Zmiana danych w inpucie rejestracji
   const handleChange = (e) => {
     const { name, value } = e.target;
     setRegisterData({
@@ -28,7 +37,14 @@ const RegisterPage = () => {
     });
   };
 
-  //Obsługa rejestracji
+ /**
+ * Obsługa przesłania formularza rejestracji.
+ * @async
+ * @function handleSubmit
+ * @param {object} e - Obiekt zdarzenia
+ * @returns {Promise<void>}
+ */
+ //Obsługa rejestracji
   const handleSubmit = async (e) => {
     e.preventDefault();
 

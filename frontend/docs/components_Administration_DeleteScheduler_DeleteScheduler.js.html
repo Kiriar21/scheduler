@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/Administration/DeleteScheduler/DeleteScheduler.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/Administration/DeleteScheduler/DeleteScheduler.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Komponent formularza do usuwania istniejącego grafiku.
+ * @component
+ */
+import React, { useContext, useState } from 'react';
+import styles from '../Form.module.scss';
+import { AdminContext } from '../../../pages/Administration/Administration';
+import axiosInstance from '../../../api/axiosInstance';
+
+//Usuwanie grafiku - komponent
+const DeleteScheduler = () => {
+  const { teams } = useContext(AdminContext); // Pobieramy zespoły z kontekstu
+  const [selectedTeam, setSelectedTeam] = useState('');
+  const [teamDates, setTeamDates] = useState([]); // Daty dla wybranego zespołu
+  const [selectedDate, setSelectedDate] = useState({ year: '', month: '' });
+  const [error, setError] = useState(''); // Obsługa błędów
+
+  /**
+ * Pobiera dostępne daty grafików dla wybranego zespołu.
+ * @async
+ * @function fetchTeamDates
+ * @param {string} teamId - Identyfikator zespołu
+ * @returns {Promise&lt;void>}
+ */
+// Pobierz daty grafików dla wybranego zespołu
+  const fetchTeamDates = async (teamId) => {
+    try {
+      setError('');
+      setTeamDates([]); // Resetuj daty przy każdej zmianie zespołu
+      const token = localStorage.getItem('token');
+      const response = await axiosInstance.get(`/schedulers/${teamId}/dates`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setTeamDates(response.data.dates);
+    } catch (error) {
+      console.error('Error fetching team dates:', error);
+      setError('Nie znaleziono grafików dla tego zespołu.');
+    }
+  };
+
+  /**
+ * Obsługuje usunięcie wybranego grafiku na podstawie zespołu, roku i miesiąca.
+ * @async
+ * @function handleDelete
+ * @param {object} e - Obiekt zdarzenia
+ * @returns {Promise&lt;void>}
+ */
+// Obsługa usuwania grafiku
+  const handleDelete = async (e) => {
+    e.preventDefault();
+    const { year, month } = selectedDate;
+
+    if (!selectedTeam || !year || !month) {
+      alert('Proszę wybrać zespół, rok i miesiąc.');
+      return;
+    }
+
+    try {
+      setError('');
+      const token = localStorage.getItem('token');
+      await axiosInstance.delete('/scheduler/delete', {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { teamId: selectedTeam, year, month },
+      });
+
+      alert('Scheduler został pomyślnie usunięty.');
+      fetchTeamDates(selectedTeam); // Odśwież listę dat po usunięciu
+      setSelectedDate({ year: '', month: '' });
+    } catch (error) {
+      console.error('Error deleting scheduler:', error);
+      setError('Wystąpił błąd podczas usuwania grafiku.');
+    }
+  };
+
+  return (
+    &lt;div className={styles.container}>
+      &lt;form onSubmit={handleDelete}>
+        &lt;h3>Usuń grafik&lt;/h3>
+
+
+
+        {/* Wybór zespołu */}
+        &lt;div className={styles.input}>
+          &lt;label>Zespół:&lt;/label>
+          &lt;select
+            value={selectedTeam}
+            onChange={(e) => {
+              const teamId = e.target.value;
+              setSelectedTeam(teamId);
+              setSelectedDate({ year: '', month: '' }); // Resetuj daty
+              if (teamId) {
+                fetchTeamDates(teamId); // Pobierz daty dla zespołu
+              } else {
+                setTeamDates([]); // Resetuj daty, jeśli brak wyboru
+              }
+            }}
+            required
+          >
+            &lt;option value="">Wybierz zespół&lt;/option>
+            {teams.length === 0 ? (
+              &lt;option value="" disabled>
+                Brak zespołów
+              &lt;/option>
+            ) : (
+              teams.map((team) => (
+                &lt;option key={team._id} value={team._id}>
+                  {team.name}
+                &lt;/option>
+              ))
+            )}
+          &lt;/select>
+        &lt;/div>
+
+        {/* Wybór roku */}
+        {teamDates.length > 0 &amp;&amp; (
+          &lt;div className={styles.input}>
+            &lt;label>Rok:&lt;/label>
+            &lt;select
+              value={selectedDate.year}
+              onChange={(e) =>
+                setSelectedDate((prev) => ({ ...prev, year: e.target.value }))
+              }
+              required
+            >
+              &lt;option value="">Wybierz rok&lt;/option>
+              {[...new Set(teamDates.map((date) => date.year))].map((year) => (
+                &lt;option key={year} value={year}>
+                  {year}
+                &lt;/option>
+              ))}
+            &lt;/select>
+          &lt;/div>
+        )}
+
+        {/* Wybór miesiąca */}
+        {selectedDate.year &amp;&amp; (
+          &lt;div className={styles.input}>
+            &lt;label>Miesiąc:&lt;/label>
+            &lt;select
+              value={selectedDate.month}
+              onChange={(e) =>
+                setSelectedDate((prev) => ({ ...prev, month: e.target.value }))
+              }
+              required
+            >
+              &lt;option value="">Wybierz miesiąc&lt;/option>
+              {teamDates
+                .filter((date) => date.year === parseInt(selectedDate.year, 10))
+                .map((date) => (
+                  &lt;option key={date.month} value={date.month}>
+                    {date.month}
+                  &lt;/option>
+                ))}
+            &lt;/select>
+          &lt;/div>
+        )}
+        {/* Obsługa błędów */}
+        {error &amp;&amp; &lt;p className={styles.error}>{error}&lt;/p>}
+        &lt;button type="submit" className={styles.deleteButton} disabled={!teamDates.length}>
+          Usuń
+        &lt;/button>
+      &lt;/form>
+    &lt;/div>
+  );
+};
+
+export default DeleteScheduler;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SchedulerContext.html">SchedulerContext</a></li><li><a href="module-axiosInstance.html">axiosInstance</a></li></ul><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#RegisterValidation">RegisterValidation</a></li><li><a href="global.html#canEdit">canEdit</a></li><li><a href="global.html#checkTokenExpiration">checkTokenExpiration</a></li><li><a href="global.html#fetchCompanyData">fetchCompanyData</a></li><li><a href="global.html#fetchEmployees">fetchEmployees</a></li><li><a href="global.html#fetchReportData">fetchReportData</a></li><li><a href="global.html#fetchSchedulers">fetchSchedulers</a></li><li><a href="global.html#fetchStatistics">fetchStatistics</a></li><li><a href="global.html#fetchSummaryData">fetchSummaryData</a></li><li><a href="global.html#fetchTeamDates">fetchTeamDates</a></li><li><a href="global.html#fetchTeams">fetchTeams</a></li><li><a href="global.html#fetchUsers">fetchUsers</a></li><li><a href="global.html#generateCalendar">generateCalendar</a></li><li><a href="global.html#getInitials">getInitials</a></li><li><a href="global.html#getRole">getRole</a></li><li><a href="global.html#handleActionChange">handleActionChange</a></li><li><a href="global.html#handleApply">handleApply</a></li><li><a href="global.html#handleAutoFill">handleAutoFill</a></li><li><a href="global.html#handleCellClick">handleCellClick</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleConfirm">handleConfirm</a></li><li><a href="global.html#handleCreateScheduler">handleCreateScheduler</a></li><li><a href="global.html#handleDayChange">handleDayChange</a></li><li><a href="global.html#handleDaySelection">handleDaySelection</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#handleDownload">handleDownload</a></li><li><a href="global.html#handleDownloadSummary">handleDownloadSummary</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleEditSubmit">handleEditSubmit</a></li><li><a href="global.html#handleEmployeeSelect">handleEmployeeSelect</a></li><li><a href="global.html#handleInputChange">handleInputChange</a></li><li><a href="global.html#handleLogout">handleLogout</a></li><li><a href="global.html#handleModalClose">handleModalClose</a></li><li><a href="global.html#handleModalSave">handleModalSave</a></li><li><a href="global.html#handleNavigation">handleNavigation</a></li><li><a href="global.html#handleNext">handleNext</a></li><li><a href="global.html#handlePasswordSubmit">handlePasswordSubmit</a></li><li><a href="global.html#handlePrev">handlePrev</a></li><li><a href="global.html#handleSave">handleSave</a></li><li><a href="global.html#handleScheduleChange">handleScheduleChange</a></li><li><a href="global.html#handleSelect">handleSelect</a></li><li><a href="global.html#handleSelectChange">handleSelectChange</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#handleTeamSelect">handleTeamSelect</a></li><li><a href="global.html#handleUpdate">handleUpdate</a></li><li><a href="global.html#handleUserChange">handleUserChange</a></li><li><a href="global.html#handleViewChange">handleViewChange</a></li><li><a href="global.html#handleWeekChange">handleWeekChange</a></li><li><a href="global.html#toggleTeam">toggleTeam</a></li><li><a href="global.html#validateLogin">validateLogin</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 19:53:44 GMT+0100 (czas środkowoeuropejski standardowy)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,3 +1,11 @@
+/**
+ * Komponent pozwalający wybrać grafik (miesiąc i rok) z listy dostępnych.
+ * @component
+ * @param {object[]} availableSchedulers - Tablica dostępnych grafików
+ * @param {string} selectedMonth - Wybrany miesiąc
+ * @param {number} selectedYear - Wybrany rok
+ * @param {function} onChange - Funkcja wywoływana przy zmianie grafiku
+ */
 import React, { useState, useRef, useEffect } from 'react';
 import styles from './MonthYearPicker.module.scss'; 
 import CalendarMonth from '@mui/icons-material/CalendarMonth';
@@ -43,6 +51,10 @@ const MonthYearPicker = ({ availableSchedulers, selectedMonth, selectedYear, onC
     };
   }, [isDropdownOpen]);
 
+    /**
+   * Pobiera poprzedni miesiąc
+   * @function handlePrev
+   */
   const handlePrev = () => {
     if (currentIndex > 0) {
       const prevSchedule = sortedSchedulers[currentIndex - 1];
@@ -50,6 +62,10 @@ const MonthYearPicker = ({ availableSchedulers, selectedMonth, selectedYear, onC
     }
   };
 
+  /**
+   * Pobiera nastęony miesiąc
+   * @function handleNext
+   */
   const handleNext = () => {
     if (currentIndex < sortedSchedulers.length - 1) {
       const nextSchedule = sortedSchedulers[currentIndex + 1];
@@ -57,6 +73,10 @@ const MonthYearPicker = ({ availableSchedulers, selectedMonth, selectedYear, onC
     }
   };
 
+  /**
+   * Ustawia wybrany grafik
+   * @function handleSelect
+   */
   const handleSelect = (schedule) => {
     onChange(schedule.month, schedule.year);
     setIsDropdownOpen(false);

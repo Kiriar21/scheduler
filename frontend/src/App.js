@@ -15,6 +15,11 @@ import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 import { jwtDecode } from 'jwt-decode';
 import  SchedulerProvider  from './contexts/SchedulerContext/SchedulerContext';
 import { SchedulerContext } from './contexts/SchedulerContext/SchedulerContext';
+/**
+ * Główny komponent aplikacji.
+ * Definiuje trasy oraz sprawdza role użytkowników dla dostępu do konkretnych tras.
+ * @component
+ */
 
 function App() {
 
@@ -24,6 +29,11 @@ function App() {
     return <div className="loading-screen">Ładowanie danych...</div>;
   }
 
+  /**
+  * Pobiera rolę użytkownika z tokenu JWT.
+  * @function getRole
+  * @returns {string|null} Rola użytkownika lub null, jeśli brak tokenu
+  */
   const getRole = () => {
     const token = localStorage.getItem('token');
     if (!token) return null;

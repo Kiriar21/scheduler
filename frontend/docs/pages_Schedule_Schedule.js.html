@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/Schedule/Schedule.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/Schedule/Schedule.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Strona wyświetlania grafiku w różnych widokach (dzień, tydzień, miesiąc).
+ * @component
+ */
+import React, { useContext, useState, useEffect } from 'react';
+import { SchedulerContext } from '../../contexts/SchedulerContext/SchedulerContext';
+import ViewSwitcher from '../../components/Scheduler/ViewSwitcher/ViewSwitcher';
+import DayView from '../../components/Scheduler/DayView/DayView';
+import WeekView from '../../components/Scheduler/WeekView/WeekView';
+import MonthView from '../../components/Scheduler/MonthView/MonthView';
+import CalendarMonth from '@mui/icons-material/CalendarMonth';
+import styles from './Schedule.module.scss';
+import axiosInstance from '../../api/axiosInstance';
+
+const SchedulePage = () => {
+  const { currentScheduler, changeScheduler, availableSchedulers, loading, fetchAvailableSchedulers } = useContext(SchedulerContext);
+  const [selectedSchedule, setSelectedSchedule] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedView, setSelectedView] = useState('day'); 
+  const [userRole, setUserRole] = useState('');
+  const [userId, setUserId] = useState('');
+
+  const monthIndex = {
+    Styczeń: 0,
+    Luty: 1,
+    Marzec: 2,
+    Kwiecień: 3,
+    Maj: 4,
+    Czerwiec: 5,
+    Lipiec: 6,
+    Sierpień: 7,
+    Wrzesień: 8,
+    Październik: 9,
+    Listopad: 10,
+    Grudzień: 11,
+  };
+
+  //Pobieranie aktualnego miesiaca i roku
+  const getCurrentMonthYear = () => {
+    const now = new Date();
+    const currentMonth = Object.keys(monthIndex).find(
+      (key) => monthIndex[key] === now.getMonth()
+    );
+    const currentYear = now.getFullYear();
+    return { currentMonth, currentYear };
+  };
+
+  // Pobieranie danych użytkownika
+  const fetchUserData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axiosInstance.get('/user', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUserRole(response.data.user.role);
+      setUserId(response.data.user._id);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserData();
+    fetchAvailableSchedulers();
+  }, []);
+
+  // Inicjalizacja grafiku
+  useEffect(() => {
+    if (availableSchedulers.length > 0 &amp;&amp; !selectedSchedule) {
+      const { currentMonth, currentYear } = getCurrentMonthYear();
+      const currentSchedule = availableSchedulers.find(
+        (schedule) =>
+          schedule.month === currentMonth &amp;&amp; schedule.year === currentYear
+      );
+
+      if (currentSchedule) {
+        setSelectedSchedule(`${currentMonth} ${currentYear}`);
+        changeScheduler(currentMonth, currentYear);
+      } else {
+        const latestSchedule = availableSchedulers[0];
+        setSelectedSchedule(`${latestSchedule.month} ${latestSchedule.year}`);
+        changeScheduler(latestSchedule.month, latestSchedule.year);
+      }
+      setIsLoading(false);
+    } else if (availableSchedulers.length === 0) {
+      setIsLoading(false);
+    }
+  }, [availableSchedulers, selectedSchedule, changeScheduler]);
+
+ /**
+ * Obsługa zmiany wybranego grafiku.
+ * @function handleSelectChange
+ * @param {object} e - Obiekt zdarzenia
+ */
+ const handleSelectChange = (e) => {
+    const selectedValue = e.target.value;
+    setSelectedSchedule(selectedValue);
+    const [month, year] = selectedValue.split(' ');
+    changeScheduler(month, year);
+  };
+/**
+ * Obsługa zmiany widoku grafiku (dzień, tydzień, miesiąc).
+ * @function handleViewChange
+ * @param {string} view - Nowy widok
+ */
+
+  const handleViewChange = (view) => {
+    setSelectedView(view);
+  };
+
+  if (loading) {
+    return &lt;p>Ładowanie danych...&lt;/p>;
+  }
+
+  if (availableSchedulers.length === 0) {
+    return (
+      &lt;div className={styles.content}>
+        &lt;h2>Brak dostępnych grafików&lt;/h2>
+        &lt;p>Nie ma dostępnych grafików do wyświetlenia.&lt;/p>
+      &lt;/div>
+    );
+  }
+
+  const capitalizeFirstLetter = (string) => {
+    if (!string) return '';
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  };
+
+  return (
+    &lt;div className={styles.content}>
+    &lt;div className={styles.tools}>
+      &lt;h3>Grafik:&lt;/h3>
+      {/* Wybór grafiku */}
+      &lt;div className={styles.selector}>
+
+      &lt;CalendarMonth />
+        &lt;select value={selectedSchedule} onChange={handleSelectChange}>
+          {availableSchedulers.map((schedule, index) => (
+            &lt;option key={index} value={`${schedule.month} ${schedule.year}`}>
+              {capitalizeFirstLetter(schedule.month)} {schedule.year}
+            &lt;/option>
+          ))}
+        &lt;/select>
+      &lt;/div>
+
+      {/* Przełącznik widoku */}
+      &lt;ViewSwitcher selectedView={selectedView} onViewChange={handleViewChange} />
+      &lt;/div>
+      {/* Wyświetlanie grafiku zgodnie z wybranym widokiem */}
+      {currentScheduler ? (
+        &lt;div className={styles.scheduler}>
+          {selectedView === 'day' &amp;&amp; (
+            &lt;DayView
+              scheduler={currentScheduler}
+              userRole={userRole}
+              userId={userId}
+            />
+          )}
+          {selectedView === 'week' &amp;&amp; (
+            &lt;WeekView
+              scheduler={currentScheduler}
+              userRole={userRole}
+              userId={userId}
+            />
+          )}
+          {selectedView === 'month' &amp;&amp; (
+            &lt;MonthView
+              scheduler={currentScheduler}
+              userRole={userRole}
+              userId={userId}
+            />
+          )}
+        &lt;/div>
+      ) : (
+        &lt;p>Brak grafiku dla wybranego miesiąca i roku.&lt;/p>
+      )}
+    &lt;/div>
+  );
+};
+
+export default SchedulePage;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-SchedulerContext.html">SchedulerContext</a></li><li><a href="module-axiosInstance.html">axiosInstance</a></li></ul><h3>Global</h3><ul><li><a href="global.html#App">App</a></li><li><a href="global.html#RegisterValidation">RegisterValidation</a></li><li><a href="global.html#canEdit">canEdit</a></li><li><a href="global.html#checkTokenExpiration">checkTokenExpiration</a></li><li><a href="global.html#fetchCompanyData">fetchCompanyData</a></li><li><a href="global.html#fetchEmployees">fetchEmployees</a></li><li><a href="global.html#fetchReportData">fetchReportData</a></li><li><a href="global.html#fetchSchedulers">fetchSchedulers</a></li><li><a href="global.html#fetchStatistics">fetchStatistics</a></li><li><a href="global.html#fetchSummaryData">fetchSummaryData</a></li><li><a href="global.html#fetchTeamDates">fetchTeamDates</a></li><li><a href="global.html#fetchTeams">fetchTeams</a></li><li><a href="global.html#fetchUsers">fetchUsers</a></li><li><a href="global.html#generateCalendar">generateCalendar</a></li><li><a href="global.html#getInitials">getInitials</a></li><li><a href="global.html#getRole">getRole</a></li><li><a href="global.html#handleActionChange">handleActionChange</a></li><li><a href="global.html#handleApply">handleApply</a></li><li><a href="global.html#handleAutoFill">handleAutoFill</a></li><li><a href="global.html#handleCellClick">handleCellClick</a></li><li><a href="global.html#handleChange">handleChange</a></li><li><a href="global.html#handleConfirm">handleConfirm</a></li><li><a href="global.html#handleCreateScheduler">handleCreateScheduler</a></li><li><a href="global.html#handleDayChange">handleDayChange</a></li><li><a href="global.html#handleDaySelection">handleDaySelection</a></li><li><a href="global.html#handleDelete">handleDelete</a></li><li><a href="global.html#handleDownload">handleDownload</a></li><li><a href="global.html#handleDownloadSummary">handleDownloadSummary</a></li><li><a href="global.html#handleEdit">handleEdit</a></li><li><a href="global.html#handleEditSubmit">handleEditSubmit</a></li><li><a href="global.html#handleEmployeeSelect">handleEmployeeSelect</a></li><li><a href="global.html#handleInputChange">handleInputChange</a></li><li><a href="global.html#handleLogout">handleLogout</a></li><li><a href="global.html#handleModalClose">handleModalClose</a></li><li><a href="global.html#handleModalSave">handleModalSave</a></li><li><a href="global.html#handleNavigation">handleNavigation</a></li><li><a href="global.html#handleNext">handleNext</a></li><li><a href="global.html#handlePasswordSubmit">handlePasswordSubmit</a></li><li><a href="global.html#handlePrev">handlePrev</a></li><li><a href="global.html#handleSave">handleSave</a></li><li><a href="global.html#handleScheduleChange">handleScheduleChange</a></li><li><a href="global.html#handleSelect">handleSelect</a></li><li><a href="global.html#handleSelectChange">handleSelectChange</a></li><li><a href="global.html#handleSubmit">handleSubmit</a></li><li><a href="global.html#handleTeamSelect">handleTeamSelect</a></li><li><a href="global.html#handleUpdate">handleUpdate</a></li><li><a href="global.html#handleUserChange">handleUserChange</a></li><li><a href="global.html#handleViewChange">handleViewChange</a></li><li><a href="global.html#handleWeekChange">handleWeekChange</a></li><li><a href="global.html#toggleTeam">toggleTeam</a></li><li><a href="global.html#validateLogin">validateLogin</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Sun Dec 08 2024 19:53:44 GMT+0100 (czas środkowoeuropejski standardowy)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

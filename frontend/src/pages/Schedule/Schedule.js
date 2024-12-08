@@ -1,3 +1,7 @@
+/**
+ * Strona wyświetlania grafiku w różnych widokach (dzień, tydzień, miesiąc).
+ * @component
+ */
 import React, { useContext, useState, useEffect } from 'react';
 import { SchedulerContext } from '../../contexts/SchedulerContext/SchedulerContext';
 import ViewSwitcher from '../../components/Scheduler/ViewSwitcher/ViewSwitcher';
@@ -83,12 +87,22 @@ const SchedulePage = () => {
     }
   }, [availableSchedulers, selectedSchedule, changeScheduler]);
 
-  const handleSelectChange = (e) => {
+ /**
+ * Obsługa zmiany wybranego grafiku.
+ * @function handleSelectChange
+ * @param {object} e - Obiekt zdarzenia
+ */
+ const handleSelectChange = (e) => {
     const selectedValue = e.target.value;
     setSelectedSchedule(selectedValue);
     const [month, year] = selectedValue.split(' ');
     changeScheduler(month, year);
   };
+/**
+ * Obsługa zmiany widoku grafiku (dzień, tydzień, miesiąc).
+ * @function handleViewChange
+ * @param {string} view - Nowy widok
+ */
 
   const handleViewChange = (view) => {
     setSelectedView(view);
